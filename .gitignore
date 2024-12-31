@@ -1,0 +1,60 @@
+# Unreal Engine Generated Files
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+Plugins/*/Saved/
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+Plugins/**/Saved/
+
+# Build System Generated Files
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.uprojectdirs
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.xcworkspace
+*.opendb
+*.VC.opendb
+
+# Rider-Specific Files
+.idea/
+*.sln.iml
+
+# VS Code-Specific Files
+.vscode/
+
+# Visual Studio Generated Files
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.uprojectdirs
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Mac Specific
+.DS_Store
+
+# Other Temporary Files
+*.tmp
+*.log
+
+# Optional: Backup Files (if you don't want to track them)
+*.backup
+
+# Optional: Documentation (if you have a separate docs repo)
+Docs/
+
+#Web DDC
+/Engine/Content/Slate/Web/
