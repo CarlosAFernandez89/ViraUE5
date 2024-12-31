@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
 #include "Vira/System/GameplayTagStack.h"
+#include "Engine/Texture.h"
+
 #include "VyraGameplayAbility_CharmBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -19,6 +21,23 @@ struct FCharmAbilityData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 GameplayTagStackTagMaxCount = -1;
 
+};
+
+USTRUCT(BlueprintType)
+struct FCharmAbilityInformation
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Cost;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UTexture2D* Icon;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagStacksChanged);
@@ -79,14 +98,15 @@ protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-
+	
+	UFUNCTION(BlueprintNativeEvent, Category="GameplayAbility|Charms")
+	void OnTagStacksChangedEvent();
+	
 private:
 
 	UPROPERTY()
 	FGameplayTagStackContainer TagStackContainer;
 
-	UFUNCTION()
-	void OnTagStacksChangedEvent();
 
 protected:
 
@@ -94,7 +114,10 @@ protected:
 	FOnTagStacksChanged OnTagStacksChanged;
 
 public:
-	UPROPERTY(editAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FCharmAbilityData> CharmAbilityData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FCharmAbilityInformation CharmAbilityInformation;
 	
 };

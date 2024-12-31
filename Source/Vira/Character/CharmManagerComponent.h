@@ -65,4 +65,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="CharmManager")
 	FOnCharmsUpdated OnCharmsUpdated;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="CharmManager")
+	int32 CharmSlotsAvailable;
+
 };

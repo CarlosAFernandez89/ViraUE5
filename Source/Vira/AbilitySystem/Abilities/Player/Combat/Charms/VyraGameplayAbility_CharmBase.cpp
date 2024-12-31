@@ -199,7 +199,7 @@ void UVyraGameplayAbility_CharmBase::EndAbility(const FGameplayAbilitySpecHandle
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UVyraGameplayAbility_CharmBase::OnTagStacksChangedEvent()
+void UVyraGameplayAbility_CharmBase::OnTagStacksChangedEvent_Implementation()
 {
 	GetVyraPlayerStateCharacter()->SaveCharms();
 }

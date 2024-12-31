@@ -11,7 +11,7 @@
 
 
 // Sets default values for this component's properties
-UCharmManagerComponent::UCharmManagerComponent()
+UCharmManagerComponent::UCharmManagerComponent(): CharmSlotsAvailable(6)
 {
 }
 
