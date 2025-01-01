@@ -3,11 +3,10 @@
 
 #include "VyraBlueprintFunctionLibrary.h"
 
-#include "AssetRegistry/AssetRegistryModule.h"
-#include "AssetRegistry/IAssetRegistry.h"
 #include "Engine/AssetManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 
 AVyraPlayerStateCharacter* UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter(UObject* WorldContextObject)
 {
@@ -111,4 +110,26 @@ TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> UVyraBlueprintFunctionLibrar
 	}
 
 	return FoundAbilities;
+}
+
+TArray<FString> UVyraBlueprintFunctionLibrary::GetActiveGameInstanceSubsystemNames(const UObject* WorldContextObject)
+{
+	TArray<FString> SubsystemNames;
+
+	if (!WorldContextObject) return SubsystemNames;
+
+	if (const UGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance())
+	{
+		// Use ForEachSubsystem to iterate through all GameInstanceSubsystems
+		GameInstance->ForEachSubsystem<UGameInstanceSubsystem>([&SubsystemNames](const UGameInstanceSubsystem* Subsystem)
+		{
+			if (Subsystem)
+			{
+				SubsystemNames.Add(Subsystem->GetName());
+			}
+			return true; // Continue iteration
+		});
+	}
+
+	return SubsystemNames;
 }

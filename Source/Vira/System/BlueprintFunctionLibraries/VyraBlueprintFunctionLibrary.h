@@ -37,4 +37,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Vyra|Assets", meta = (WorldContext = "WorldContextObject"))
 	static TArray<TSubclassOf<class UVyraGameplayAbility_CharmBase>> GetAllCharmAbilities(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Subsystem")
+	static TArray<FString> GetActiveGameInstanceSubsystemNames(const UObject* WorldContextObject);
 };

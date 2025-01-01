@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CommonActivatableWidget.h"
 #include "CommonUserWidget.h"
 #include "Widget_CharmPanel.generated.h"
 
@@ -10,7 +11,7 @@
  * 
  */
 UCLASS()
-class VIRA_API UWidget_CharmPanel : public UCommonUserWidget
+class VIRA_API UWidget_CharmPanel : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 };

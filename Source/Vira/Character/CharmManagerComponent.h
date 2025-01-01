@@ -26,7 +26,7 @@ public:
 	FORCEINLINE TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> GetEquippedCharms() const {return EquippedCharmAbilities;}
 	
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> GetOwnedCharms() const {return OwnedCharmAbilities;}
+	TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> GetOwnedCharms() const;
 
 	UFUNCTION(BlueprintCallable)
 	class UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent() const;

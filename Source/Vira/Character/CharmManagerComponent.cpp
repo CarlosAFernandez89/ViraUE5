@@ -15,6 +15,11 @@ UCharmManagerComponent::UCharmManagerComponent(): CharmSlotsAvailable(6)
 {
 }
 
+TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> UCharmManagerComponent::GetOwnedCharms() const
+{
+	return OwnedCharmAbilities;
+}
+
 UVyraAbilitySystemComponent* UCharmManagerComponent::GetVyraAbilitySystemComponent() const
 {
 	if(AActor* Owner = GetOwner())
