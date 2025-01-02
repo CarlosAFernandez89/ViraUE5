@@ -3,12 +3,9 @@
 
 #include "VyraGameplayAbility_CharmBase.h"
 
-#include "Kismet/GameplayStatics.h"
-#include "Net/UnrealNetwork.h"
-#include "Vira/Character/CharmManagerComponent.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 
-UVyraGameplayAbility_CharmBase::UVyraGameplayAbility_CharmBase()
+UVyraGameplayAbility_CharmBase::UVyraGameplayAbility_CharmBase(): CharmAbilityInformation()
 {
 }
 
@@ -183,6 +180,8 @@ void UVyraGameplayAbility_CharmBase::OnGiveAbility(const FGameplayAbilityActorIn
 			SetStatTagStack(TagToAdd, AbilityData.GameplayTagStackTagCount);
 		}
 	}
+
+	PostInitStatTagStack();
 }
 
 void UVyraGameplayAbility_CharmBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

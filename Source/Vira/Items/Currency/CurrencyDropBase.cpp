@@ -33,38 +33,41 @@ void ACurrencyDropBase::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	// Check if the overlapping actor has an ASC
-	TargetASC = Cast<UAbilitySystemComponent>(Cast<AVyraPlayerStateCharacter>(OtherActor)->GetAbilitySystemComponent());
-	if (!TargetASC || !GameplayEffectClass)
+	if (AVyraPlayerStateCharacter* Character = Cast<AVyraPlayerStateCharacter>(OtherActor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid TargetASC or GameplayEffectClass in ACurrencyDropBase"));
-		return;
-	}
-
-	// Create the GameplayEffectSpec
-	FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
-	FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContext);
-
-	if (EffectSpecHandle.IsValid())
-	{
-		FGameplayEffectSpec* Spec = EffectSpecHandle.Data.Get();
-		if (Spec)
+		// Check if the overlapping actor has an ASC
+		TargetASC = Character->GetAbilitySystemComponent();
+		if (!TargetASC || !GameplayEffectClass)
 		{
-			// Set the magnitude for the SetByCaller tag
-			Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.Magnitude"), Quantity);
+			UE_LOG(LogTemp, Warning, TEXT("Invalid TargetASC or GameplayEffectClass in ACurrencyDropBase"));
+			return;
+		}
 
-			// Apply the GameplayEffectSpec to the target
-			TargetASC->ApplyGameplayEffectSpecToSelf(*Spec);
-			OnCurrencyAcquired();
+		// Create the GameplayEffectSpec
+		FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
+		FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, EffectContext);
+
+		if (EffectSpecHandle.IsValid())
+		{
+			FGameplayEffectSpec* Spec = EffectSpecHandle.Data.Get();
+			if (Spec)
+			{
+				// Set the magnitude for the SetByCaller tag
+				Spec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("SetByCaller.Magnitude"), Quantity);
+
+				// Apply the GameplayEffectSpec to the target
+				TargetASC->ApplyGameplayEffectSpecToSelf(*Spec);
+				OnCurrencyAcquired();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve the GameplayEffectSpec in ACurrencyDropBase"));
+			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve the GameplayEffectSpec in ACurrencyDropBase"));
+			UE_LOG(LogTemp, Warning, TEXT("Invalid EffectSpecHandle in ACurrencyDropBase"));
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid EffectSpecHandle in ACurrencyDropBase"));
 	}
 }
 

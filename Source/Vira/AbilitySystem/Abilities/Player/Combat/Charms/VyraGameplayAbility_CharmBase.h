@@ -101,6 +101,9 @@ protected:
 	
 	UFUNCTION(BlueprintNativeEvent, Category="GameplayAbility|Charms")
 	void OnTagStacksChangedEvent();
+
+	UFUNCTION(BlueprintImplementableEvent, Category="GameplayAbility|Charms")
+	void PostInitStatTagStack();
 	
 private:
 
