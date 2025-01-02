@@ -25,6 +25,8 @@ public:
 	// Sets default values for this character's properties
 	AVyraEnemyCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	virtual ESpudRespawnMode GetSpudRespawnMode_Implementation() const override { return ESpudRespawnMode::AlwaysRespawn; };
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

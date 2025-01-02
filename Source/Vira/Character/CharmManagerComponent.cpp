@@ -10,6 +10,16 @@
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 
 
+void UCharmManagerComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	for (const auto Ability : EquippedCharmAbilities)
+	{
+		EquipCharmAbility(Ability);
+	}
+}
+
 // Sets default values for this component's properties
 UCharmManagerComponent::UCharmManagerComponent(): CharmSlotsAvailable(6)
 {
@@ -49,7 +59,7 @@ bool UCharmManagerComponent::GiveCharmAbility(const TSubclassOf<UVyraGameplayAbi
 	{
 		OwnedCharmAbilities.Add(Ability_CharmBase);
 		OnCharmsUpdated.Broadcast(Ability_CharmBase);
-		GetVyraPlayerStateCharacter()->SaveCharms();
+		//GetVyraPlayerStateCharacter()->SaveCharms();
 		return true;
 	}
 	return false;
@@ -61,7 +71,7 @@ bool UCharmManagerComponent::RemoveCharmAbility(const TSubclassOf<UVyraGameplayA
 	{
 		OwnedCharmAbilities.Remove(Ability_CharmBase);
 		OnCharmsUpdated.Broadcast(Ability_CharmBase);
-		GetVyraPlayerStateCharacter()->SaveCharms();
+		//GetVyraPlayerStateCharacter()->SaveCharms();
 		return true;
 	}
 

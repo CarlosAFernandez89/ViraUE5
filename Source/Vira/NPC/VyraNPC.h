@@ -25,5 +25,5 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	FInteractionOption Option;
-
+	
 };

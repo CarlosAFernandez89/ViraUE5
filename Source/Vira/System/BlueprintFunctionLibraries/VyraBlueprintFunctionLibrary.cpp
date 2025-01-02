@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Vira/System/VyraGameInstance.h"
 
 AVyraPlayerStateCharacter* UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter(UObject* WorldContextObject)
 {
@@ -15,6 +16,18 @@ AVyraPlayerStateCharacter* UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter
 		if (AVyraPlayerStateCharacter* VyraCharacter = Cast<AVyraPlayerStateCharacter>(PC->GetPawn()))
 		{
 			return VyraCharacter;
+		}
+	}
+	return nullptr;
+}
+
+UVyraAbilitySystemComponent* UVyraBlueprintFunctionLibrary::GetVyraAbilitySystemComponent(UObject* WorldContextObject)
+{
+	if (AVyraPlayerStateCharacter* PlayerStateCharacter = GetVyraPlayerCharacter(WorldContextObject))
+	{
+		if (UVyraAbilitySystemComponent* ASC = Cast<UVyraAbilitySystemComponent>(PlayerStateCharacter->GetAbilitySystemComponent()))
+		{
+			return ASC;
 		}
 	}
 	return nullptr;
@@ -132,4 +145,56 @@ TArray<FString> UVyraBlueprintFunctionLibrary::GetActiveGameInstanceSubsystemNam
 	}
 
 	return SubsystemNames;
+}
+
+void UVyraBlueprintFunctionLibrary::SaveCurrentLevel(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return;
+
+	if (UGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance())
+	{
+		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
+		{
+			VyraGameInstance->SaveCurrentLevel(VyraGameInstance->CurrentSlotName);
+		}
+	}
+}
+
+void UVyraBlueprintFunctionLibrary::LoadCurrentLevel(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return;
+
+	if (UGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance())
+	{
+		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
+		{
+			VyraGameInstance->LoadCurrentLevel(VyraGameInstance->CurrentSlotName);
+		}
+	}
+}
+
+void UVyraBlueprintFunctionLibrary::SavePlayerData(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return;
+
+	if (UGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance())
+	{
+		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
+		{
+			VyraGameInstance->SaveCurrentPlayerData();
+		}
+	}
+}
+
+void UVyraBlueprintFunctionLibrary::LoadPlayerData(const UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return;
+
+	if (UGameInstance* GameInstance = WorldContextObject->GetWorld()->GetGameInstance())
+	{
+		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
+		{
+			VyraGameInstance->LoadCurrentPlayerData();
+		}
+	}
 }

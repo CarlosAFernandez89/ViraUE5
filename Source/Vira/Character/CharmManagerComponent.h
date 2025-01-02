@@ -18,6 +18,16 @@ class VIRA_API UCharmManagerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+
+public:
+	/// GUID required to identify runtime-created objects
+	/// This will be generated on save if necessary, or you can initialise it yourself
+	UPROPERTY(BlueprintReadOnly)
+	FGuid SpudGuid;
+	
+private:
+	virtual void InitializeComponent() override;
+	
 public:
 	// Sets default values for this component's properties
 	UCharmManagerComponent();

@@ -34,10 +34,10 @@ struct FCharmAbilityInformation
 	FText Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Cost;
+	int32 Cost = 0;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	UTexture2D* Icon;
+	UTexture2D* Icon = nullptr;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTagStacksChanged);

@@ -5,15 +5,22 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "GameFramework/Actor.h"
+#include "Vira/System/SaveGame/VyraSPUDActorRuntime.h"
 #include "CurrencyDropBase.generated.h"
 
 UCLASS()
-class VIRA_API ACurrencyDropBase : public AActor
+class VIRA_API ACurrencyDropBase : public AVyraSPUDActorRuntime
 {
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* SphereComponent;
+
+	/// Because this is a runtime-spawned object, every projectile needs a unique identifier
+	/// so that they can be re-spawned on load, Naming aproperty "SpudGuid" does this. We don't need to give
+	/// it a value, SPUD does that when saving if it's blank
+	UPROPERTY(SaveGame)
+	FGuid SpudGuid;
 
 public:
 	// Sets default values for this actor's properties

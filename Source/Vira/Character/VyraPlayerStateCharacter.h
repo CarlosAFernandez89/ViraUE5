@@ -68,12 +68,6 @@ public:
 	
 	UFUNCTION()
 	void LoadSaveFiles();
-	
-	UFUNCTION(BlueprintCallable, Category = "Save Game")
-	void SaveCurrency();
-
-	UFUNCTION(BlueprintCallable, Category = "Save Game")
-	void LoadCurrency();
 
 	UFUNCTION(BlueprintCallable, Category = "Save Game")
 	void SaveCharms();

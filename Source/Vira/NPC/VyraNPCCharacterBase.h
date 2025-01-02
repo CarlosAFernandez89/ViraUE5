@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ISpudObject.h"
 #include "PaperZDAnimationComponent.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "VyraNPCCharacterBase.generated.h"
 
-UCLASS()
-class VIRA_API AVyraNPCCharacterBase : public AGSCModularCharacter
+UCLASS(Blueprintable)
+class VIRA_API AVyraNPCCharacterBase : public AGSCModularCharacter, public ISpudObject
 {
 	GENERATED_BODY()
 
@@ -43,5 +44,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
+public:
+	/// GUID required to identify runtime-created objects
+	/// This will be generated on save if necessary, or you can initialise it yourself
+	UPROPERTY(BlueprintReadOnly)
+	FGuid SpudGuid;
 };

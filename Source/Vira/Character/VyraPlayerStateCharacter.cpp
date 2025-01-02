@@ -103,30 +103,7 @@ void AVyraPlayerStateCharacter::PostInitializeComponents()
 
 void AVyraPlayerStateCharacter::LoadSaveFiles()
 {
-	LoadCurrency();
 	LoadCharms();
-}
-
-void AVyraPlayerStateCharacter::SaveCurrency()
-{
-	if(UVyraSaveGame_Currency* SaveGameInstance = Cast<UVyraSaveGame_Currency>(UGameplayStatics::CreateSaveGameObject(UVyraSaveGame_Currency::StaticClass())))
-	{
-		SaveGameInstance->SaveCurrency(FSaveGame_Currency(AbilitySystemComponent->GetNumericAttribute(UCurrencyAttributeSet::GetSoulsAttribute())));
-		FAsyncSaveGameToSlotDelegate SaveGameToSlotDelegate;
-		UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotName, SaveGameInstance->UserIndex,SaveGameToSlotDelegate);
-	}
-}
-
-void AVyraPlayerStateCharacter::LoadCurrency()
-{
-	if(UGameplayStatics::DoesSaveGameExist("VyraSaveGame_Currency", 0))
-	{
-		// Set up the delegate.
-		FAsyncLoadGameFromSlotDelegate LoadedDelegate;
-		// USomeUObjectClass::LoadGameDelegateFunction is a void function that takes the following parameters: const FString& SlotName, const int32 UserIndex, USaveGame* LoadedGameData
-		LoadedDelegate.BindUObject(this, &AVyraPlayerStateCharacter::AsyncLoadComplete_Currency);
-		UGameplayStatics::AsyncLoadGameFromSlot("VyraSaveGame_Currency", 0, LoadedDelegate);
-	}
 }
 
 void AVyraPlayerStateCharacter::SaveCharms()
