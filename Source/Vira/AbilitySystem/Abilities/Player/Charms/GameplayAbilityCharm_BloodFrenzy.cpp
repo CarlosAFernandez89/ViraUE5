@@ -8,7 +8,7 @@ UGameplayAbilityCharm_BloodFrenzy::UGameplayAbilityCharm_BloodFrenzy()
 }
 
 void UGameplayAbilityCharm_BloodFrenzy::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                      const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }

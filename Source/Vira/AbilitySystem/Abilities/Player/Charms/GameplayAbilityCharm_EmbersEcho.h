@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
+#include "VyraGameplayAbility_CharmBase.h"
 #include "GameplayAbilityCharm_EmbersEcho.generated.h"
 
 /**
@@ -17,7 +17,7 @@ class VIRA_API UGameplayAbilityCharm_EmbersEcho : public UVyraGameplayAbility_Ch
 	
 public:
 	UGameplayAbilityCharm_EmbersEcho();
-	
+
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

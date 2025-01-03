@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
+#include "Vira/AbilitySystem/Abilities/Player/Charms/VyraGameplayAbility_CharmBase.h"
 #include "VyraSaveGame_Charms.generated.h"
 
 USTRUCT(BlueprintType)

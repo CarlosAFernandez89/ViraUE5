@@ -8,7 +8,7 @@ UGameplayAbilityCharm_EmbersEcho::UGameplayAbilityCharm_EmbersEcho()
 }
 
 void UGameplayAbilityCharm_EmbersEcho::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                     const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }

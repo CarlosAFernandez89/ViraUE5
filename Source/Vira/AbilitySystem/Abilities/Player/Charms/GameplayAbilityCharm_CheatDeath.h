@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
+#include "VyraGameplayAbility_CharmBase.h"
 #include "GameplayAbilityCharm_CheatDeath.generated.h"
 
 /**

@@ -8,7 +8,7 @@ UGameplayAbilityCharm_EmberHeart::UGameplayAbilityCharm_EmberHeart()
 }
 
 void UGameplayAbilityCharm_EmberHeart::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                     const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }

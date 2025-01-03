@@ -8,7 +8,7 @@ UGameplayAbilityCharm_Conflagration::UGameplayAbilityCharm_Conflagration()
 }
 
 void UGameplayAbilityCharm_Conflagration::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                        const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }

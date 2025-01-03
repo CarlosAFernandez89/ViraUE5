@@ -6,7 +6,6 @@
 #include "AbilitySystemComponent.h"
 #include "VyraPlayerStateCharacter.h"
 #include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
-#include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 
 

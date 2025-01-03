@@ -8,7 +8,7 @@ UGameplayAbilityCharm_PenetratingFire::UGameplayAbilityCharm_PenetratingFire()
 }
 
 void UGameplayAbilityCharm_PenetratingFire::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                          const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }

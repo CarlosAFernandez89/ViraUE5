@@ -12,7 +12,7 @@ UGameplayAbilityCharm_CheatDeath::UGameplayAbilityCharm_CheatDeath()
 }
 
 void UGameplayAbilityCharm_CheatDeath::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                     const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 

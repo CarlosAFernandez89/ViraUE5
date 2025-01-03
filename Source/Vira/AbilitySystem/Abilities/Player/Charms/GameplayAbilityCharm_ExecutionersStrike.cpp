@@ -8,7 +8,7 @@ UGameplayAbilityCharm_ExecutionersStrike::UGameplayAbilityCharm_ExecutionersStri
 }
 
 void UGameplayAbilityCharm_ExecutionersStrike::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilitySpec& Spec)
+                                                             const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }
