@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "QuestSaveState.h"
 #include "VyraSaveGame_Charms.h"
 #include "GameFramework/SaveGame.h"
 #include "VyraSaveGame_PlayerData.generated.h"
@@ -29,16 +30,6 @@ struct FSaveGamePlayerData_Currency
 	}
 };
 
-USTRUCT(BlueprintType)
-struct FSaveGamePlayerData_All
-{
-	GENERATED_BODY()
-	
-	UPROPERTY()
-	FSaveGamePlayerData_Currency Currency;
-	
-};
-
 
 /**
  * 
@@ -60,7 +51,10 @@ public:
 
 	UFUNCTION(Category = "Vyra|SaveGame")
 	FSaveGamePlayerData_Currency GetCurrentPlayerCurrency(UObject* WorldContextObject);
-
+	
+	UFUNCTION(Category = "Vyra|SaveGame")
+	FQuestSaveStateData GetCurrentQuestState(UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	void UpdateCurrency(const FSaveGamePlayerData_Currency& Data);
 
@@ -81,6 +75,9 @@ private:
 	UPROPERTY()
 	FSaveGame_Charms AllCharms;
 
+	//Questdata
+	UPROPERTY()
+	FQuestSaveStateData CurrentQuestSaveState;
 
 	// Currency Data
 	UPROPERTY()

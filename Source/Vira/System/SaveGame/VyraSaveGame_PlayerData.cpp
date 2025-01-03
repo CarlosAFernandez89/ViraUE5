@@ -3,6 +3,8 @@
 
 #include "VyraSaveGame_PlayerData.h"
 
+#include "Components/QuestComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
@@ -22,9 +24,18 @@ void UVyraSaveGame_PlayerData::SaveAllPlayerData(const FString& SlotName,UObject
 		Currency_Souls = Currency.Souls;
 		Currency_Gold = Currency.Gold;
 	}
+	FQuestSaveStateData QuestSaveData = GetCurrentQuestState(WorldContextObject);
+	{
+		CurrentQuestSaveState = QuestSaveData;
+	}
 
+
+	FAsyncSaveGameToSlotDelegate SaveDelegate = FAsyncSaveGameToSlotDelegate::CreateLambda(
+	[WorldContextObject](const FString& SavedSlotName, const int32 SavedUserIndex, bool bSuccess)
+	{
+	});
 	
-	UGameplayStatics::AsyncSaveGameToSlot(this, SaveSlotName, UserIndex);
+	UGameplayStatics::AsyncSaveGameToSlot(this, SaveSlotName, UserIndex, SaveDelegate);
 }
 
 void UVyraSaveGame_PlayerData::LoadAllPlayerData(UObject* WorldContextObject)
@@ -35,6 +46,14 @@ void UVyraSaveGame_PlayerData::LoadAllPlayerData(UObject* WorldContextObject)
 		{
 			ASC->SetNumericAttributeBase(UCurrencyAttributeSet::GetSoulsAttribute(), Currency_Souls);
 			//ASC->SetNumericAttributeBase(UCurrencyAttributeSet::GetGoldAttribute(), PlayerData->Currency_Gold);
+		}
+	}
+
+	if (AVyraPlayerController* PC = UVyraBlueprintFunctionLibrary::GetVyraPlayerController(WorldContextObject))
+	{
+		if (UQuestComponent* QuestComponent =PC->GetComponentByClass<UQuestComponent>())
+		{
+			QuestComponent->LoadQuestStates(CurrentQuestSaveState, true);
 		}
 	}
 }
@@ -53,6 +72,20 @@ FSaveGamePlayerData_Currency UVyraSaveGame_PlayerData::GetCurrentPlayerCurrency(
 	}
 
 	return FSaveGamePlayerData_Currency();
+}
+
+FQuestSaveStateData UVyraSaveGame_PlayerData::GetCurrentQuestState(UObject* WorldContextObject)
+{
+	if (AVyraPlayerController* PC = UVyraBlueprintFunctionLibrary::GetVyraPlayerController(WorldContextObject))
+	{
+		if (UQuestComponent* QuestComponent =PC->GetComponentByClass<UQuestComponent>())
+		{
+			FQuestSaveStateData TempSaveData;
+			QuestComponent->SaveQuestStates(TempSaveData);
+			return TempSaveData;
+		}
+	}
+	return FQuestSaveStateData();
 }
 
 void UVyraSaveGame_PlayerData::UpdateCurrency(const FSaveGamePlayerData_Currency& Data)

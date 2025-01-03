@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Vira/AbilitySystem/Abilities/Player/Combat/Charms/VyraGameplayAbility_CharmBase.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Vira/Player/VyraPlayerController.h"
 #include "Vira/System/VyraGameInstance.h"
 
 AVyraPlayerStateCharacter* UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter(UObject* WorldContextObject)
@@ -18,6 +19,21 @@ AVyraPlayerStateCharacter* UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter
 			return VyraCharacter;
 		}
 	}
+	return nullptr;
+}
+
+AVyraPlayerController* UVyraBlueprintFunctionLibrary::GetVyraPlayerController(UObject* WorldContextObject)
+{
+	// Use UGameplayStatics to get the player controller from the world context object
+	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	{
+		if (AVyraPlayerController* VyraPlayerController = Cast<AVyraPlayerController>(PlayerController))
+		{
+			return VyraPlayerController;
+		}
+	}
+
+	// Return nullptr if no player controller was found
 	return nullptr;
 }
 
@@ -155,7 +171,7 @@ void UVyraBlueprintFunctionLibrary::SaveCurrentLevel(const UObject* WorldContext
 	{
 		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
 		{
-			VyraGameInstance->SaveCurrentLevel(VyraGameInstance->CurrentSlotName);
+			VyraGameInstance->SaveCurrentLevel();
 		}
 	}
 }
@@ -168,7 +184,7 @@ void UVyraBlueprintFunctionLibrary::LoadCurrentLevel(const UObject* WorldContext
 	{
 		if (UVyraGameInstance* VyraGameInstance = Cast<UVyraGameInstance>(GameInstance))
 		{
-			VyraGameInstance->LoadCurrentLevel(VyraGameInstance->CurrentSlotName);
+			VyraGameInstance->LoadCurrentLevel();
 		}
 	}
 }

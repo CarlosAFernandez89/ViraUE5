@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
+#include "Vira/Player/VyraPlayerController.h"
 #include "VyraBlueprintFunctionLibrary.generated.h"
 
 class UVyraAbilitySystemComponent;
@@ -20,6 +21,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
 	static AVyraPlayerStateCharacter* GetVyraPlayerCharacter(UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
+	static AVyraPlayerController* GetVyraPlayerController(UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
 	static UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent(UObject* WorldContextObject);
@@ -56,4 +60,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveSystem", meta = (WorldContext = "WorldContextObject"))
 	static void LoadPlayerData(const UObject* WorldContextObject);
+	
 };

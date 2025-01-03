@@ -8,6 +8,19 @@
 #include "Vira/System/SaveGame/VyraSPUDActorRuntime.h"
 #include "CurrencyDropBase.generated.h"
 
+class ACurrencyDropBase;
+
+USTRUCT(BlueprintType)
+struct FCurrencyDropData
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ACurrencyDropBase> DropClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Quantity;
+};
+
 UCLASS()
 class VIRA_API ACurrencyDropBase : public AVyraSPUDActorRuntime
 {
@@ -32,6 +45,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Currency Drop")
 	TSubclassOf<class UGameplayEffect> GameplayEffectClass;
 
+public:
+	UFUNCTION(BlueprintNativeEvent, Category = "Currency Drop")
+	void UpdateVisualsDueToQuantityChange(float NewQuantity);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;

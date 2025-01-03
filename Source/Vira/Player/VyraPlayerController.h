@@ -14,6 +14,15 @@ class VIRA_API AVyraPlayerController : public AGSCModularPlayerController
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UQuestTrackerComponent* QuestTrackerComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UQuestComponent* QuestComponent;
+
+public:
+	AVyraPlayerController();
+
 protected:
 	virtual void BeginPlay() override;
 

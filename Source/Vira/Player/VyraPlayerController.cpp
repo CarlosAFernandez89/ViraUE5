@@ -3,6 +3,16 @@
 
 #include "VyraPlayerController.h"
 
+#include "Components/QuestComponent.h"
+#include "Components/QuestTrackerComponent.h"
+
+
+AVyraPlayerController::AVyraPlayerController()
+{
+	QuestTrackerComponent = CreateDefaultSubobject<UQuestTrackerComponent>("QuestTrackerComponent");
+
+	QuestComponent = CreateDefaultSubobject<UQuestComponent>("QuestComponent");
+}
 
 void AVyraPlayerController::BeginPlay()
 {

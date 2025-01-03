@@ -22,6 +22,11 @@ ACurrencyDropBase::ACurrencyDropBase(): Quantity(0), TargetASC(nullptr)
 	RootComponent = SphereComponent;
 }
 
+void ACurrencyDropBase::UpdateVisualsDueToQuantityChange_Implementation(float NewQuantity)
+{
+	Quantity = NewQuantity;
+}
+
 // Called when the game starts or when spawned
 void ACurrencyDropBase::BeginPlay()
 {

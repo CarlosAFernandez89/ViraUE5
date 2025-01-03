@@ -31,11 +31,14 @@ public:
 	void LoadCurrentPlayerData();
 	void AsyncLoadPlayerDataComplete(const FString& SlotName, int UserIndex, USaveGame* LoadedGameData);
 
-	void SaveCurrentLevel(const FString& SlotName);
+	void SaveCurrentLevel();
 	
-	void LoadCurrentLevel(const FString& SlotName);
+	void LoadCurrentLevel();
 	
 	void OnLevelLoaded(const FActorsInitializedParams& Params);
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	FString GetCurrentSaveSlotName();
 
 private:
 	

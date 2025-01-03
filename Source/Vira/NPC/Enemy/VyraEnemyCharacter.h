@@ -6,6 +6,9 @@
 #include "Vira/NPC/VyraNPCCharacterBase.h"
 #include "VyraEnemyCharacter.generated.h"
 
+struct FCurrencyDropData;
+class ACurrencyDropBase;
+
 UENUM(BlueprintType)
 enum class EVyraEnemyType : uint8
 {
@@ -14,6 +17,15 @@ enum class EVyraEnemyType : uint8
 	BOSS UMETA(DisplayName = "Boss"),
 	ARCHBOSS UMETA(DisplayName = "Archboss")
 };
+
+USTRUCT(BlueprintType)
+struct FEnemyDropTable
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCurrencyDropData> CurrencyDrops;
+};
+
 
 
 UCLASS()
@@ -31,8 +43,28 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Loot")
+	void SpawnDropTableItems(float DropInterval);
+
+private:
+	void SpawnItemActor(const TSubclassOf<ACurrencyDropBase>& DropClass, int32 Quantity);
+	
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Enemy")
 	EVyraEnemyType EnemyType;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Loot")
+	FEnemyDropTable DropTable;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Loot")
+	FVector SpawnItemOffset;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Loot")
+	float RotationRollMin = -90.f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Loot")
+	float RotationRollMax = 90.f;
+
+	UPROPERTY()
+	FTimerHandle DropItems_TimerHandle;
+
+	
 };

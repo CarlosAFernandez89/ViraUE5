@@ -56,13 +56,13 @@ void UVyraGameInstance::AsyncLoadPlayerDataComplete(const FString& SlotName, int
 	}
 }
 
-void UVyraGameInstance::SaveCurrentLevel(const FString& SlotName)
+void UVyraGameInstance::SaveCurrentLevel()
 {
 	// 1. Get the current level's name:
 	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
 
 	// 2. Create a unique save slot name (consider adding player name, etc.):
-	FString SaveSlotName = CurrentLevelName + "_" + SlotName; // Or more complex naming
+	FString SaveSlotName = CurrentLevelName + "_" + CurrentSlotName; // Or more complex naming
 	CurrentLevelSaveSlot = SaveSlotName;
 
 	if (USpudSubsystem* SpudSystem = GetSpudSubsystem(GetWorld()))
@@ -71,13 +71,13 @@ void UVyraGameInstance::SaveCurrentLevel(const FString& SlotName)
 	}
 }
 
-void UVyraGameInstance::LoadCurrentLevel(const FString& SlotName)
+void UVyraGameInstance::LoadCurrentLevel()
 {
 	// 1. Get the current level's name:
 	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
 
 	// 2. Create a unique save slot name (consider adding player name, etc.):
-	FString SaveSlotName = CurrentLevelName + "_" + SlotName; // Or more complex naming
+	FString SaveSlotName = CurrentLevelName + "_" + CurrentSlotName; // Or more complex naming
 	CurrentLevelSaveSlot = SaveSlotName;
 	
 	if (USpudSubsystem* SpudSystem = GetSpudSubsystem(GetWorld()))
@@ -101,5 +101,10 @@ void UVyraGameInstance::OnLevelLoaded(const FActorsInitializedParams& Params)
 	}
 
 	LoadCurrentPlayerData();
-	LoadCurrentLevel(CurrentSlotName);
+	LoadCurrentLevel();
+}
+
+FString UVyraGameInstance::GetCurrentSaveSlotName()
+{
+	return CurrentSlotName;
 }
