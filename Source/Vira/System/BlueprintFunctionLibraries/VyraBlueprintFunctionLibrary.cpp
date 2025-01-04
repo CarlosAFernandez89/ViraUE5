@@ -108,7 +108,7 @@ TArray<TSubclassOf<UVyraGameplayAbility_CharmBase>> UVyraBlueprintFunctionLibrar
 	}
 
 	// Specify the primary asset type for charm abilities
-	FPrimaryAssetType CharmAbilityType = TEXT("VyraGameplayAbility_CharmBase"); // Define this type in your asset manager settings if not already present
+	FPrimaryAssetType CharmAbilityType = TEXT("GameplayAbility"); // Define this type in your asset manager settings if not already present
 
 	// Get the primary asset list for this type
 	TArray<FPrimaryAssetId> AssetIds;
