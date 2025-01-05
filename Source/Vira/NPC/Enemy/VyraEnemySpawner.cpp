@@ -4,14 +4,21 @@
 #include "VyraEnemySpawner.h"
 
 #include "VyraEnemyCharacter.h"
+#include "Components/BillboardComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
-AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2), SpawnBoundingBoxHalfSize(FVector(400.f, 400.f, 50.f)),
-                                        SpawnLocation(),
-                                        SpawnRotation()
+AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2), SpawnBoundingBoxHalfSize(FVector(400.f, 400.f, 50.f))
 {
+
+	//Make the root component static so it has a transform
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
+	RootComponent = SceneComponent;
+
+	BillboardComponent = CreateDefaultSubobject<UBillboardComponent>(TEXT("BillboardComponent"));
+	BillboardComponent->SetupAttachment(RootComponent);
+	
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -19,52 +26,52 @@ AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2), SpawnBoundingBoxHalfSize(F
 void AVyraEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnLocation = GetActorLocation();
-	SpawnRotation = GetActorRotation();
-	SpawnEnemies_Implementation();
+	SpawnEnemies();
 }
 
-void AVyraEnemySpawner::SpawnEnemiesOfType(const TSubclassOf<AVyraEnemyCharacter>& EnemyClass, const int Quantity)
+void AVyraEnemySpawner::SpawnEnemiesOfType()
 {
-	if (EnemyClass)
+	if (UWorld* World = GetWorld())
 	{
-		//FActorSpawnParameters SpawnParameters;
-		//SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
 		
-		for (int i = 0; i < Quantity; i++)
+		for (int i = 0; i < SpawnerData.Num(); i++)
 		{
-			FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(
-				SpawnLocation,
-				FVector(SpawnBoundingBoxHalfSize.X, SpawnBoundingBoxHalfSize.Y, SpawnBoundingBoxHalfSize.Z)
-				);
-
-			if (UWorld* World = GetWorld())
+			for (int j = 0; j < SpawnerData[i].Quantity; j++)
 			{
-				World->SpawnActor<AVyraEnemyCharacter>(EnemyClass, RandomLocation, SpawnRotation);
+				FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(
+					SpawnLocation,
+					FVector(SpawnBoundingBoxHalfSize.X, SpawnBoundingBoxHalfSize.Y, SpawnBoundingBoxHalfSize.Z)
+					);
+
+				World->SpawnActor<AVyraEnemyCharacter>(SpawnerData[i].EnemyType, RandomLocation, SpawnRotation, SpawnParameters);			
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetWorld() is null in function SpawnEnemies"));
+	}
 }
 
-void AVyraEnemySpawner::SpawnEnemies_Implementation()
+void AVyraEnemySpawner::SpawnEnemies()
 {
-	if (const UWorld* World = GetWorld())
+	UWorld* World = GetWorld();
+	if (!World)
 	{
-		float SpawnTime = SpawnRate;
-
-		for (int i = 0; i < SpawnerData.Num(); ++i)
-		{		
-			TSubclassOf<AVyraEnemyCharacter> EnemyClass = SpawnerData[i].EnemyType;
-			int Quant = SpawnerData[i].Quantity;
-		
-			FTimerHandle TempTimerHandle;
-			World->GetTimerManager().SetTimer(
-				TempTimerHandle,[this, EnemyClass, Quant]()
-				{
-					SpawnEnemiesOfType(EnemyClass, Quant);
-				},SpawnTime,false);
-		
-			SpawnTime += SpawnRate;
-		}
+		UE_LOG(LogTemp, Error, TEXT("GetWorld() returned null in SpawnEnemies"));
+		return;
 	}
+
+	TArray<FEnemySpawnerData> Data = SpawnerData;
+	FTimerHandle TempTimerHandle;
+	World->GetTimerManager().SetTimer(
+		TempTimerHandle,
+		this ,
+		&AVyraEnemySpawner::SpawnEnemiesOfType,
+		SpawnRate, false, SpawnRate);
+		
 }

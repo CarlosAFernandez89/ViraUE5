@@ -73,8 +73,8 @@ float AVyraEnemyCharacter::SetAIMovementSpeed_Implementation(EAIMovementSpeed Mo
 
 void AVyraEnemyCharacter::GetAIIdealRange_Implementation(float& AttackRadius, float& DefendRadius)
 {
-	AttackRadius = 175.f;
-	DefendRadius = 450.f;
+	AttackRadius = UKismetMathLibrary::RandomFloatInRange(50.f, 125.f);
+	DefendRadius = UKismetMathLibrary::RandomFloatInRange(225.f, 450.f);
 }
 
 float AVyraEnemyCharacter::GetAICurrentHealth_Implementation()

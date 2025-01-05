@@ -22,23 +22,30 @@ struct FEnemySpawnerData
 };
 
 
-UCLASS()
+UCLASS(Blueprintable)
 class VIRA_API AVyraEnemySpawner : public AActor
 {
 	GENERATED_BODY()
 
+	UPROPERTY(VisibleAnywhere, Category = Default)
+	class USceneComponent* SceneComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Default)
+	class UBillboardComponent* BillboardComponent;
 public:
 	// Sets default values for this actor's properties
 	AVyraEnemySpawner();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION()
 	void SpawnEnemies();
 
 protected:
 	virtual void BeginPlay() override;
 	
 private:
-	void SpawnEnemiesOfType(const TSubclassOf<AVyraEnemyCharacter>& EnemyClass, int Quantity);
+	
+	UFUNCTION()
+	void SpawnEnemiesOfType();
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
@@ -49,8 +56,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
 	FVector SpawnBoundingBoxHalfSize;
-
-	private:
-	FVector SpawnLocation;
-	FRotator SpawnRotation;
+	
 };
