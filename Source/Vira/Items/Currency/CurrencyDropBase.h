@@ -18,7 +18,7 @@ struct FCurrencyDropData
 	TSubclassOf<ACurrencyDropBase> DropClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Quantity;
+	int32 Quantity = 0;
 };
 
 UCLASS()

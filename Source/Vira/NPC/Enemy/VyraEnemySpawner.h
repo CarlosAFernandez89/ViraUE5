@@ -49,4 +49,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
 	FVector SpawnBoundingBoxHalfSize;
+
+	private:
+	FVector SpawnLocation;
+	FRotator SpawnRotation;
 };

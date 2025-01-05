@@ -8,7 +8,9 @@
 
 
 // Sets default values
-AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2)
+AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2), SpawnBoundingBoxHalfSize(FVector(400.f, 400.f, 50.f)),
+                                        SpawnLocation(),
+                                        SpawnRotation()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -17,28 +19,28 @@ AVyraEnemySpawner::AVyraEnemySpawner(): SpawnRate(2)
 void AVyraEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
+	SpawnLocation = GetActorLocation();
+	SpawnRotation = GetActorRotation();
 	SpawnEnemies_Implementation();
 }
 
-void AVyraEnemySpawner::SpawnEnemiesOfType(const TSubclassOf<AVyraEnemyCharacter>& EnemyClass, int Quantity)
+void AVyraEnemySpawner::SpawnEnemiesOfType(const TSubclassOf<AVyraEnemyCharacter>& EnemyClass, const int Quantity)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("SpawnEnemiesOfType called."));
-	
 	if (EnemyClass)
 	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		FVector SpawnLocation = GetActorLocation();
-		SpawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(
-			SpawnLocation,
-			FVector(SpawnBoundingBoxHalfSize.X, SpawnBoundingBoxHalfSize.Y, SpawnBoundingBoxHalfSize.Z));
-		const FRotator SpawnRotation = GetActorRotation();
+		//FActorSpawnParameters SpawnParameters;
+		//SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		
-		if (UWorld* World = GetWorld())
+		for (int i = 0; i < Quantity; i++)
 		{
-			for (int i = 0; i < Quantity; i++)
+			FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(
+				SpawnLocation,
+				FVector(SpawnBoundingBoxHalfSize.X, SpawnBoundingBoxHalfSize.Y, SpawnBoundingBoxHalfSize.Z)
+				);
+
+			if (UWorld* World = GetWorld())
 			{
-				World->SpawnActor<AActor>(EnemyClass, SpawnLocation, SpawnRotation,SpawnParameters);
+				World->SpawnActor<AVyraEnemyCharacter>(EnemyClass, RandomLocation, SpawnRotation);
 			}
 		}
 	}
@@ -46,22 +48,23 @@ void AVyraEnemySpawner::SpawnEnemiesOfType(const TSubclassOf<AVyraEnemyCharacter
 
 void AVyraEnemySpawner::SpawnEnemies_Implementation()
 {
-	float SpawnTime = SpawnRate;
+	if (const UWorld* World = GetWorld())
+	{
+		float SpawnTime = SpawnRate;
 
-	for (int i = 0; i < SpawnerData.Num(); ++i)
-	{		
-		TSubclassOf<AVyraEnemyCharacter> EnemyClass = SpawnerData[i].EnemyType;
-		int Quant = SpawnerData[i].Quantity;
-		FTimerHandle TempTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(
-			TempTimerHandle,
-			[this, EnemyClass, Quant]()
-			{
-				SpawnEnemiesOfType(EnemyClass, Quant);
-			},
-			SpawnTime,
-			false);
+		for (int i = 0; i < SpawnerData.Num(); ++i)
+		{		
+			TSubclassOf<AVyraEnemyCharacter> EnemyClass = SpawnerData[i].EnemyType;
+			int Quant = SpawnerData[i].Quantity;
 		
-		SpawnTime += SpawnRate;
+			FTimerHandle TempTimerHandle;
+			World->GetTimerManager().SetTimer(
+				TempTimerHandle,[this, EnemyClass, Quant]()
+				{
+					SpawnEnemiesOfType(EnemyClass, Quant);
+				},SpawnTime,false);
+		
+			SpawnTime += SpawnRate;
+		}
 	}
 }

@@ -34,7 +34,6 @@ void AVyraEnemyCharacter::BeginPlay()
 
 void AVyraEnemyCharacter::SpawnDropTableItems(float DropInterval)
 {
-	// Make sure we don't have an existing timer running.
 	if (const UWorld* World = GetWorld())
 	{
 		for (FCurrencyDropData CurrencyDrop : DropTable.CurrencyDrops)
