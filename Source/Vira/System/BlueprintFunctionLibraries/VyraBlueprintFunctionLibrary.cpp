@@ -214,3 +214,8 @@ void UVyraBlueprintFunctionLibrary::LoadPlayerData(const UObject* WorldContextOb
 		}
 	}
 }
+
+bool UVyraBlueprintFunctionLibrary::IsWithEditor()
+{
+	return WITH_EDITOR;
+}

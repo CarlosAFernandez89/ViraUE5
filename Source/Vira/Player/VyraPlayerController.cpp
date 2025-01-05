@@ -3,12 +3,19 @@
 
 #include "VyraPlayerController.h"
 
+#include "CommonInputSubsystem.h"
+#include "CommonInputTypeEnum.h"
+#include "EnhancedInputSubsystems.h"
 #include "Components/QuestComponent.h"
 #include "Components/QuestTrackerComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Vira/Character/VyraPlayerStateCharacter.h"
 
 
 AVyraPlayerController::AVyraPlayerController()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	QuestTrackerComponent = CreateDefaultSubobject<UQuestTrackerComponent>("QuestTrackerComponent");
 
 	QuestComponent = CreateDefaultSubobject<UQuestComponent>("QuestComponent");
@@ -18,8 +25,15 @@ void AVyraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerCharacter = Cast<AVyraPlayerStateCharacter>(GetPawn());
+
 	FSlateApplication::Get().OnApplicationActivationStateChanged()
 	.AddUObject(this, &AVyraPlayerController::OnWindowFocusChanged);
+}
+
+void AVyraPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
 }
 
 void AVyraPlayerController::OnWindowFocusChanged_Implementation(bool bIsFocused)

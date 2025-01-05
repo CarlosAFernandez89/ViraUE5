@@ -24,4 +24,7 @@ class VIRA_API IPlayerInputHelper
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	FVector2D GetIAMoveValue();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FVector2D GetIALookValue();
 };

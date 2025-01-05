@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/Attributes/GSCAttributeSet.h"
+#include "Perception/AISense_Damage.h"
 #include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
 
 struct FSetByCallerDamageStatics
@@ -89,6 +90,14 @@ void UVyraSetByCallerDamageExecutionCalculation::Execute_Implementation(
 	}
 
 	LocalBaseDamage *= (1.f - LocalDamageReduction);
+
+	UAISense_Damage::ReportDamageEvent(
+		SourceActor,
+		TargetActor,
+		SourceActor,
+		LocalBaseDamage,
+		SourceActor->GetActorLocation(),
+		FVector(0, 0, 0));
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(SetByCallerDamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 

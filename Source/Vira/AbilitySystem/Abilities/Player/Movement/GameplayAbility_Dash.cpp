@@ -4,6 +4,7 @@
 #include "GameplayAbility_Dash.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UGameplayAbility_Dash::UGameplayAbility_Dash(): DashCurve(nullptr), SavedGroundFriction(0),
@@ -120,9 +121,15 @@ void UGameplayAbility_Dash::ApplyDashMovement()
 	const float SpeedMultiplier = DashCurve->GetFloatValue(CurrentTime);
 
 	// Determine the dash direction based on where the character is facing
-	FVector DashDirection = GetVyraPlayerStateCharacter()->GetActorForwardVector();
-	DashDirection.Normalize();
+	FVector DashDirection = bUseMovementDirection ? GetVyraPlayerStateCharacter()->GetVelocity() : GetVyraPlayerStateCharacter()->GetActorForwardVector();
+
+	if (UKismetMathLibrary::Vector_IsNearlyZero(DashDirection))
+	{
+		DashDirection = GetVyraPlayerStateCharacter()->GetActorForwardVector();
+	}
 	
+	DashDirection.Normalize();
+
 	// Calculate the dash velocity based on the curve evaluation
 	FVector DashVelocity = DashDirection * DashDistance * SpeedMultiplier / DashDuration;
 	DashVelocity.Z = 0.0f;

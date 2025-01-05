@@ -33,6 +33,8 @@ private:
 	void ApplyDashMovement();
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dash")
+	bool bUseMovementDirection = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dash")
 	class UCurveFloat* DashCurve;

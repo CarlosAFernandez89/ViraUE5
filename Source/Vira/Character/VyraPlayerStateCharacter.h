@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "PaperZDAnimationComponent.h"
+#include "Components/GSCCoreComponent.h"
 #include "ModularGameplayActors/GSCModularPlayerStateCharacter.h"
+#include "Vira/NPC/Enemy/IAIHelpers.h"
 #include "Vira/Player/IPlayerInputHelper.h"
 #include "VyraPlayerStateCharacter.generated.h"
 
@@ -12,7 +14,7 @@
 class UVyraSaveGame_Charms;
 
 UCLASS()
-class VIRA_API AVyraPlayerStateCharacter : public AGSCModularPlayerStateCharacter, public IPlayerInputHelper
+class VIRA_API AVyraPlayerStateCharacter : public AGSCModularPlayerStateCharacter, public IPlayerInputHelper, public IAIHelpers
 {
 	GENERATED_BODY()
 
@@ -46,6 +48,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//~ IAIInteraction
+	virtual bool ReserveAttackToken_Implementation(int32 Amount) override;
+	virtual void ReturnAttackToken_Implementation(int32 Amount) override;
+	//~ End IAIInteraction
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 AttackTokensCount;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 MaxAttackTokensCount;
+
 public:
 	AVyraPlayerStateCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
@@ -65,6 +78,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UCharmManagerComponent* GetCharmManagerComponent() const {return CharmManagerComponent;}
+
+	UFUNCTION()
+	bool IsDead() const
+	{
+		return GSCCoreComponent->GetHealth() <= 0.f;
+	}
 	
 	UFUNCTION()
 	void LoadSaveFiles();

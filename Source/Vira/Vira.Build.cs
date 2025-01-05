@@ -34,6 +34,7 @@ public class Vira : ModuleRules
 			"SlateCore",
 			"UMG",
 			"CommonUI",
+			"AIModule",
 			"GameplayTasks",
 			"GameFeatures",
 			"GASCompanion",
@@ -42,6 +43,7 @@ public class Vira : ModuleRules
 			"QuestFramework",
 			"PaperZD",
 			"GameplayMessageRuntime",
+			"Niagara",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

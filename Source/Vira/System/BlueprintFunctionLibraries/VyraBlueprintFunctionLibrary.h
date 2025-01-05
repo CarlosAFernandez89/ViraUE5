@@ -60,5 +60,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveSystem", meta = (WorldContext = "WorldContextObject"))
 	static void LoadPlayerData(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|EditorUtility")
+	static bool IsWithEditor();
 	
 };

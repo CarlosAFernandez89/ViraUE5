@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IAIHelpers.h"
 #include "Vira/NPC/VyraNPCCharacterBase.h"
 #include "VyraEnemyCharacter.generated.h"
 
@@ -29,10 +30,16 @@ struct FEnemyDropTable
 
 
 UCLASS()
-class VIRA_API AVyraEnemyCharacter : public AVyraNPCCharacterBase
+class VIRA_API AVyraEnemyCharacter : public AVyraNPCCharacterBase, public IAIHelpers
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	TMap<AActor*, int32> ReservedAttackTokens;
+
+	UPROPERTY()
+	class AVyraAIController* AIController;
+	
 public:
 	// Sets default values for this character's properties
 	AVyraEnemyCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -45,6 +52,20 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Loot")
 	void SpawnDropTableItems(float DropInterval);
+
+
+	//~ IAIHelpers
+	virtual AAIPatrolRoute* GetAIPatrolRoute_Implementation() override;
+	virtual float SetAIMovementSpeed_Implementation(EAIMovementSpeed MovementSpeed) override;
+	virtual void GetAIIdealRange_Implementation(float& AttackRadius, float& DefendRadius) override;
+	virtual float GetAICurrentHealth_Implementation() override;
+	virtual float GetAIMaxHealth_Implementation() override;
+	virtual bool GetAIIsDead_Implementation() override;
+	virtual void AIStoreAttackTokens_Implementation(AActor* AttackTarget, int32 Amount) override;
+	virtual void AIReturnAllAttackTokens_Implementation() override;
+	virtual void CheckFocusTargetState_Implementation() override;
+	virtual void NavLink_JumpToDestination_Implementation(FVector Destination) override;
+	//~ End IAIHelpers
 
 private:
 	void SpawnItemActor(const TSubclassOf<ACurrencyDropBase>& DropClass, int32 Quantity);
@@ -66,5 +87,13 @@ protected:
 	UPROPERTY()
 	FTimerHandle DropItems_TimerHandle;
 
+	bool bHasFocusTarget;
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI")
+	class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Patrol")
+	AAIPatrolRoute* PatrolRoute = nullptr;
 	
 };

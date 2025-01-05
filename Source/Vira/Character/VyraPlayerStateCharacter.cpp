@@ -14,6 +14,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Currency.h"
@@ -21,7 +22,7 @@
 
 // Sets default values
 AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(ACharacter::MeshComponentName))
+	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(ACharacter::MeshComponentName)), MaxAttackTokensCount(10)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -74,6 +75,8 @@ AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& O
 	}
 
 	CharmManagerComponent = CreateDefaultSubobject<UCharmManagerComponent>("CharmManagerComponent");
+
+	AttackTokensCount = MaxAttackTokensCount;
 }
 
 // Called when the game starts or when spawned
@@ -82,6 +85,23 @@ void AVyraPlayerStateCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	LoadSaveFiles();
+}
+
+bool AVyraPlayerStateCharacter::ReserveAttackToken_Implementation(int32 Amount)
+{
+	if(AttackTokensCount >= Amount)
+	{
+		AttackTokensCount -= Amount;
+		return true;
+	}
+
+	return false;
+}
+
+void AVyraPlayerStateCharacter::ReturnAttackToken_Implementation(int32 Amount)
+{
+	AttackTokensCount += Amount;
+	UKismetMathLibrary::Clamp(AttackTokensCount, 0, MaxAttackTokensCount);;
 }
 
 void AVyraPlayerStateCharacter::PostInitializeComponents()

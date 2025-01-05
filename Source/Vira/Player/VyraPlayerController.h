@@ -26,6 +26,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	UFUNCTION(BlueprintNativeEvent)
 	void OnWindowFocusChanged(bool bIsFocused);
+
+
+private:
+	UPROPERTY()
+	class AVyraPlayerStateCharacter* PlayerCharacter;
+
+	UPROPERTY()
+	class UCommonInputSubsystem* CommonInputSubsystem;
 };

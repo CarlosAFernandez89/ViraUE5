@@ -33,16 +33,11 @@ void UGameplayAbility_Move::Move(const FVector2D& MovementInput)
 {
 	if (!MovementInput.IsNearlyZero() && PlayerStateCharacter)
 	{
-		// Filter out the vertical input (Y component) to ensure only horizontal movement
-		const float HorizontalInput = MovementInput.X;
+		// Normalize the movement input
+		FVector2D NormalizedInput = MovementInput.GetSafeNormal();
 
-		// Only move if the horizontal input exceeds a small dead zone threshold
-		constexpr float DeadZone = 0.2f; // Adjust this value based on the controller sensitivity
-
-		if (FMath::Abs(HorizontalInput) > DeadZone)
-		{
-			// Move along the world right vector (horizontal movement in world coordinates)
-			PlayerStateCharacter->AddMovementInput(FVector::RightVector, HorizontalInput);
-		}
+		// World space movement
+		PlayerStateCharacter->AddMovementInput(FVector::ForwardVector, NormalizedInput.Y); // Y is forward/backward in world space
+		PlayerStateCharacter->AddMovementInput(FVector::RightVector, NormalizedInput.X); // X is right/left in world space
 	}
 }
