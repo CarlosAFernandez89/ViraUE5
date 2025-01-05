@@ -37,18 +37,23 @@ void AVyraEnemySpawner::SpawnEnemiesOfType()
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		FVector SpawnLocation = GetActorLocation();
 		FRotator SpawnRotation = GetActorRotation();
-		
-		for (int i = 0; i < SpawnerData.Num(); i++)
+
+		if (SpawnIteration < SpawnerData.Num())
 		{
-			for (int j = 0; j < SpawnerData[i].Quantity; j++)
+			for (int j = 0; j < SpawnerData[SpawnIteration].Quantity; j++)
 			{
 				FVector RandomLocation = UKismetMathLibrary::RandomPointInBoundingBox(
 					SpawnLocation,
 					FVector(SpawnBoundingBoxHalfSize.X, SpawnBoundingBoxHalfSize.Y, SpawnBoundingBoxHalfSize.Z)
 					);
 
-				World->SpawnActor<AVyraEnemyCharacter>(SpawnerData[i].EnemyType, RandomLocation, SpawnRotation, SpawnParameters);			
+				World->SpawnActor<AVyraEnemyCharacter>(SpawnerData[SpawnIteration].EnemyType, RandomLocation, SpawnRotation, SpawnParameters);			
 			}
+			++SpawnIteration;
+		}
+		else
+		{
+			GetWorldTimerManager().ClearAllTimersForObject(this);
 		}
 	}
 	else
@@ -72,6 +77,6 @@ void AVyraEnemySpawner::SpawnEnemies()
 		TempTimerHandle,
 		this ,
 		&AVyraEnemySpawner::SpawnEnemiesOfType,
-		SpawnRate, false, SpawnRate);
+		SpawnRate, true, SpawnRate);
 		
 }

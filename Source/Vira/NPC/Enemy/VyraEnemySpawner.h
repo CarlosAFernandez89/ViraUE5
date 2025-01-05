@@ -56,5 +56,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
 	FVector SpawnBoundingBoxHalfSize;
-	
+
+	UPROPERTY()
+	int32 SpawnIteration = 0;
 };
