@@ -37,6 +37,18 @@ AVyraPlayerController* UVyraBlueprintFunctionLibrary::GetVyraPlayerController(UO
 	return nullptr;
 }
 
+UVyraGameInstance* UVyraBlueprintFunctionLibrary::GetVyraGameInstance(UObject* WorldContextObject)
+{
+	if (!WorldContextObject) return nullptr;
+
+	if (UVyraGameInstance* VGI = Cast<UVyraGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject)))
+	{
+		return VGI;
+	}
+	
+	return nullptr;
+}
+
 UVyraAbilitySystemComponent* UVyraBlueprintFunctionLibrary::GetVyraAbilitySystemComponent(UObject* WorldContextObject)
 {
 	if (AVyraPlayerStateCharacter* PlayerStateCharacter = GetVyraPlayerCharacter(WorldContextObject))

@@ -23,6 +23,19 @@ public:
 
 	virtual void Init() override; // Override the Init function
 
+	void LoadGameInstanceInfo();
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	void CreateNewSaveSlot();
+	
+	void UpdateGameInstanceSaveFile();
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	bool LoadSaveSlot(const FString& SlotName);
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	bool DeleteSaveSlot(const FString& SlotName);
+
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	void UpdateSaveSlotName(const FString& NewSaveSlotName);
 
@@ -40,6 +53,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	FString GetCurrentSaveSlotName();
 
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	TArray<FString> GetAllSaveSlots() const { return AllSaveSlots; };
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	FString GetLastSaveSlotLoaded() const {return LastSaveSlotLoaded;}
+
 private:
 	
 	FString CurrentLevelSaveSlot;
@@ -49,4 +68,13 @@ public:
 	// We use this to manage which save slot we loaded at the start of the game.
 	UPROPERTY()
 	FString CurrentSlotName;
+
+	UPROPERTY()
+	TArray<FString> AllSaveSlots;
+
+	UPROPERTY()
+	int32 TotalSaveSlotsCreated;
+
+	UPROPERTY()
+	FString LastSaveSlotLoaded;
 };
