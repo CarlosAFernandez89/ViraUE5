@@ -2,13 +2,21 @@
 
 
 #include "VyraGameInstance.h"
+
 #include "Engine/World.h"
 #include "SpudSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "SaveGame/VyraSaveGame_AudioSettingsData.h"
 #include "SaveGame/VyraSaveGame_GameInstanceInfo.h"
 #include "SaveGame/VyraSaveGame_PlayerData.h"
+#include "Sound/SoundClass.h"
 
-UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(0)
+
+UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(0), CurrentSoundMix(nullptr),
+                                        CurrentMasterClass(nullptr),
+                                        CurrentMusicClass(nullptr),
+                                        CurrentSoundEffectsClass(nullptr),
+                                        CurrentVoiceClass(nullptr)
 {
 	CurrentSlotName = FString("DevelopmentSlot");
 }
@@ -16,7 +24,7 @@ UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(
 void UVyraGameInstance::Init()
 {
 	Super::Init();
-
+	
 	// Bind to the level loaded delegate
 	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UVyraGameInstance::OnLevelLoaded);
 
@@ -51,6 +59,55 @@ void UVyraGameInstance::LoadGameInstanceInfo()
 			UGameplayStatics::SaveGameToSlot(SGI,SGI->SaveSlotName, SGI->UserIndex);
 		}
 	}
+}
+
+void UVyraGameInstance::SaveAudioSettings()
+{
+	if (UVyraSaveGame_AudioSettingsData* AudioSG = Cast<UVyraSaveGame_AudioSettingsData>(UGameplayStatics::CreateSaveGameObject(UVyraSaveGame_AudioSettingsData::StaticClass())))
+	{
+		AudioSG->MasterVolume = SoundMixOverrides.FindRef(CurrentMasterClass);
+		AudioSG->MusicVolume = SoundMixOverrides.FindRef(CurrentMusicClass);
+		AudioSG->SoundEffectsVolume = SoundMixOverrides.FindRef(CurrentSoundEffectsClass);
+		AudioSG->VoiceVolume = SoundMixOverrides.FindRef(CurrentVoiceClass);
+		AudioSG->WeatherVolume = SoundMixOverrides.FindRef(CurrentWeatherClass);
+		
+		if (!UGameplayStatics::SaveGameToSlot(AudioSG,AudioSG->SaveSlotName, AudioSG->UserIndex))
+		{
+			GEngine->AddOnScreenDebugMessage(-1,5.0f, FColor::Red, FString::Printf(TEXT("Failed to save Audio Settings")));
+		}
+	}
+}
+
+void UVyraGameInstance::LoadAudioSettings()
+{
+	if (UGameplayStatics::DoesSaveGameExist("AudioSettings", 0))
+	{
+		if (USaveGame* SaveGame = UGameplayStatics::LoadGameFromSlot("AudioSettings", 0))
+		{
+			if (UVyraSaveGame_AudioSettingsData* AudioSG = Cast<UVyraSaveGame_AudioSettingsData>(SaveGame))
+			{
+				ApplySoundMixClassOverride(CurrentSoundMix, CurrentMasterClass, AudioSG->MasterVolume, 1,1);
+				ApplySoundMixClassOverride(CurrentSoundMix, CurrentMusicClass, AudioSG->MusicVolume, 1,1);
+				ApplySoundMixClassOverride(CurrentSoundMix, CurrentSoundEffectsClass, AudioSG->SoundEffectsVolume, 1,1);
+				ApplySoundMixClassOverride(CurrentSoundMix, CurrentVoiceClass, AudioSG->VoiceVolume, 1,1);
+				ApplySoundMixClassOverride(CurrentSoundMix, CurrentWeatherClass, AudioSG->WeatherVolume, 1,1);
+
+			}
+		}
+	}
+	else
+	{
+		if (UVyraSaveGame_AudioSettingsData* AudioSG = Cast<UVyraSaveGame_AudioSettingsData>(UGameplayStatics::CreateSaveGameObject(UVyraSaveGame_AudioSettingsData::StaticClass())))
+		{
+			// Creating the first savegameinstance
+			UGameplayStatics::SaveGameToSlot(AudioSG,AudioSG->SaveSlotName, AudioSG->UserIndex);
+		}
+	}
+}
+
+float UVyraGameInstance::GetAudioVolumeFromClass(USoundClass* ClassToFind) const
+{
+	return SoundMixOverrides.FindRef(ClassToFind);
 }
 
 
@@ -178,22 +235,12 @@ void UVyraGameInstance::LoadCurrentLevel()
 
 void UVyraGameInstance::OnLevelLoaded(const FActorsInitializedParams& Params)
 {
-	// Display the message on screen
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,                           // Key (-1 for unique message)
-			5.0f,                         // Duration (in seconds)
-			FColor::Green,                // Message color
-			TEXT("OnLoadedLevelCalled")   // Message text
-		);
-	}
-
 	if (IsNotMainMenu())
 	{
 		PlayStartTime = FPlatformTime::Seconds();
 	}
 	
+	LoadAudioSettings();
 	LoadGameInstanceInfo();
 	LoadCurrentPlayerData();
 	LoadCurrentLevel();
@@ -251,6 +298,19 @@ FString UVyraGameInstance::FormatPlayTime(float TotalSeconds)
 	int32 Seconds = FMath::FloorToInt(TotalSeconds) % 60;
 
 	return FString::Printf(TEXT("%02d:%02d:%02d"), Hours, Minutes, Seconds);
+}
+
+void UVyraGameInstance::ApplySoundMixClassOverride(USoundMix* SoundMix, USoundClass* SoundClass,
+	float Volume,float Pitch, float FadeInTime)
+{
+	if (!SoundMix || !SoundClass)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,8.0f, FColor::Black, FString::Printf(TEXT("nullptr SoundMix or SoundClass")));
+		return;
+	}
+
+	UGameplayStatics::SetSoundMixClassOverride(GetWorld(), SoundMix, SoundClass, Volume, Pitch, FadeInTime);
+	SoundMixOverrides.Add(SoundClass, Volume);
 }
 
 bool UVyraGameInstance::IsNotMainMenu() const

@@ -54,8 +54,7 @@ void UGameplayAbility_Look::Look(const FVector2D& MovementInput)
 
 			// Calculate target rotation
 			FRotator TargetRotation = FVector(NormalizedInput.Y, NormalizedInput.X, 0.f).Rotation();
-
-			GEngine->AddOnScreenDebugMessage(-1, GetWorld()->DeltaTimeSeconds, FColor::Yellow, FString::Printf(TEXT("ControllerRotation: %s"), *TargetRotation.ToString()));
+			
 			// Set the control rotation
 			PlayerController->SetControlRotation(TargetRotation);
 		}

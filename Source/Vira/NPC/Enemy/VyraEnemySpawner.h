@@ -17,7 +17,7 @@ struct FEnemySpawnerData
 	TSubclassOf<AVyraEnemyCharacter> EnemyType;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Quantity;
+	int Quantity = 0;
 
 };
 

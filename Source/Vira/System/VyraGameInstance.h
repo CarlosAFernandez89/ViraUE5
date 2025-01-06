@@ -6,7 +6,6 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/SaveGame.h"
-#include "SaveGame/VyraSaveGame_PlayerData.h"
 #include "VyraGameInstance.generated.h"
 
 class FWorldDelegates;
@@ -25,6 +24,14 @@ public:
 	virtual void Init() override; // Override the Init function
 
 	void LoadGameInstanceInfo();
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	void SaveAudioSettings();
+	
+	void LoadAudioSettings();
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	float GetAudioVolumeFromClass(USoundClass* ClassToFind) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	void CreateNewSaveSlot();
@@ -65,6 +72,11 @@ public:
 
 	float GetPlayTime();
 	FString FormatPlayTime(float TotalSeconds);
+
+
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame|Audio")
+	void ApplySoundMixClassOverride(USoundMix* SoundMix, USoundClass* SoundClass, float Volume,float Pitch, float FadeInTime);
+
 private:
 
 	bool IsNotMainMenu() const;
@@ -88,4 +100,19 @@ public:
 
 	UPROPERTY()
 	FString LastSaveSlotLoaded;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundMix* CurrentSoundMix;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundClass* CurrentMasterClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundClass* CurrentMusicClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundClass* CurrentSoundEffectsClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundClass* CurrentVoiceClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Audio")
+	USoundClass* CurrentWeatherClass;
+private:
+	TMap<USoundClass*, float> SoundMixOverrides;
 };
