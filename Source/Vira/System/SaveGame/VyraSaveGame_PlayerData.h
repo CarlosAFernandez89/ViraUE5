@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	FSaveGamePlayerData_Currency GetLoadedCurrency();
 
+	float GetTotalPlayTime() const {return TotalPlayTime;}
+	void SetTotalPlayTime(float InTotalPlayTime) { TotalPlayTime = InTotalPlayTime;}
+
 	
 public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
@@ -84,4 +87,7 @@ private:
 	float Currency_Souls;
 	UPROPERTY()
 	float Currency_Gold;
+
+	UPROPERTY()
+	float TotalPlayTime;
 };

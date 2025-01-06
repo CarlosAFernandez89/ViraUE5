@@ -8,7 +8,7 @@
 #include "SaveGame/VyraSaveGame_GameInstanceInfo.h"
 #include "SaveGame/VyraSaveGame_PlayerData.h"
 
-UVyraGameInstance::UVyraGameInstance(): TotalSaveSlotsCreated(0)
+UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(0)
 {
 	CurrentSlotName = FString("DevelopmentSlot");
 }
@@ -19,7 +19,11 @@ void UVyraGameInstance::Init()
 
 	// Bind to the level loaded delegate
 	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &UVyraGameInstance::OnLevelLoaded);
-	
+
+	if (IsNotMainMenu())
+	{
+		PlayStartTime = FPlatformTime::Seconds();
+	}
 }
 
 void UVyraGameInstance::LoadGameInstanceInfo()
@@ -185,6 +189,11 @@ void UVyraGameInstance::OnLevelLoaded(const FActorsInitializedParams& Params)
 		);
 	}
 
+	if (IsNotMainMenu())
+	{
+		PlayStartTime = FPlatformTime::Seconds();
+	}
+	
 	LoadGameInstanceInfo();
 	LoadCurrentPlayerData();
 	LoadCurrentLevel();
@@ -193,4 +202,73 @@ void UVyraGameInstance::OnLevelLoaded(const FActorsInitializedParams& Params)
 FString UVyraGameInstance::GetCurrentSaveSlotName()
 {
 	return CurrentSlotName;
+}
+
+void UVyraGameInstance::GetSaveSlotPlayerData(const FString& SlotName ,float& CurrentSouls, float& Progress,
+	FString& PlayTimeString, FString& Location)
+{
+	const FString SaveSlotName = FString("VyraSaveGame_PlayerData_" + SlotName);
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName,0 ))
+	{
+		if (UVyraSaveGame_PlayerData* SGPD = Cast<UVyraSaveGame_PlayerData>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0)))
+		{
+			FSaveGamePlayerData_Currency Currency = SGPD->GetLoadedCurrency();
+			CurrentSouls = Currency.Souls;
+			Progress = 1.f;
+			float PlayTime = SGPD->GetTotalPlayTime();
+			PlayTimeString = FormatPlayTime(PlayTime);
+			Location = FString("Place Location");
+		}
+	}
+}
+
+float UVyraGameInstance::GetPlayTime()
+{
+	if (IsNotMainMenu())
+	{
+		// Calculate the session time played
+		float SessionPlayTime = FPlatformTime::Seconds() - PlayStartTime;
+		PlayStartTime = FPlatformTime::Seconds();
+
+		const FString SaveSlotName = FString("VyraSaveGame_PlayerData_" + CurrentSlotName);
+		if (UGameplayStatics::DoesSaveGameExist(SaveSlotName,0 ))
+		{
+			if (UVyraSaveGame_PlayerData* SGPD = Cast<UVyraSaveGame_PlayerData>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0)))
+			{
+				SessionPlayTime += SGPD->GetTotalPlayTime();
+			}
+		}
+		return SessionPlayTime;
+	}
+	
+	return 0.f;
+}
+
+FString UVyraGameInstance::FormatPlayTime(float TotalSeconds)
+{
+	int32 Hours = FMath::FloorToInt(TotalSeconds / 3600);
+	int32 Minutes = FMath::FloorToInt((TotalSeconds / 60)) % 60;
+	int32 Seconds = FMath::FloorToInt(TotalSeconds) % 60;
+
+	return FString::Printf(TEXT("%02d:%02d:%02d"), Hours, Minutes, Seconds);
+}
+
+bool UVyraGameInstance::IsNotMainMenu() const
+{
+	if (UWorld* World = GetWorld())
+	{
+		FString CurrentLevelName = World->GetMapName();
+
+		// Remove PIE prefix if in editor
+		if (CurrentLevelName.StartsWith(TEXT("UEDPIE_0_")))
+		{
+			CurrentLevelName = CurrentLevelName.RightChop(9); // RightChop removes the first 9 characters.
+		}
+
+		if (CurrentLevelName != TEXT("LV_MainMenu")) // Replace "LV_MainMenu" with the actual name of your main menu level
+		{
+			return true;
+		}
+	}
+	return false;
 }

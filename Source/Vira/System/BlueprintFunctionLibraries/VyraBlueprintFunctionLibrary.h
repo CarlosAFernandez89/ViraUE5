@@ -68,4 +68,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Vyra|EditorUtility")
 	static bool IsWithEditor();
 	
+	UFUNCTION(BlueprintCallable, Category = "Vyra|EditorUtility", meta = (WorldContext = "WorldContextObject"))
+	static FString GetProjectVersion(const UObject* WorldContextObject);
+	
 };

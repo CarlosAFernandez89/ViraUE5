@@ -231,3 +231,15 @@ bool UVyraBlueprintFunctionLibrary::IsWithEditor()
 {
 	return WITH_EDITOR;
 }
+
+FString UVyraBlueprintFunctionLibrary::GetProjectVersion(const UObject* WorldContextObject)
+{
+	FString AppVersion;
+	GConfig->GetString(
+	  TEXT("/Script/EngineSettings.GeneralProjectSettings"),
+	  TEXT("ProjectVersion"),
+	  AppVersion,
+	  GGameIni
+	);
+	return AppVersion;
+}

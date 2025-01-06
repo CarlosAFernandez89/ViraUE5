@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/SaveGame.h"
+#include "SaveGame/VyraSaveGame_PlayerData.h"
 #include "VyraGameInstance.generated.h"
 
 class FWorldDelegates;
@@ -59,9 +60,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
 	FString GetLastSaveSlotLoaded() const {return LastSaveSlotLoaded;}
 
+	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame")
+	void GetSaveSlotPlayerData(const FString& SlotName ,float& CurrentSouls, float& Progress, FString& PlayTimeString, FString& Location);
+
+	float GetPlayTime();
+	FString FormatPlayTime(float TotalSeconds);
+private:
+
+	bool IsNotMainMenu() const;
 private:
 	
 	FString CurrentLevelSaveSlot;
+
+	float PlayStartTime;
 
 public:
 

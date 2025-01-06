@@ -9,7 +9,7 @@
 #include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 
-UVyraSaveGame_PlayerData::UVyraSaveGame_PlayerData(): Currency_Souls(0), Currency_Gold(0)
+UVyraSaveGame_PlayerData::UVyraSaveGame_PlayerData(): Currency_Souls(0), Currency_Gold(0), TotalPlayTime(0)
 {
 	UserIndex = 0;
 	SaveSlotName = "";
@@ -27,6 +27,11 @@ void UVyraSaveGame_PlayerData::SaveAllPlayerData(const FString& SlotName,UObject
 	FQuestSaveStateData QuestSaveData = GetCurrentQuestState(WorldContextObject);
 	{
 		CurrentQuestSaveState = QuestSaveData;
+	}
+
+	if (UVyraGameInstance* GameInstance = UVyraBlueprintFunctionLibrary::GetVyraGameInstance(WorldContextObject))
+	{
+		TotalPlayTime = GameInstance->GetPlayTime();
 	}
 
 
