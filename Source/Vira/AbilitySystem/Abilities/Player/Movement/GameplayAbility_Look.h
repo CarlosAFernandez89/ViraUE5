@@ -42,4 +42,8 @@ private:
 	
 	FVector CurrentMouseHitLocation;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ControllerRotationSpeed = 20.0f;
+
 };

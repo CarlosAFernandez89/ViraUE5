@@ -9,7 +9,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Vira/Messages/VyraVerbMessageHelpers.h"
 
-UGameplayAbility_Look::UGameplayAbility_Look(): CommonInputSubsystem(nullptr), PlayerController(nullptr)
+UGameplayAbility_Look::UGameplayAbility_Look(): MouseLocationNiagaraSystem(nullptr), CommonInputSubsystem(nullptr),
+                                                PlayerController(nullptr),
+                                                CurrentMouseHitLocation()
 {
 }
 
@@ -49,14 +51,16 @@ void UGameplayAbility_Look::Look(const FVector2D& MovementInput)
 		// If there's significant input, update rotation
 		if (InputMagnitude > 0.1f)
 		{
-			// Normalize the movement input to get a direction vector
 			FVector2D NormalizedInput = MovementInput.GetSafeNormal();
 
-			// Calculate target rotation
 			FRotator TargetRotation = FVector(NormalizedInput.Y, NormalizedInput.X, 0.f).Rotation();
+			FRotator CurrentControlRotation = PlayerController->GetControlRotation();
+			FRotator DeltaRotation = TargetRotation - CurrentControlRotation;
+			DeltaRotation.Normalize();
 			
-			// Set the control rotation
-			PlayerController->SetControlRotation(TargetRotation);
+			FRotator SmoothedRotation = CurrentControlRotation + DeltaRotation * GetWorld()->GetDeltaSeconds() * ControllerRotationSpeed;
+			
+			PlayerController->SetControlRotation(SmoothedRotation);
 		}
 	}
 	else if (InputType == ECommonInputType::MouseAndKeyboard)
@@ -71,7 +75,6 @@ void UGameplayAbility_Look::Look(const FVector2D& MovementInput)
 			LookAtRotation.Pitch = 0.f;
 			LookAtRotation.Roll = 0.f;
 			
-			// Set the control rotation directly (for instantaneous rotation)
 			PlayerController->SetControlRotation(LookAtRotation);
 			DrawMouseLocationToWorld(CurrentMouseHitLocation);
 		}
