@@ -96,7 +96,7 @@ bool UGameplayAbility_Look::RaycastToGround(FVector& HitLocation, float TraceDis
 		CollisionParams.AddIgnoredActor(GetAvatarActorFromActorInfo());
 
 		// Perform the line trace
-		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_GameTraceChannel4, CollisionParams))
 		{
 			HitLocation = HitResult.ImpactPoint; // Location where the trace hit
 			return true;
