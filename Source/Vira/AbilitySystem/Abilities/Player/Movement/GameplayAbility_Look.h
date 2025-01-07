@@ -25,7 +25,7 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability|Player|Movement")
 	void Look(const FVector2D& MovementInput);
-	bool RaycastToGround(FVector& HitLocation, float TraceDistance = 10000.f);
+	bool RaycastToGround(FVector& HitLocation, float TraceDistance = 10000.f) const;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void DrawMouseLocationToWorld(const FVector InMouseHitLocation);

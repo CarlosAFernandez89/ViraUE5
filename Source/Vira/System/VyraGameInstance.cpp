@@ -16,7 +16,7 @@ UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(
                                         CurrentMasterClass(nullptr),
                                         CurrentMusicClass(nullptr),
                                         CurrentSoundEffectsClass(nullptr),
-                                        CurrentVoiceClass(nullptr)
+                                        CurrentVoiceClass(nullptr), CurrentWeatherClass(nullptr)
 {
 	CurrentSlotName = FString("DevelopmentSlot");
 }
@@ -239,8 +239,12 @@ void UVyraGameInstance::OnLevelLoaded(const FActorsInitializedParams& Params)
 	{
 		PlayStartTime = FPlatformTime::Seconds();
 	}
-	
+
 	LoadAudioSettings();
+
+	//No need loading in arcade mode. Everything gets reset.
+	if (!IsNotArcadeMode()) return;
+	
 	LoadGameInstanceInfo();
 	LoadCurrentPlayerData();
 	LoadCurrentLevel();
@@ -300,6 +304,12 @@ FString UVyraGameInstance::FormatPlayTime(float TotalSeconds)
 	return FString::Printf(TEXT("%02d:%02d:%02d"), Hours, Minutes, Seconds);
 }
 
+FString UVyraGameInstance::GetCurrentSessionTimeAsString()
+{
+	return FormatPlayTime(PlayStartTime);
+}
+
+
 void UVyraGameInstance::ApplySoundMixClassOverride(USoundMix* SoundMix, USoundClass* SoundClass,
 	float Volume,float Pitch, float FadeInTime)
 {
@@ -326,6 +336,26 @@ bool UVyraGameInstance::IsNotMainMenu() const
 		}
 
 		if (CurrentLevelName != TEXT("LV_MainMenu")) // Replace "LV_MainMenu" with the actual name of your main menu level
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UVyraGameInstance::IsNotArcadeMode() const
+{
+	if (UWorld* World = GetWorld())
+	{
+		FString CurrentLevelName = World->GetMapName();
+
+		// Remove PIE prefix if in editor
+		if (CurrentLevelName.StartsWith(TEXT("UEDPIE_0_")))
+		{
+			CurrentLevelName = CurrentLevelName.RightChop(9); // RightChop removes the first 9 characters.
+		}
+
+		if (CurrentLevelName != TEXT("LV_ArcadeMode")) // Replace "LV_MainMenu" with the actual name of your main menu level
 		{
 			return true;
 		}

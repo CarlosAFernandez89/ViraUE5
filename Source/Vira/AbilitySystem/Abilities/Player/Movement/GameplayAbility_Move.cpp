@@ -34,7 +34,7 @@ void UGameplayAbility_Move::Move(const FVector2D& MovementInput)
 	if (!MovementInput.IsNearlyZero() && PlayerStateCharacter)
 	{
 		// Normalize the movement input
-		FVector2D NormalizedInput = MovementInput.GetSafeNormal();
+		const FVector2D NormalizedInput = MovementInput.GetSafeNormal();
 
 		// World space movement
 		PlayerStateCharacter->AddMovementInput(FVector::ForwardVector, NormalizedInput.Y); // Y is forward/backward in world space

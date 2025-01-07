@@ -73,6 +73,9 @@ public:
 	float GetPlayTime();
 	FString FormatPlayTime(float TotalSeconds);
 
+	UFUNCTION(BlueprintCallable, Category = "Vyra|PlayTime")
+	FString GetCurrentSessionTimeAsString();
+
 
 	UFUNCTION(BlueprintCallable, Category = "Vyra|SaveGame|Audio")
 	void ApplySoundMixClassOverride(USoundMix* SoundMix, USoundClass* SoundClass, float Volume,float Pitch, float FadeInTime);
@@ -80,6 +83,8 @@ public:
 private:
 
 	bool IsNotMainMenu() const;
+	bool IsNotArcadeMode() const;
+
 private:
 	
 	FString CurrentLevelSaveSlot;

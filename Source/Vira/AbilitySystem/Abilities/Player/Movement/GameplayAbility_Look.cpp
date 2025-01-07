@@ -51,14 +51,14 @@ void UGameplayAbility_Look::Look(const FVector2D& MovementInput)
 		// If there's significant input, update rotation
 		if (InputMagnitude > 0.1f)
 		{
-			FVector2D NormalizedInput = MovementInput.GetSafeNormal();
+			const FVector2D NormalizedInput = MovementInput.GetSafeNormal();
 
-			FRotator TargetRotation = FVector(NormalizedInput.Y, NormalizedInput.X, 0.f).Rotation();
-			FRotator CurrentControlRotation = PlayerController->GetControlRotation();
+			const FRotator TargetRotation = FVector(NormalizedInput.Y, NormalizedInput.X, 0.f).Rotation();
+			const FRotator CurrentControlRotation = PlayerController->GetControlRotation();
 			FRotator DeltaRotation = TargetRotation - CurrentControlRotation;
 			DeltaRotation.Normalize();
-			
-			FRotator SmoothedRotation = CurrentControlRotation + DeltaRotation * GetWorld()->GetDeltaSeconds() * ControllerRotationSpeed;
+
+			const FRotator SmoothedRotation = CurrentControlRotation + DeltaRotation * GetWorld()->GetDeltaSeconds() * ControllerRotationSpeed;
 			
 			PlayerController->SetControlRotation(SmoothedRotation);
 		}
@@ -81,15 +81,15 @@ void UGameplayAbility_Look::Look(const FVector2D& MovementInput)
 	}
 }
 
-bool UGameplayAbility_Look::RaycastToGround(FVector& HitLocation, float TraceDistance)
+bool UGameplayAbility_Look::RaycastToGround(FVector& HitLocation, float TraceDistance) const
 {
 
 	FVector WorldLocation, WorldDirection;
 	if (PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 	{
 		// Define the start and end points for the trace
-		FVector Start = WorldLocation;
-		FVector End = Start + (WorldDirection * TraceDistance);
+		const FVector Start = WorldLocation;
+		const FVector End = Start + (WorldDirection * TraceDistance);
 
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
