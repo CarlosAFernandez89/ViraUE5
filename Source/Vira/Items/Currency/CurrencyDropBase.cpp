@@ -29,6 +29,10 @@ void ACurrencyDropBase::UpdateVisualsDueToQuantityChange_Implementation(float Ne
 	Quantity = NewQuantity;
 }
 
+void ACurrencyDropBase::StartLerpToPlayer_Implementation(const AActor* Player, const float LerpSpeed)
+{
+}
+
 // Called when the game starts or when spawned
 void ACurrencyDropBase::BeginPlay()
 {

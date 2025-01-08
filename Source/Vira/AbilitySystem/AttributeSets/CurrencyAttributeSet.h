@@ -27,7 +27,15 @@ public:
 	FGameplayAttributeData Souls = 1.f;
 	ATTRIBUTE_ACCESSORS(UCurrencyAttributeSet, Souls);
 
+
+	UPROPERTY(BlueprintReadOnly, Category = "CurrencyAttributeSet", ReplicatedUsing = OnRep_PickUpRadius)
+	FGameplayAttributeData PickUpRadius = 1.f;
+	ATTRIBUTE_ACCESSORS(UCurrencyAttributeSet, PickUpRadius);
+
 protected:
 	UFUNCTION()
 	virtual void OnRep_Souls(const FGameplayAttributeData& OldSouls);
+
+	UFUNCTION()
+	virtual void OnRep_PickUpRadius(const FGameplayAttributeData& OldPickUpRadius);
 };

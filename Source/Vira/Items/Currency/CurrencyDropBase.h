@@ -48,7 +48,12 @@ public:
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Currency Drop")
 	void UpdateVisualsDueToQuantityChange(float NewQuantity);
-	
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Currency Drop")
+	void DisableAllGravity();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Currency Drop")
+	void StartLerpToPlayer(const AActor* Player, const float LerpSpeed);
 protected:
 	virtual void BeginPlay() override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;

@@ -17,6 +17,10 @@ void UCurrencyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f,UE_BIG_NUMBER);
 	}
+	else if(Attribute == GetPickUpRadiusAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f,2000.f);
+	}
 }
 
 void UCurrencyAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -32,6 +36,7 @@ void UCurrencyAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCurrencyAttributeSet, Souls, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCurrencyAttributeSet, PickUpRadius, COND_None, REPNOTIFY_Always);
 
 }
 
@@ -43,9 +48,18 @@ void UCurrencyAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f,UE_BIG_NUMBER);
 	}
+	else if(Attribute == GetPickUpRadiusAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f,2000.f);
+	}
 }
 
 void UCurrencyAttributeSet::OnRep_Souls(const FGameplayAttributeData& OldSouls)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCurrencyAttributeSet, Souls, OldSouls);
+}
+
+void UCurrencyAttributeSet::OnRep_PickUpRadius(const FGameplayAttributeData& OldPickUpRadius)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCurrencyAttributeSet, PickUpRadius, OldPickUpRadius);
 }
