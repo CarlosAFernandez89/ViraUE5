@@ -12,6 +12,8 @@
 // Sets default values
 ACurrencyDropBase::ACurrencyDropBase(): Quantity(0), TargetASC(nullptr)
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	// Create a sphere collider
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->InitSphereRadius(25.0f);
@@ -31,7 +33,7 @@ void ACurrencyDropBase::UpdateVisualsDueToQuantityChange_Implementation(float Ne
 void ACurrencyDropBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SetLifeSpan(30.f);
 }
 
 void ACurrencyDropBase::NotifyActorBeginOverlap(AActor* OtherActor)

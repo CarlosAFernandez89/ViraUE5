@@ -29,14 +29,23 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Waves")
 	void StartNextWave();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Waves")
+	void OnWaveStarted(float WaveDelay, int32 InCurrentWave);
+
 	UFUNCTION(BlueprintCallable, Category = "Waves")
 	void EndWave();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Waves")
+	void OnWaveEnded();
+	
 	UFUNCTION(BlueprintNativeEvent, Category = "Waves")
-	void OnEnemyKilled(TSubclassOf<AVyraEnemyCharacter> Enemy);
+	void OnEnemyKilled(AVyraEnemyCharacter* Enemy);
 
 	UFUNCTION(BlueprintCallable, Category = "Waves")
 	void SpawnEnemiesForWave();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Waves")
+	void OnWaveExperienceUpdated(float CurrentExperience, float MaxExperience);
 
 private:
 
@@ -48,9 +57,13 @@ private:
 
 	void ClearRemainingEnemies(bool ActivateDeathAbility = false);
 	
-	UEnemyDataAsset* GetEnemyDataForClass(TSubclassOf<AVyraEnemyCharacter> EnemyClass);
+	UEnemyDataAsset* GetEnemyDataForType(EVyraEnemyType EnemyType);
 	
 	float CalculateWaveExpRequirement(int32 WaveNumber);
+	
+	int32 GetMaxEnemiesToSpawn(int32 WaveNumber);
+	
+	int32 GetEnemiesToSpawn(int32 WaveNumber);
 
 public:
 
@@ -60,7 +73,16 @@ protected:
 	UCurveFloat* WaveExpCurve;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
-	float WaveSpawnRadius;
+	float WaveSpawnRadiusMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	float WaveSpawnRadiusMin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	UCurveFloat* MaxEnemiesPerWaveCurve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	UCurveVector* RangeOfEnemiesPerWaveCurve;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
 	UEnemyDataAsset* BasicEnemies;
@@ -94,7 +116,13 @@ private:
 	float CurrentWaveSpawnRate = 6.f;
 
 	UPROPERTY()
+	float WaveStartDelay = 5.f;
+
+	UPROPERTY()
 	int32 EnemiesToSpawnThisWave = 4;
+
+	UPROPERTY()
+	int32 MaxEnemiesToSpawnThisWave;
 	
 	UPROPERTY()
 	TArray<AVyraEnemyCharacter*> SpawnedEnemies;

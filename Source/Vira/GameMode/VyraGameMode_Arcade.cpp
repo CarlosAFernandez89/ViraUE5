@@ -5,17 +5,22 @@
 
 #include "NavigationSystem.h"
 #include "AI/NavigationSystemBase.h"
+#include "Curves/CurveVector.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Vira/AbilitySystem/Abilities/Enemies/VyraGameplayAbility_EnemyDeath.h"
 #include "Vira/NPC/Enemy/EnemyDataAsset.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 
-AVyraGameMode_Arcade::AVyraGameMode_Arcade(): WaveExpCurve(nullptr), WaveSpawnRadius(500.f), BasicEnemies(nullptr),
+AVyraGameMode_Arcade::AVyraGameMode_Arcade(): WaveExpCurve(nullptr), WaveSpawnRadiusMax(1500.f),
+                                              WaveSpawnRadiusMin(850.f), MaxEnemiesPerWaveCurve(nullptr),
+                                              RangeOfEnemiesPerWaveCurve(nullptr),
+                                              BasicEnemies(nullptr),
                                               EliteEnemies(nullptr),
                                               BossEnemies(nullptr),
                                               ArchbossEnemies(nullptr),
                                               VyraPlayerStateCharacter(nullptr),
-                                              NavigationSystem(nullptr)
+                                              NavigationSystem(nullptr), MaxEnemiesToSpawnThisWave(0)
 {
 }
 
@@ -29,11 +34,14 @@ void AVyraGameMode_Arcade::BeginPlay()
 
 void AVyraGameMode_Arcade::StartNextWave()
 {
+	GEngine->ForceGarbageCollection(true);
 	CurrentWave++;
 	
-	WaveExpRequirement = CalculateWaveExpRequirement(CurrentWave); 
+	WaveExpRequirement = CalculateWaveExpRequirement(CurrentWave);
+	MaxEnemiesToSpawnThisWave = GetMaxEnemiesToSpawn(CurrentWave);
 
 	CurrentWaveExp = 0.0f;
+	OnWaveExperienceUpdated(CurrentWaveExp, WaveExpRequirement);
 
 	// You might want to introduce a delay or transition here before starting the wave
 	// ...
@@ -45,24 +53,49 @@ void AVyraGameMode_Arcade::StartNextWave()
 
 void AVyraGameMode_Arcade::EndWave()
 {
+	UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this,WaveTimerHandle);
 	ClearRemainingEnemies();
+	OnWaveEnded();
 }
 
-void AVyraGameMode_Arcade::OnEnemyKilled_Implementation(TSubclassOf<AVyraEnemyCharacter> Enemy)
+void AVyraGameMode_Arcade::OnEnemyKilled_Implementation(AVyraEnemyCharacter* Enemy)
 {
-	// Find the UEnemyData associated with the killed enemy
-	if (UEnemyDataAsset* EnemyData = GetEnemyDataForClass(Enemy->GetClass()))
+	if (Enemy)
 	{
-		// Grant experience
-		CurrentWaveExp += EnemyData->ExperienceValue;
-
-		// Check if wave completion threshold is reached
-		if (CurrentWaveExp >= WaveExpRequirement)
+		if (const int Index = SpawnedEnemies.Find(Enemy); Index != INDEX_NONE)
 		{
-			EndWave();
+			SpawnedEnemies.RemoveAt(Index);
 		}
+		
+		// Get the enemy type from the killed enemy
+		EVyraEnemyType EnemyType = Enemy->GetEnemyType();
 
-		// ... (Update UI to show current wave progress) ...
+		// Find the UEnemyDataAsset based on the enemy type
+		if (UEnemyDataAsset* EnemyData = GetEnemyDataForType(EnemyType))
+		{
+			// Grant experience
+			CurrentWaveExp += EnemyData->ExperienceValue;
+
+			//If the wave hasn't ended...
+			if (WaveTimerHandle.IsValid())
+			{
+				OnWaveExperienceUpdated(CurrentWaveExp, WaveExpRequirement);
+			}
+			
+			// Check if wave completion threshold is reached
+			if (CurrentWaveExp >= WaveExpRequirement)
+			{
+				EndWave();
+			}
+
+			// ... (Update UI to show current wave progress) ...
+
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Could not find UEnemyDataAsset for enemy type %s"), *UEnum::GetValueAsString(EnemyType));
+		}
 	}
 }
 
@@ -86,7 +119,9 @@ void AVyraGameMode_Arcade::SpawnEnemiesForWave()
 
 	//TODO: Calculate CurrentWaveSpawnRate
 	
-	World->GetTimerManager().SetTimer(WaveTimerHandle,this,&AVyraGameMode_Arcade::SpawnEnemy, CurrentWaveSpawnRate, true, 0.f);
+	OnWaveStarted(WaveStartDelay, CurrentWave);
+	
+	World->GetTimerManager().SetTimer(WaveTimerHandle,this,&AVyraGameMode_Arcade::SpawnEnemy, CurrentWaveSpawnRate, true, WaveStartDelay);
 }
 
 EVyraEnemyType AVyraGameMode_Arcade::DetermineEnemyTypeToSpawn()
@@ -180,11 +215,15 @@ void AVyraGameMode_Arcade::SpawnEnemy()
     // Return if required things aren't valid.
     if (!VyraPlayerStateCharacter || !NavigationSystem) return;
 
+	// Return if we already spawned too many enemies at once.
+	if (SpawnedEnemies.Num() > MaxEnemiesToSpawnThisWave) return;
+
     const FVector SpawnCenter = VyraPlayerStateCharacter->GetActorLocation();
 
     FActorSpawnParameters SpawnParameters;
     SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
+	EnemiesToSpawnThisWave = GetEnemiesToSpawn(CurrentWave);
+	
 	for (int i = 0; i < EnemiesToSpawnThisWave; ++i)
 	{
 		// Determine enemy type to spawn based on some logic
@@ -210,14 +249,25 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 			TSubclassOf<AVyraEnemyCharacter> SelectedEnemyClass = EnemyClasses[RandomIndex];
 
 			FNavLocation RandomNavLocation;
-			FVector RandomSpawnLocation;
-			if (NavigationSystem->GetRandomReachablePointInRadius(SpawnCenter, WaveSpawnRadius, RandomNavLocation))
+			FVector RandomSpawnLocation = SpawnCenter;
+			// Try a few times to find a valid location
+			constexpr int32 MaxAttempts = 10; // Adjust as needed
+			for (int32 j = 0; j < MaxAttempts; ++j)
 			{
-				RandomSpawnLocation = RandomNavLocation.Location;
-			}
-			else
-			{
-				RandomSpawnLocation = SpawnCenter;
+				// Get a random point within the maximum radius
+				if (NavigationSystem->GetRandomReachablePointInRadius(SpawnCenter, WaveSpawnRadiusMax, RandomNavLocation))
+				{
+					RandomSpawnLocation = RandomNavLocation.Location;
+
+					// Calculate the distance to the spawn center
+					float DistanceToCenter = FVector::Dist(RandomSpawnLocation, SpawnCenter);
+
+					// Check if the distance is greater than or equal to the minimum radius
+					if (DistanceToCenter >= WaveSpawnRadiusMin)
+					{
+						break;
+					}
+				}
 			}
 
 			FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(RandomSpawnLocation, SpawnCenter);
@@ -226,6 +276,7 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 			if (AVyraEnemyCharacter* SpawnedCharacter = GetWorld()->SpawnActor<AVyraEnemyCharacter>(SelectedEnemyClass, RandomSpawnLocation, SpawnRotation, SpawnParameters))
 			{
 				SpawnedCharacter->OnEnemyKilled.AddDynamic(this, &AVyraGameMode_Arcade::OnEnemyKilled);
+				SpawnedEnemies.Add(SpawnedCharacter);
 				// TODO: Apply gameplay effect to scale wave difficulties.
 			}
 			else
@@ -256,24 +307,26 @@ void AVyraGameMode_Arcade::ClearRemainingEnemies(bool ActivateDeathAbility)
 			}
 		}
 	}
+
+	SpawnedEnemies.Empty();
 }
 
-UEnemyDataAsset* AVyraGameMode_Arcade::GetEnemyDataForClass(TSubclassOf<AVyraEnemyCharacter> EnemyClass)
+UEnemyDataAsset* AVyraGameMode_Arcade::GetEnemyDataForType(EVyraEnemyType EnemyType)
 {
-	// Helper function to find the UEnemyData for a given enemy class
-
-	// Iterate through all available UEnemyDataAsset instances
-	for (TObjectIterator<UEnemyDataAsset> It; It; ++It)
+	switch (EnemyType)
 	{
-		UEnemyDataAsset* EnemyData = *It;
-		if (EnemyData && EnemyData->EnemyClass.Contains(EnemyClass))
-		{
-			return EnemyData;
-		}
+	case EVyraEnemyType::NORMAL:
+		return BasicEnemies;
+	case EVyraEnemyType::ELITE:
+		return EliteEnemies;
+	case EVyraEnemyType::BOSS:
+		return BossEnemies;
+	case EVyraEnemyType::ARCHBOSS:
+		return ArchbossEnemies;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown enemy type: %s"), *UEnum::GetValueAsString(EnemyType));
+		return nullptr;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Could not find UEnemyDataAsset for the specified enemy class."));
-	return nullptr;
 }
 
 float AVyraGameMode_Arcade::CalculateWaveExpRequirement(int32 WaveNumber)
@@ -286,5 +339,43 @@ float AVyraGameMode_Arcade::CalculateWaveExpRequirement(int32 WaveNumber)
 	{
 		UE_LOG(LogTemp, Error, TEXT("WaveExpCurve not set in Game Mode!"));
 		return 100.0f; // Default value if the curve is not set
+	}
+}
+
+int32 AVyraGameMode_Arcade::GetMaxEnemiesToSpawn(int32 WaveNumber)
+{
+	if (MaxEnemiesPerWaveCurve)
+	{
+		return FMath::CeilToInt32(MaxEnemiesPerWaveCurve->GetFloatValue(WaveNumber));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("MaxEnemiesPerWaveCurve not set in Game Mode!"));
+		return 25.0f; // Default value if the curve is not set
+	}
+}
+
+int32 AVyraGameMode_Arcade::GetEnemiesToSpawn(int32 WaveNumber)
+{
+	if (RangeOfEnemiesPerWaveCurve)
+	{
+		FVector RangeVector = RangeOfEnemiesPerWaveCurve->GetVectorValue(WaveNumber);
+		
+		int32 MinEnemies = FMath::RoundToInt(RangeVector.X);
+		int32 MaxEnemies = FMath::RoundToInt(RangeVector.Y);
+
+		// Ensure MinEnemies is not greater than MaxEnemies
+		if (MinEnemies > MaxEnemies)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GetEnemiesToSpawn: MinEnemies (%d) is greater than MaxEnemies (%d) in RangeOfEnemiesPerWaveCurve at Wave %d. Swapping values."), MinEnemies, MaxEnemies, WaveNumber);
+			Swap(MinEnemies, MaxEnemies); // Swap the values if they are in the wrong order
+		}
+		
+		return FMath::RandRange(MinEnemies, MaxEnemies);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("RangeOfEnemiesPerWaveCurve not set in Game Mode!"));
+		return FMath::RandRange(4,10); // Default value if the curve is not set
 	}
 }

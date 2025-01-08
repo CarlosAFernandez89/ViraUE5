@@ -70,6 +70,7 @@ void AVyraAIController::OnUnPossess()
 	GetWorld()->GetTimerManager().ClearTimer(CheckForgottenActors_TimerHandle);
 	
 	Super::OnUnPossess();
+	Destroy();
 }
 
 void AVyraAIController::CheckIfForgottenSeenActor()

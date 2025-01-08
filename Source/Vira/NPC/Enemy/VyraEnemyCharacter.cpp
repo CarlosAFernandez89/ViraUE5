@@ -159,5 +159,5 @@ void AVyraEnemyCharacter::SpawnItemActor(const TSubclassOf<ACurrencyDropBase>& D
 
 void AVyraEnemyCharacter::OnGSCDeathEvent()
 {
-	OnEnemyKilled.Broadcast(this->StaticClass());
+	OnEnemyKilled.Broadcast(this);
 }

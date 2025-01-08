@@ -28,7 +28,7 @@ struct FEnemyDropTable
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyKilled, TSubclassOf<AVyraEnemyCharacter>, EnemyClass);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyKilled, AVyraEnemyCharacter*, EnemyClass);
 
 
 UCLASS()
@@ -48,6 +48,9 @@ public:
 
 	virtual ESpudRespawnMode GetSpudRespawnMode_Implementation() const override { return ESpudRespawnMode::AlwaysRespawn; };
 
+	UFUNCTION(BlueprintCallable)
+	EVyraEnemyType GetEnemyType() const {return EnemyType;}
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
