@@ -65,9 +65,18 @@ private:
 	
 	int32 GetEnemiesToSpawn(int32 WaveNumber);
 
+	void ApplyScalingGameplayEffect(const AVyraEnemyCharacter* Owner, EVyraEnemyType InEnemyType);
+	
+	void TryClearingNullArrayItems();
+
 public:
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	int32 StartingWave = 0;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	TSubclassOf<UGameplayEffect> EnemyScaler;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
 	UCurveFloat* WaveExpCurve;

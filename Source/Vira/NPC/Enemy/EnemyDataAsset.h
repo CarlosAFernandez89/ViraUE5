@@ -17,5 +17,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	float ExperienceValue;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	UCurveFloat* DifficultyCurve_MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	UCurveFloat* DifficultyCurve_BaseDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	UCurveFloat* DifficultyCurve_DamageReduction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+	UCurveFloat* DifficultyCurve_KnockBackResistance;
 };

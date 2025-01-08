@@ -3,6 +3,7 @@
 
 #include "VyraGameMode_Arcade.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "NavigationSystem.h"
 #include "AI/NavigationSystemBase.h"
 #include "Curves/CurveVector.h"
@@ -27,14 +28,15 @@ AVyraGameMode_Arcade::AVyraGameMode_Arcade(): WaveExpCurve(nullptr), WaveSpawnRa
 void AVyraGameMode_Arcade::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	CurrentWave = StartingWave;
+	
 	StartNextWave();
 }
 
 
 void AVyraGameMode_Arcade::StartNextWave()
 {
-	GEngine->ForceGarbageCollection(true);
 	CurrentWave++;
 	
 	WaveExpRequirement = CalculateWaveExpRequirement(CurrentWave);
@@ -216,7 +218,11 @@ void AVyraGameMode_Arcade::SpawnEnemy()
     if (!VyraPlayerStateCharacter || !NavigationSystem) return;
 
 	// Return if we already spawned too many enemies at once.
-	if (SpawnedEnemies.Num() > MaxEnemiesToSpawnThisWave) return;
+	if (SpawnedEnemies.Num() > MaxEnemiesToSpawnThisWave) 
+    {
+		TryClearingNullArrayItems();
+		return;
+    }
 
     const FVector SpawnCenter = VyraPlayerStateCharacter->GetActorLocation();
 
@@ -248,6 +254,8 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 			int32 RandomIndex = FMath::RandRange(0, EnemyClasses.Num() - 1);
 			TSubclassOf<AVyraEnemyCharacter> SelectedEnemyClass = EnemyClasses[RandomIndex];
 
+			EVyraEnemyType EnemyType = SelectedEnemyClass.GetDefaultObject()->GetEnemyType();
+			
 			FNavLocation RandomNavLocation;
 			FVector RandomSpawnLocation = SpawnCenter;
 			// Try a few times to find a valid location
@@ -277,6 +285,9 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 			{
 				SpawnedCharacter->OnEnemyKilled.AddDynamic(this, &AVyraGameMode_Arcade::OnEnemyKilled);
 				SpawnedEnemies.Add(SpawnedCharacter);
+				ApplyScalingGameplayEffect(SpawnedCharacter, EnemyType);
+
+				
 				// TODO: Apply gameplay effect to scale wave difficulties.
 			}
 			else
@@ -378,4 +389,48 @@ int32 AVyraGameMode_Arcade::GetEnemiesToSpawn(int32 WaveNumber)
 		UE_LOG(LogTemp, Error, TEXT("RangeOfEnemiesPerWaveCurve not set in Game Mode!"));
 		return FMath::RandRange(4,10); // Default value if the curve is not set
 	}
+}
+
+void AVyraGameMode_Arcade::ApplyScalingGameplayEffect(const AVyraEnemyCharacter* InOwner, const EVyraEnemyType InEnemyType)
+{
+    if (UAbilitySystemComponent* ASC = InOwner->GetAbilitySystemComponent())
+    {
+        if (UEnemyDataAsset* Data = GetEnemyDataForType(InEnemyType))
+        {
+            // Create the Gameplay Effect Spec Handle
+            FGameplayEffectSpecHandle GESH = ASC->MakeOutgoingSpec(EnemyScaler, 1, ASC->MakeEffectContext());
+
+            // Check if the handle is valid
+            if (GESH.IsValid())
+            {
+	            // Make sure the spec exists
+                if (FGameplayEffectSpec* Spec = GESH.Data.Get())
+                {
+                    const FGameplayTag DifficultyCurve_MaxHealth = FGameplayTag::RequestGameplayTag("SetByCaller.Arcade.MaxHealth");
+                    UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(GESH, DifficultyCurve_MaxHealth, Data->DifficultyCurve_MaxHealth->GetFloatValue(CurrentWave));
+
+                    const FGameplayTag DifficultyCurve_BaseDamage = FGameplayTag::RequestGameplayTag("SetByCaller.Arcade.BaseDamage");
+                    UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(GESH, DifficultyCurve_BaseDamage, Data->DifficultyCurve_BaseDamage->GetFloatValue(CurrentWave));
+
+                    const FGameplayTag DifficultyCurve_DamageReduction = FGameplayTag::RequestGameplayTag("SetByCaller.Arcade.DamageReduction");
+                    UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(GESH, DifficultyCurve_DamageReduction, Data->DifficultyCurve_DamageReduction->GetFloatValue(CurrentWave));
+
+                    const FGameplayTag DifficultyCurve_KnockBackResistance = FGameplayTag::RequestGameplayTag("SetByCaller.Arcade.KnockBackResistance");
+                    UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(GESH, DifficultyCurve_KnockBackResistance, Data->DifficultyCurve_KnockBackResistance->GetFloatValue(CurrentWave));
+
+                    // Apply the spec to self
+                    ASC->ApplyGameplayEffectSpecToSelf(*Spec);
+                }
+            }
+        }
+    }
+}
+
+void AVyraGameMode_Arcade::TryClearingNullArrayItems()
+{
+	SpawnedEnemies.RemoveAll([](AVyraEnemyCharacter* Enemy) {
+		return Enemy == nullptr;
+	});
+
+	UE_LOG(LogTemp, Log, TEXT("Removed null enemies. Remaining enemies: %d"), SpawnedEnemies.Num());
 }
