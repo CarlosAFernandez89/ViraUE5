@@ -29,7 +29,7 @@ void AVyraEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	AIController = CastChecked<AVyraAIController>(UAIBlueprintHelperLibrary::GetAIController(this));
-
+	GetGSCCoreComponent()->OnDeath.AddDynamic(this, &AVyraEnemyCharacter::AVyraEnemyCharacter::OnGSCDeathEvent);
 }
 
 void AVyraEnemyCharacter::SpawnDropTableItems(float DropInterval)
@@ -155,4 +155,9 @@ void AVyraEnemyCharacter::SpawnItemActor(const TSubclassOf<ACurrencyDropBase>& D
 			CurrencyDrop->UpdateVisualsDueToQuantityChange(Quantity);
 		}
 	}
+}
+
+void AVyraEnemyCharacter::OnGSCDeathEvent()
+{
+	OnEnemyKilled.Broadcast(this->StaticClass());
 }

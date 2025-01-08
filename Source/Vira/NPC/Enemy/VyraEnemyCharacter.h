@@ -28,6 +28,8 @@ struct FEnemyDropTable
 };
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyKilled, TSubclassOf<AVyraEnemyCharacter>, EnemyClass);
+
 
 UCLASS()
 class VIRA_API AVyraEnemyCharacter : public AVyraNPCCharacterBase, public IAIHelpers
@@ -69,6 +71,9 @@ protected:
 
 private:
 	void SpawnItemActor(const TSubclassOf<ACurrencyDropBase>& DropClass, int32 Quantity);
+
+	UFUNCTION()
+	void OnGSCDeathEvent();
 	
 protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Enemy")
@@ -95,5 +100,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Patrol")
 	AAIPatrolRoute* PatrolRoute = nullptr;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintAssignable)
+	FOnEnemyKilled OnEnemyKilled;
 };

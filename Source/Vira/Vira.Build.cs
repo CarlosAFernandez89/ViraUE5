@@ -44,6 +44,7 @@ public class Vira : ModuleRules
 			"PaperZD",
 			"GameplayMessageRuntime",
 			"Niagara",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
