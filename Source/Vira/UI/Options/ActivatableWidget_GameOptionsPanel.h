@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CommonActivatableWidget.h"
+#include "Vira/UI/Foundation/VyraActivatableWidget.h"
 #include "ActivatableWidget_GameOptionsPanel.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UActivatableWidget_GameOptionsPanel : public UCommonActivatableWidget
+class VIRA_API UActivatableWidget_GameOptionsPanel : public UVyraActivatableWidget
 {
 	GENERATED_BODY()
 };
