@@ -19,6 +19,9 @@ struct FCurrencyDropData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Quantity = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.1", ClampMax = "1"))
+	float DropChance = 1.f;
 };
 
 UCLASS()

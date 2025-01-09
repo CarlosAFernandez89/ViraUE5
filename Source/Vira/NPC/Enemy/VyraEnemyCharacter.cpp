@@ -38,6 +38,8 @@ void AVyraEnemyCharacter::SpawnDropTableItems(float DropInterval)
 	{
 		for (FCurrencyDropData CurrencyDrop : DropTable.CurrencyDrops)
 		{
+			if (FMath::RandRange(0, 1) <= CurrencyDrop.DropChance) continue;
+			
 			TSubclassOf<ACurrencyDropBase> Class = CurrencyDrop.DropClass;
 			int32 DropQuant = CurrencyDrop.Quantity;
 			FTimerHandle TempTimerHandle;
