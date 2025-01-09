@@ -21,6 +21,10 @@ void UCurrencyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f,2000.f);
 	}
+	else if(Attribute == GetItemDropRateIncreaseAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f,10.f);
+	}
 }
 
 void UCurrencyAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
@@ -37,6 +41,8 @@ void UCurrencyAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePro
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCurrencyAttributeSet, Souls, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCurrencyAttributeSet, PickUpRadius, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCurrencyAttributeSet, ItemDropRateIncrease, COND_None, REPNOTIFY_Always);
+
 
 }
 
@@ -52,6 +58,10 @@ void UCurrencyAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f,2000.f);
 	}
+	else if(Attribute == GetItemDropRateIncreaseAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f,10.f);
+	}
 }
 
 void UCurrencyAttributeSet::OnRep_Souls(const FGameplayAttributeData& OldSouls)
@@ -62,4 +72,9 @@ void UCurrencyAttributeSet::OnRep_Souls(const FGameplayAttributeData& OldSouls)
 void UCurrencyAttributeSet::OnRep_PickUpRadius(const FGameplayAttributeData& OldPickUpRadius)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCurrencyAttributeSet, PickUpRadius, OldPickUpRadius);
+}
+
+void UCurrencyAttributeSet::OnRep_ItemDropRateIncrease(const FGameplayAttributeData& OldItemDropRateIncrease)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCurrencyAttributeSet, ItemDropRateIncrease, OldItemDropRateIncrease);
 }

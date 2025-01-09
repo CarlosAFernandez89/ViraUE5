@@ -9,7 +9,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
+#include "Vira/Character/VyraPlayerStateCharacter.h"
 #include "Vira/Items/Currency/CurrencyDropBase.h"
+#include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 
 
 // Sets default values
@@ -38,7 +41,16 @@ void AVyraEnemyCharacter::SpawnDropTableItems(float DropInterval)
 	{
 		for (FCurrencyDropData CurrencyDrop : DropTable.CurrencyDrops)
 		{
-			if (FMath::RandRange(0, 1) <= CurrencyDrop.DropChance) continue;
+			float ItemDropRateIncrease = 0.f;
+			if (UAbilitySystemComponent* PlayerASC = UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter(this)->GetAbilitySystemComponent())
+			{
+				ItemDropRateIncrease = PlayerASC->GetNumericAttribute(UCurrencyAttributeSet::GetItemDropRateIncreaseAttribute());
+			}
+			
+			float CalculatedDropChance = CurrencyDrop.DropChance * (1.f + ItemDropRateIncrease);
+
+			// Check if the item will drop, if not we continue to next item in drop list.
+			if (FMath::RandRange(0, 1) <= CalculatedDropChance) continue;
 			
 			TSubclassOf<ACurrencyDropBase> Class = CurrencyDrop.DropClass;
 			int32 DropQuant = CurrencyDrop.Quantity;

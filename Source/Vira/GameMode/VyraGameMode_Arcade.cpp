@@ -64,10 +64,7 @@ void AVyraGameMode_Arcade::OnEnemyKilled_Implementation(AVyraEnemyCharacter* Ene
 {
 	if (Enemy)
 	{
-		if (const int Index = SpawnedEnemies.Find(Enemy); Index != INDEX_NONE)
-		{
-			SpawnedEnemies.RemoveAt(Index);
-		}
+		SpawnedEnemies.Remove(Enemy);
 		
 		// Get the enemy type from the killed enemy
 		EVyraEnemyType EnemyType = Enemy->GetEnemyType();
@@ -217,10 +214,11 @@ void AVyraGameMode_Arcade::SpawnEnemy()
     // Return if required things aren't valid.
     if (!VyraPlayerStateCharacter || !NavigationSystem) return;
 
+	TryClearingNullArrayItems();
+
 	// Return if we already spawned too many enemies at once.
 	if (SpawnedEnemies.Num() > MaxEnemiesToSpawnThisWave) 
     {
-		TryClearingNullArrayItems();
 		return;
     }
 
@@ -278,6 +276,12 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 				}
 			}
 
+			// Ignore the inner radius and just spawn the enemy.
+			if (RandomSpawnLocation == SpawnCenter)
+			{
+				NavigationSystem->GetRandomReachablePointInRadius(SpawnCenter, WaveSpawnRadiusMax, RandomNavLocation);
+			}
+
 			FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(RandomSpawnLocation, SpawnCenter);
 
 			// Spawn the enemy
@@ -285,10 +289,9 @@ void AVyraGameMode_Arcade::SpawnEnemy()
 			{
 				SpawnedCharacter->OnEnemyKilled.AddDynamic(this, &AVyraGameMode_Arcade::OnEnemyKilled);
 				SpawnedEnemies.Add(SpawnedCharacter);
-				ApplyScalingGameplayEffect(SpawnedCharacter, EnemyType);
 
-				
-				// TODO: Apply gameplay effect to scale wave difficulties.
+				//Apply gameplay effect to scale wave difficulties.
+				ApplyScalingGameplayEffect(SpawnedCharacter, EnemyType);				
 			}
 			else
 			{
