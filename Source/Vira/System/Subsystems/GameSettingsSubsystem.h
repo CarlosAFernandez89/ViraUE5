@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameSettingsSubsystem.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowEnemyHealthBarsUpdated, bool, bState);
 /**
  * 
  */
@@ -18,6 +19,10 @@ public:
 	// Example settings
 	bool bShowDamageNumbers = true;
 	bool bEnableCameraShake = true;
+	bool bShowEnemyHealthBars = true;
+
+	UPROPERTY(BlueprintAssignable, Category="GameSettings")
+	FOnShowEnemyHealthBarsUpdated OnShowHealthBarsUpdated;
 
 	// Getter and Setter for Damage Numbers
 	UFUNCTION(BlueprintCallable)
@@ -30,6 +35,12 @@ public:
 	bool GetEnableCameraShake() const { return bEnableCameraShake; }
 	UFUNCTION(BlueprintCallable)
 	void SetEnableCameraShake(bool bValue) { bEnableCameraShake = bValue; }
+
+	// Getter and Setter for Enemy HealthBars
+	UFUNCTION(BlueprintCallable)
+	bool GetShowEnemyHealthBars() const { return bShowEnemyHealthBars; }
+	UFUNCTION(BlueprintCallable)
+	void SetShowEnemyHealthBars(bool bValue);
 
 	// Override Initialize for setup if needed
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

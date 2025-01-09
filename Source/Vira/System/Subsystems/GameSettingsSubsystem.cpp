@@ -6,6 +6,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Vira/System/SaveGame/VyraSaveGame_GameSettings.h"
 
+void UGameSettingsSubsystem::SetShowEnemyHealthBars(bool bValue)
+{
+	bShowEnemyHealthBars = bValue;
+	OnShowHealthBarsUpdated.Broadcast(bShowEnemyHealthBars);
+}
+
 void UGameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -30,6 +36,7 @@ void UGameSettingsSubsystem::SaveSettings()
 		// Set values from current settings
 		SaveGameInstance->bShowDamageNumbers = bShowDamageNumbers;
 		SaveGameInstance->bEnableCameraShake = bEnableCameraShake;
+		SaveGameInstance->bShowEnemyHealthBars = bShowEnemyHealthBars;
 		
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("GameSettingsSlot"), 0))
 		{
@@ -50,6 +57,7 @@ void UGameSettingsSubsystem::LoadSettings()
 			// Apply loaded settings
 			bShowDamageNumbers = SaveGameInstance->bShowDamageNumbers;
 			bEnableCameraShake = SaveGameInstance->bEnableCameraShake;
+			bShowEnemyHealthBars = SaveGameInstance->bShowEnemyHealthBars;
 
 			UE_LOG(LogTemp, Log, TEXT("GameSettings loaded successfully!"));
 		}

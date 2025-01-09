@@ -21,4 +21,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Settings")
 	bool bEnableCameraShake = true;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Settings")
+	bool bShowEnemyHealthBars = true;
 };
