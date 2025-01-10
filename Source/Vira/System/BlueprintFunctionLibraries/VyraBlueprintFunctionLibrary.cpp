@@ -61,24 +61,6 @@ UVyraAbilitySystemComponent* UVyraBlueprintFunctionLibrary::GetVyraAbilitySystem
 	return nullptr;
 }
 
-UPaperFlipbookComponent* UVyraBlueprintFunctionLibrary::GetVyraPlayerSprite(UObject* WorldContextObject)
-{
-	if (AVyraPlayerStateCharacter* VyraCharacter = GetVyraPlayerCharacter(WorldContextObject))
-	{
-		return VyraCharacter->GetSprite();
-	}
-	return nullptr;
-}
-
-UPaperZDAnimInstance* UVyraBlueprintFunctionLibrary::GetVyraPlayerPaperZDAnimInstance(UObject* WorldContextObject)
-{
-	if (AVyraPlayerStateCharacter* VyraCharacter = GetVyraPlayerCharacter(WorldContextObject))
-	{
-		return VyraCharacter->GetPaperZDAnimInstance();
-	}
-	return nullptr;
-}
-
 UGSCCoreComponent* UVyraBlueprintFunctionLibrary::GetVyraPlayerGSCCoreComponent(UObject* WorldContextObject)
 {
 	if (AVyraPlayerStateCharacter* VyraCharacter = GetVyraPlayerCharacter(WorldContextObject))

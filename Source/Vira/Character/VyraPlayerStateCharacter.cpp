@@ -15,14 +15,16 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
 #include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
+#include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Currency.h"
 
 
 // Sets default values
 AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(ACharacter::MeshComponentName)), MaxAttackTokensCount(10)
+	: Super(ObjectInitializer), MaxAttackTokensCount(10)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -31,14 +33,15 @@ AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& O
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->SetRelativeLocation(FVector(0, 0, 30.0f));
-	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
-	SpringArmComponent->TargetArmLength = 450.f;
+	SpringArmComponent->SetRelativeLocation(FVector(0, 0, -40.f));
+	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, -45.f, 0.0f));
+	SpringArmComponent->TargetArmLength = 800.f;
 	SpringArmComponent->bUsePawnControlRotation = false;
 	SpringArmComponent->bInheritYaw = false;
 	SpringArmComponent->bInheritPitch = false;
 	SpringArmComponent->bInheritRoll = false;
-
+	SpringArmComponent->bDoCollisionTest = false;
+	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	CameraComponent->bUsePawnControlRotation = false;
@@ -47,31 +50,12 @@ AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& O
 	GSCCoreComponent = CreateDefaultSubobject<UGSCCoreComponent>("GSCCoreComponent");
 	GSCAbilityInputBindingComponent = CreateDefaultSubobject<UGSCAbilityInputBindingComponent>("GSCAbilityInputBindingComponent");
 
-	PaperZDAnimationComponent = CreateDefaultSubobject<UPaperZDAnimationComponent>("PaperZDAnimationComponent");
-	
-	// Try to create the sprite component
-	Sprite = CreateOptionalDefaultSubobject<UPaperFlipbookComponent>(APaperCharacter::SpriteComponentName);
-	if (Sprite)
-	{
-		Sprite->AlwaysLoadOnClient = true;
-		Sprite->AlwaysLoadOnServer = true;
-		Sprite->bOwnerNoSee = false;
-		Sprite->bAffectDynamicIndirectLighting = true;
-		Sprite->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-		Sprite->SetupAttachment(GetCapsuleComponent());
-		static FName CollisionProfileName(TEXT("CharacterMesh"));
-		Sprite->SetCollisionProfileName(CollisionProfileName);
-		Sprite->SetGenerateOverlapEvents(false);
-		Sprite->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-	}
-
 	bUseControllerRotationYaw = false;
 	if(UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
-		CharacterMovementComponent->bOrientRotationToMovement = true;
+		CharacterMovementComponent->bOrientRotationToMovement = false;
+		CharacterMovementComponent->bUseControllerDesiredRotation = true;
 		CharacterMovementComponent->RotationRate = FRotator(0.0f, -1.f, 0.0f);
-		CharacterMovementComponent->bConstrainToPlane = true;
-		CharacterMovementComponent->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::X);
 	}
 
 	CharmManagerComponent = CreateDefaultSubobject<UCharmManagerComponent>("CharmManagerComponent");
@@ -107,16 +91,18 @@ void AVyraPlayerStateCharacter::ReturnAttackToken_Implementation(int32 Amount)
 void AVyraPlayerStateCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	
+}
 
-	if (IsValid(this))
+void AVyraPlayerStateCharacter::NotifyRestarted()
+{
+	Super::NotifyRestarted();
+
+	if (UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
 	{
-		if (Sprite)
+		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
 		{
-			// force animation tick after movement component updates
-			if (Sprite->PrimaryComponentTick.bCanEverTick && GetCharacterMovement())
-			{
-				Sprite->PrimaryComponentTick.AddPrerequisite(GetCharacterMovement(), GetCharacterMovement()->PrimaryComponentTick);
-			}
+			CharacterMovementComponent->MaxWalkSpeed = ASC->GetNumericAttribute(UCombatAttributeSet::GetMovementSpeedAttribute());
 		}
 	}
 }

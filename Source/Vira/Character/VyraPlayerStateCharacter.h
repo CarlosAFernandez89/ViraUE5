@@ -30,15 +30,6 @@ class VIRA_API AVyraPlayerStateCharacter : public AGSCModularPlayerStateCharacte
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GASCompanion, meta = (AllowPrivateAccess = "true"))
 	class UGSCAbilityInputBindingComponent* GSCAbilityInputBindingComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PaperZD, meta = (AllowPrivateAccess = "true"))
-	class UPaperZDAnimationComponent* PaperZDAnimationComponent;
-	
-	// Name of the Sprite component
-	static FName SpriteComponentName;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> Sprite;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Charms, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCharmManagerComponent> CharmManagerComponent;
 
@@ -64,12 +55,8 @@ public:
 	
 	virtual void PostInitializeComponents() override;
 
-	/** Returns Sprite subobject **/
-	FORCEINLINE class UPaperFlipbookComponent* GetSprite() const { return Sprite; }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UPaperZDAnimInstance* GetPaperZDAnimInstance() const {return PaperZDAnimationComponent->GetAnimInstance(); }
-
+	virtual void NotifyRestarted() override;
+	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UGSCCoreComponent* GetGSCCoreComponent() const {return GSCCoreComponent; }
 

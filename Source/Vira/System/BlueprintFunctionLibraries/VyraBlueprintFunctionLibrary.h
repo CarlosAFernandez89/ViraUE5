@@ -33,12 +33,6 @@ public:
 	static UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent(UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
-	static UPaperFlipbookComponent* GetVyraPlayerSprite(UObject* WorldContextObject);
-
-	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
-	static UPaperZDAnimInstance* GetVyraPlayerPaperZDAnimInstance(UObject* WorldContextObject);
-
-	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))
 	static UGSCCoreComponent* GetVyraPlayerGSCCoreComponent(UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "Vyra|Character", meta = (WorldContext = "WorldContextObject"))

@@ -23,7 +23,7 @@ public:
 	FORCEINLINE class AVyraPlayerStateCharacter* GetVyraPlayerStateCharacter() const { return PlayerStateCharacter; }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UPaperZDAnimInstance* GetVyraAnimInstance() const { return PlayerStateCharacter->GetPaperZDAnimInstance(); }
+	FORCEINLINE class UAnimInstance* GetVyraAnimInstance() const { return PlayerStateCharacter->GetMesh()->GetAnimInstance(); }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent() const { return Cast<UVyraAbilitySystemComponent>(PlayerStateCharacter->GetAbilitySystemComponent()); }

@@ -3,7 +3,8 @@
 
 #include "GameplayAbility_Move.h"
 
-#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 
 UGameplayAbility_Move::UGameplayAbility_Move()
@@ -14,6 +15,8 @@ void UGameplayAbility_Move::OnGiveAbility(const FGameplayAbilityActorInfo* Actor
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 }
+
+
 
 void UGameplayAbility_Move::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                             const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
