@@ -21,9 +21,12 @@ public:
 	virtual FSlateBrush GetIcon() const override;
 	//~ End of UCommonActionWidget interface
 
+	UFUNCTION(BlueprintCallable)
+	void SetAssociatedInputAction(UInputAction* InputAction);
+
 	/** The Enhanced Input Action that is associated with this Common Input action. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	const TObjectPtr<UInputAction> AssociatedInputAction;
+	TObjectPtr<UInputAction> AssociatedInputAction;
 
 private:
 

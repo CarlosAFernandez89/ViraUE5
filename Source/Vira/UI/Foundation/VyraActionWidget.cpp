@@ -5,6 +5,7 @@
 
 #include "CommonInputBaseTypes.h"
 #include "CommonInputSubsystem.h"
+#include "CommonUITypes.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 
@@ -20,21 +21,23 @@ FSlateBrush UVyraActionWidget::GetIcon() const
 			TArray<FKey> BoundKeys = EnhancedInputSubsystem->QueryKeysMappedToAction(AssociatedInputAction);
 			FSlateBrush SlateBrush;
 
-			const UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem();
-			if (!BoundKeys.IsEmpty() && CommonInputSubsystem &&
-				UCommonInputPlatformSettings::Get()->TryGetInputBrush
-					(
-					SlateBrush, BoundKeys[0], CommonInputSubsystem->GetCurrentInputType(),
-						CommonInputSubsystem->GetCurrentGamepadName()
-					)
-				)
+			if (const UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem())
 			{
-				return SlateBrush;
+				return CommonUI::GetIconForEnhancedInputAction(CommonInputSubsystem, AssociatedInputAction);
+				//return EnhancedInputAction && CommonUI::IsEnhancedInputSupportEnabled()
+				//	? CommonUI::GetIconForEnhancedInputAction(CommonInputSubsystem, AssociatedInputAction)
+				//	: CommonUI::GetIconForInputActions(CommonInputSubsystem, InputActions);
 			}
 		}
 	}
 	
 	return Super::GetIcon();
+}
+
+void UVyraActionWidget::SetAssociatedInputAction(UInputAction* InputAction)
+{
+	AssociatedInputAction = InputAction;
+	UpdateActionWidget();
 }
 
 UEnhancedInputLocalPlayerSubsystem* UVyraActionWidget::GetEnhancedInputSubsystem() const

@@ -5,7 +5,7 @@
 
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 
-UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr)
+UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr), AbilityInfo()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }

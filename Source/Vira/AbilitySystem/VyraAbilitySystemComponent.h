@@ -18,6 +18,11 @@ class VIRA_API UVyraAbilitySystemComponent : public UGSCAbilitySystemComponent
 	UFUNCTION(BlueprintCallable)
 	TArray<UGameplayAbility*> GetAllActiveAbilitiesOfClass(TSubclassOf<UGameplayAbility> AbilityClass);
 
+	bool HasAbilityOfClass(TSubclassOf<UGameplayAbility> AbilityClass);
+
+	UFUNCTION(BlueprintCallable)
+	bool GiveUniqueAbility(FGameplayAbilitySpecHandle& SpecHandle, TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputID);
+
 	template<typename T>
 	TArray<T*> GetAllActiveAbilitiesOfClass_Typed();
 };

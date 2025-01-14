@@ -26,3 +26,27 @@ TArray<UGameplayAbility*> UVyraAbilitySystemComponent::GetAllActiveAbilitiesOfCl
 
 	return Abilities;
 }
+
+bool UVyraAbilitySystemComponent::HasAbilityOfClass(TSubclassOf<UGameplayAbility> AbilityClass)
+{
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (Spec.Ability && Spec.Ability->GetClass() == AbilityClass)
+		{
+			return true; // Ability already exists
+		}
+	}
+	return false;
+}
+
+bool UVyraAbilitySystemComponent::GiveUniqueAbility(FGameplayAbilitySpecHandle& SpecHandle,TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputID)
+{
+	if (!HasAbilityOfClass(AbilityClass))
+	{
+		FGameplayAbilitySpec Spec(AbilityClass, Level, InputID);
+		SpecHandle = GiveAbility(Spec);
+		return true;
+	}
+
+	return false;
+}

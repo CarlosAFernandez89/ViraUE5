@@ -8,6 +8,19 @@
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 #include "VyraGameplayAbility.generated.h"
 
+USTRUCT(BlueprintType)
+struct FVyraGameplayAbilityInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Name = "None";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Description = "";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Icon;
+	
+};
+
 /**
  * 
  */
@@ -30,6 +43,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UGSCCoreComponent* GetVyraGSCCoreComponent() const { return PlayerStateCharacter->GetGSCCoreComponent(); }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE FVyraGameplayAbilityInfo GetAbilityInfo() const { return AbilityInfo; }
 	
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
@@ -40,5 +56,8 @@ protected:
 
 	UPROPERTY()
 	class AVyraPlayerStateCharacter* PlayerStateCharacter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
+	FVyraGameplayAbilityInfo AbilityInfo;
 
 };
