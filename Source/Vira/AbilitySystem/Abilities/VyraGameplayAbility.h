@@ -8,6 +8,7 @@
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 #include "VyraGameplayAbility.generated.h"
 
+
 USTRUCT(BlueprintType)
 struct FVyraGameplayAbilityInfo
 {
@@ -48,6 +49,7 @@ public:
 	FORCEINLINE FVyraGameplayAbilityInfo GetAbilityInfo() const { return AbilityInfo; }
 	
 protected:
+	
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;

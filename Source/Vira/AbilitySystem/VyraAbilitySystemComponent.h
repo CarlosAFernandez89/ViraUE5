@@ -12,7 +12,7 @@ class VIRA_API UVyraAbilitySystemComponent : public UGSCAbilitySystemComponent
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UVyraAbilitySystemComponent();
 
 	UFUNCTION(BlueprintCallable)
@@ -25,6 +25,18 @@ class VIRA_API UVyraAbilitySystemComponent : public UGSCAbilitySystemComponent
 
 	template<typename T>
 	TArray<T*> GetAllActiveAbilitiesOfClass_Typed();
+
+	UFUNCTION(BlueprintCallable)
+	void AddGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+	UFUNCTION(BlueprintCallable)
+	void RemoveGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+	UFUNCTION(BlueprintCallable)
+	void SetGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+
+private:
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="GameplayTagStack", meta = (AllowPrivateAccess = "true"))
+	class UGameplayTagStackComponent* GameplayTagStack;
 };
 
 template <typename T>

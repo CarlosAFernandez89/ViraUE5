@@ -3,8 +3,12 @@
 
 #include "VyraAbilitySystemComponent.h"
 
+#include "Components/GameplayTagStackComponent.h"
+
 UVyraAbilitySystemComponent::UVyraAbilitySystemComponent()
 {
+	GameplayTagStack = CreateDefaultSubobject<UGameplayTagStackComponent>("GameplayTagStackComponent");
+	GameplayTagStack->SetComponentTickEnabled(false);
 }
 
 TArray<UGameplayAbility*> UVyraAbilitySystemComponent::GetAllActiveAbilitiesOfClass(
@@ -49,4 +53,19 @@ bool UVyraAbilitySystemComponent::GiveUniqueAbility(FGameplayAbilitySpecHandle& 
 	}
 
 	return false;
+}
+
+void UVyraAbilitySystemComponent::AddGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+{
+	GameplayTagStack->AddToTagStack(Tag, Count);
+}
+
+void UVyraAbilitySystemComponent::RemoveGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+{
+	GameplayTagStack->RemoveTagStack(Tag, Count);
+}
+
+void UVyraAbilitySystemComponent::SetGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+{
+	GameplayTagStack->SetTagStack(Tag, Count);
 }
