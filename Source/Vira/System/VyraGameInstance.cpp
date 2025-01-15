@@ -3,6 +3,7 @@
 
 #include "VyraGameInstance.h"
 
+#include "AbilitySystemGlobals.h"
 #include "Engine/World.h"
 #include "SpudSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,6 +20,8 @@ UVyraGameInstance::UVyraGameInstance(): PlayStartTime(0), TotalSaveSlotsCreated(
                                         CurrentVoiceClass(nullptr), CurrentWeatherClass(nullptr)
 {
 	CurrentSlotName = FString("DevelopmentSlot");
+
+	UAbilitySystemGlobals::Get().InitGlobalData();
 }
 
 void UVyraGameInstance::Init()

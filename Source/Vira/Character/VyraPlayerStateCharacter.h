@@ -11,6 +11,8 @@
 #include "VyraPlayerStateCharacter.generated.h"
 
 
+class UVyraWidget_HotbarPanel;
+class UVyraWidget_PlayerHUD_PC;
 class UVyraSaveGame_Charms;
 
 UCLASS()
@@ -66,6 +68,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UCharmManagerComponent* GetCharmManagerComponent() const {return CharmManagerComponent;}
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UVyraWidget_PlayerHUD_PC* GetPlayerHUD() const {return PlayerHUD;}
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetPlayerHUD(UVyraWidget_PlayerHUD_PC* InPlayerHUD) { PlayerHUD = InPlayerHUD;}
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UVyraWidget_HotbarPanel* GetPlayerHotBar() const {return PlayerHotBar;}
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetPlayerHotBar(UVyraWidget_HotbarPanel* InPlayerHotBar) { PlayerHotBar = InPlayerHotBar;}
+
 	UFUNCTION()
 	bool IsDead() const
 	{
@@ -90,4 +102,10 @@ public:
 private:
 	UPROPERTY()
 	UVyraSaveGame_Charms* SaveGame_Charms_Instance;
+
+	UPROPERTY()
+	TObjectPtr<UVyraWidget_PlayerHUD_PC> PlayerHUD;
+
+	UPROPERTY()
+	TObjectPtr<UVyraWidget_HotbarPanel> PlayerHotBar;
 };

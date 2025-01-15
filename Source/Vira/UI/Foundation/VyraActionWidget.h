@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetAssociatedInputAction(UInputAction* InputAction);
 
+	UFUNCTION(BlueprintCallable)
+	void ForceUpdateActionWidget();
+
 	/** The Enhanced Input Action that is associated with this Common Input action. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<UInputAction> AssociatedInputAction;

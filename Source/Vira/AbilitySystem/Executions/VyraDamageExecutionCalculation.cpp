@@ -56,14 +56,30 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 	const FGameplayEffectSpec Spec = ExecutionParams.GetOwningSpec();
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
-
+	
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = SourceTags;
 	EvaluateParams.TargetTags = TargetTags;
-
+	
 	float LocalBaseDamage = 1.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDamageDef, EvaluateParams, LocalBaseDamage);
 
+	//This is used to get the ScalableFloatMagnitude from the execution
+	//It can use a CurveTable to scale the damage based on the effect level.
+	float TotalCalculatedMagnitudes = 0.f;
+	for (const FGameplayEffectExecutionDefinition& ExecutionDefinition : Spec.Def->Executions)
+	{
+		for (auto Modifier : ExecutionDefinition.CalculationModifiers)
+		{
+			float CalculatedMagnitude = 0.0f;
+			Modifier.ModifierMagnitude.AttemptCalculateMagnitude(Spec, CalculatedMagnitude);
+			TotalCalculatedMagnitudes += CalculatedMagnitude;
+		}
+	}
+
+	// Add it to the base character damage.
+	LocalBaseDamage += TotalCalculatedMagnitudes;
+	
 	float LocalCriticalStrikeChance = 0.05f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalStrikeChanceDef, EvaluateParams, LocalCriticalStrikeChance);
 	

@@ -6,6 +6,16 @@
 #include "Vira/UI/Player/VyraCommonActivatableWidget_WithASC.h"
 #include "VyraWidget_PlayerHUD_PC.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FVyraFailureMessage
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText FailureMessage;
+	
+};
+
 class UGSCCoreComponent;
 class UAbilitySystemComponent;
 struct FGameplayAbilitySpecHandle;

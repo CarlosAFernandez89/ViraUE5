@@ -40,6 +40,7 @@ public class Vira : ModuleRules
 			"GASCompanion",
 			"GameplayTags",
 			"GameplayAbilities",
+			"ComboGraph",
 			"QuestFramework",
 			"PaperZD",
 			"GameplayMessageRuntime",

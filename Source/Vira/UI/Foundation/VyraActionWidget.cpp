@@ -40,6 +40,11 @@ void UVyraActionWidget::SetAssociatedInputAction(UInputAction* InputAction)
 	UpdateActionWidget();
 }
 
+void UVyraActionWidget::ForceUpdateActionWidget()
+{
+	UpdateActionWidget();
+}
+
 UEnhancedInputLocalPlayerSubsystem* UVyraActionWidget::GetEnhancedInputSubsystem() const
 {
 	const UWidget* BoundWidget = DisplayedBindingHandle.GetBoundWidget();
