@@ -3,6 +3,9 @@
 
 #include "VyraGameplayAbility_ArcadeBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
+
 UVyraGameplayAbility_ArcadeBase::UVyraGameplayAbility_ArcadeBase()
 {
 }
@@ -10,6 +13,9 @@ UVyraGameplayAbility_ArcadeBase::UVyraGameplayAbility_ArcadeBase()
 void UVyraGameplayAbility_ArcadeBase::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilitySpec& Spec)
 {
+	// We can modify the starting level of the ability be modifying this
+	//FGameplayAbilitySpec NewAbilitySpec(Spec.Ability, Spec.Level);
+
 	Super::OnGiveAbility(ActorInfo, Spec);
 }
 
@@ -32,4 +38,12 @@ void UVyraGameplayAbility_ArcadeBase::EndAbility(const FGameplayAbilitySpecHandl
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+float UVyraGameplayAbility_ArcadeBase::GetAttackSpeed() const
+{
+	bool bFoundAttribute = false;
+	const float AttackSpeed = UAbilitySystemBlueprintLibrary::GetFloatAttribute(GetAvatarActorFromActorInfo(), UCombatAttributeSet::GetAttackSpeedAttribute(), bFoundAttribute);
+
+	return  bFoundAttribute ? AttackSpeed : 1.f;
 }
