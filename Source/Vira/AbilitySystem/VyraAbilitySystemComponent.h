@@ -12,6 +12,10 @@ class VIRA_API UVyraAbilitySystemComponent : public UGSCAbilitySystemComponent
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
 	UVyraAbilitySystemComponent();
 
@@ -32,8 +36,11 @@ public:
 	void RemoveGameplayTagStack(const FGameplayTag Tag, const int32 Count);
 	UFUNCTION(BlueprintCallable)
 	void SetGameplayTagStack(const FGameplayTag Tag, const int32 Count);
-
+	UFUNCTION(BlueprintCallable)
+	int32 GetGameplayTagStackCount(const FGameplayTag Tag) const;
 private:
+
+	void InitializeGameplayTagStack();
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="GameplayTagStack", meta = (AllowPrivateAccess = "true"))
 	class UGameplayTagStackComponent* GameplayTagStack;

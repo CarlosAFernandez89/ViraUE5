@@ -5,6 +5,13 @@
 
 #include "Components/GameplayTagStackComponent.h"
 
+void UVyraAbilitySystemComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitializeGameplayTagStack();
+}
+
 UVyraAbilitySystemComponent::UVyraAbilitySystemComponent()
 {
 	GameplayTagStack = CreateDefaultSubobject<UGameplayTagStackComponent>("GameplayTagStackComponent");
@@ -68,4 +75,17 @@ void UVyraAbilitySystemComponent::RemoveGameplayTagStack(const FGameplayTag Tag,
 void UVyraAbilitySystemComponent::SetGameplayTagStack(const FGameplayTag Tag, const int32 Count)
 {
 	GameplayTagStack->SetTagStack(Tag, Count);
+}
+
+int32 UVyraAbilitySystemComponent::GetGameplayTagStackCount(const FGameplayTag Tag) const
+{
+	return GameplayTagStack->GetTagStackCount(Tag);
+}
+
+void UVyraAbilitySystemComponent::InitializeGameplayTagStack()
+{
+	for (const FGameplayAbilityTagStackData Element : GameplayTagStack->GameplayTagStack)
+	{
+		AddGameplayTagStack(Element.GameplayTag, Element.CurrentCount);
+	}
 }
