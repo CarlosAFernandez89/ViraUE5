@@ -49,11 +49,18 @@ public:
 	FORCEINLINE FVyraGameplayAbilityInfo GetAbilityInfo() const { return AbilityInfo; }
 	
 protected:
-	
-	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
+protected:
+	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetMouseLocation(FVector& HitLocation, float TraceDistance) const;
+
+	UFUNCTION(BlueprintCallable, Category = "VyraGameplayAbility|Arcade")
+	float GetAttackSpeed() const;
 protected:
 
 	UPROPERTY()
@@ -61,5 +68,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
 	FVyraGameplayAbilityInfo AbilityInfo;
-
+	
+	UPROPERTY()
+	class UCommonInputSubsystem* CommonInputSubsystem;
+	
+	UPROPERTY()
+	class APlayerController* PlayerController;
 };

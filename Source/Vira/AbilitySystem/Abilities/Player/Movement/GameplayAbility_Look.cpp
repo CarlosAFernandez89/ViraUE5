@@ -9,8 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Vira/Messages/VyraVerbMessageHelpers.h"
 
-UGameplayAbility_Look::UGameplayAbility_Look(): MouseLocationNiagaraSystem(nullptr), CommonInputSubsystem(nullptr),
-                                                PlayerController(nullptr),
+UGameplayAbility_Look::UGameplayAbility_Look(): MouseLocationNiagaraSystem(nullptr),
                                                 CurrentMouseHitLocation()
 {
 }
@@ -18,13 +17,6 @@ UGameplayAbility_Look::UGameplayAbility_Look(): MouseLocationNiagaraSystem(nullp
 void UGameplayAbility_Look::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
-
-	if (APlayerController* PC = UVyraVerbMessageHelpers::GetPlayerControllerFromObject(GetAvatarActorFromActorInfo()))
-	{
-		PlayerController = PC;
-
-		CommonInputSubsystem = PC->GetLocalPlayer()->GetSubsystem<UCommonInputSubsystem>();
-	}
 }
 
 void UGameplayAbility_Look::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

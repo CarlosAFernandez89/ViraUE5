@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/Arcade/VyraGameplayAbility_ArcadeBase.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_WithCastTime.h"
 #include "ArcadeAbility_Firestorm.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_Firestorm : public UVyraGameplayAbility_ArcadeBase
+class VIRA_API UArcadeAbility_Firestorm : public UVyraGameplayAbility_WithCastTime
 {
 	GENERATED_BODY()
 };

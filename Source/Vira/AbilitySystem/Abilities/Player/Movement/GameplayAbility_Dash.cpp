@@ -26,13 +26,6 @@ void UGameplayAbility_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-	{
-		// If the ability cannot be committed, end it here
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 	
 	// Perform the dash
 	Dash();

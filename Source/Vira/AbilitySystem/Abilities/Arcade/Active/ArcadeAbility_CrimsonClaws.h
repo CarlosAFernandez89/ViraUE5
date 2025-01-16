@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/Arcade/VyraGameplayAbility_ArcadeBase.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
 #include "ArcadeAbility_CrimsonClaws.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_CrimsonClaws : public UVyraGameplayAbility_ArcadeBase
+class VIRA_API UArcadeAbility_CrimsonClaws : public UVyraGameplayAbility
 {
 	GENERATED_BODY()
 };

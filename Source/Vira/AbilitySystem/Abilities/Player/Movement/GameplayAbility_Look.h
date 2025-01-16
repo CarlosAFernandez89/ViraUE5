@@ -34,12 +34,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UNiagaraSystem* MouseLocationNiagaraSystem;
 	
-private:
-	UPROPERTY()
-	class UCommonInputSubsystem* CommonInputSubsystem;
-	UPROPERTY()
-	class APlayerController* PlayerController;
-	
 	FVector CurrentMouseHitLocation;
 
 public:

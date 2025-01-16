@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/Arcade/VyraGameplayAbility_ArcadeBase.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
 #include "ArcadeAbility_InfernalDash.generated.h"
 
 
@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTeleportEnd, FVector, EndLocation
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_InfernalDash : public UVyraGameplayAbility_ArcadeBase
+class VIRA_API UArcadeAbility_InfernalDash : public UVyraGameplayAbility
 {
 	GENERATED_BODY()
 
