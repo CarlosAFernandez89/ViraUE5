@@ -4,7 +4,7 @@
 #include "VyraActivatableWidget.h"
 #include "Editor/WidgetCompilerLog.h"
 
-#define LOCTEXT_NAMESPACE "Vyra"
+#define LOCTEXT_NAMESPACE "VyraActivatableWidget"
 UVyraActivatableWidget::UVyraActivatableWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

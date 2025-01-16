@@ -13,4 +13,19 @@ UCLASS()
 class VIRA_API UArcadeAbility_BloodScythe : public UVyraGameplayAbility_ArcadeBase
 {
 	GENERATED_BODY()
+
+protected:
+
+	UFUNCTION(BlueprintCallable, Category = "ArcadeAbility|BloodScythe")
+	FGameplayAbilityTargetDataHandle PerformConeTrace(TArray<FHitResult>& OutHits);
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BloodScythe")
+	float ConeAngleDegrees = 45.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BloodScythe")
+	float ConeLength = 150.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug")
+	bool bShowDebug = false;
 };

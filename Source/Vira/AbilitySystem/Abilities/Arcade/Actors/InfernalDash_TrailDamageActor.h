@@ -37,7 +37,7 @@ public:
 private:
 
 	UFUNCTION()
-	void ApplyDamage();
+	void ApplyDamage() const;
 	
 	UPROPERTY()
 	FTimerHandle ApplyDamage_TimerHandle;

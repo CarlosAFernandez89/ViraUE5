@@ -37,7 +37,7 @@ void AInfernalDash_TrailDamageActor::Destroyed()
 	Super::Destroyed();
 }
 
-void AInfernalDash_TrailDamageActor::ApplyDamage()
+void AInfernalDash_TrailDamageActor::ApplyDamage() const
 {
 	TArray<AActor*> OverlappingActors;
 	SphereCollisionComponent->GetOverlappingActors(OverlappingActors, AVyraEnemyCharacter::StaticClass());
