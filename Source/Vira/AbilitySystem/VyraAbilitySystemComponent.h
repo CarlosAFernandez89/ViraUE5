@@ -36,10 +36,10 @@ public:
 
 	
 	UFUNCTION(BlueprintCallable)
-	void ResetCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag);
+	void ResetCooldownWithMatchingOwningTag(const FGameplayTagContainer CooldownTagContainer);
 
 	UFUNCTION(BlueprintCallable)
-	void ReduceCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag, const float ReductionAmount = 0.5f);
+	void ReduceCooldownWithMatchingOwningTag(const FGameplayTagContainer CooldownTagContainer, const float ReductionAmount = 0.5f);
 	
 	UFUNCTION(BlueprintCallable)
 	void AddGameplayTagStack(const FGameplayTag Tag, const int32 Count);

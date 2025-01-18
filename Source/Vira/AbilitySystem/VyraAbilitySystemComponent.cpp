@@ -62,13 +62,13 @@ bool UVyraAbilitySystemComponent::GiveUniqueAbility(FGameplayAbilitySpecHandle& 
 	return false;
 }
 
-void UVyraAbilitySystemComponent::ResetCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag)
+void UVyraAbilitySystemComponent::ResetCooldownWithMatchingOwningTag(const FGameplayTagContainer CooldownTagContainer)
 {
-	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTagContainer);
 	RemoveActiveEffects(Query);
 }
 
-void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag,
+void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGameplayTagContainer CooldownTagContainer,
 	const float ReductionAmount)
 {
 	if (ReductionAmount <= 0.f)
@@ -76,7 +76,7 @@ void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGam
 		return; // No need to reduce if the amount is zero or negative
 	}
 
-	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTagContainer);
 	TArray<FActiveGameplayEffectHandle> MatchingEffects = GetActiveEffects(Query);
 	for (const FActiveGameplayEffectHandle& Handle : MatchingEffects)
 	{

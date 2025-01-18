@@ -100,8 +100,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
 	FVyraGameplayAbilityInfo AbilityInfo;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability|GameplayTags")
 	FGameplayTag AbilityLevelTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability|GameplayTags")
+	FGameplayTag AbilityCooldownTag;
 	
 	UPROPERTY()
 	class UCommonInputSubsystem* CommonInputSubsystem;
