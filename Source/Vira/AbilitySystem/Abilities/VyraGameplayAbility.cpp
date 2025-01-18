@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "GameplayAbility"
 
-UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr),
+UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr), MontageToPlay(nullptr),
                                               CommonInputSubsystem(nullptr), PlayerController(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;

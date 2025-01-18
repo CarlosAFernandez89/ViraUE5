@@ -54,9 +54,6 @@ protected:
 	float CastTime = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
-	UAnimMontage* MontageToPlay;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
 	FName EndCastTimeSectionName = "CastTimeEnd";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")

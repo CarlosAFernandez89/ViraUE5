@@ -7,7 +7,7 @@
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
-UVyraGameplayAbility_WithCastTime::UVyraGameplayAbility_WithCastTime(): WaitDelay(nullptr), MontageToPlay(nullptr)
+UVyraGameplayAbility_WithCastTime::UVyraGameplayAbility_WithCastTime(): WaitDelay(nullptr)
 {
 	MessageTag = FGameplayTag::RequestGameplayTag("UIMessaging.Ability.Cast");
 }

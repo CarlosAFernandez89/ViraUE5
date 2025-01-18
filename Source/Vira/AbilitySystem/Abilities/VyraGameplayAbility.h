@@ -105,6 +105,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability|GameplayTags")
 	FGameplayTag AbilityCooldownTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Vyra|Ability|Default")
+	UAnimMontage* MontageToPlay;
 	
 	UPROPERTY()
 	class UCommonInputSubsystem* CommonInputSubsystem;
