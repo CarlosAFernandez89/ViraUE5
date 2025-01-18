@@ -12,9 +12,9 @@ struct FVyraCastTimeMessage
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText AbilityName;
+	FText AbilityName = FText();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CastDuration;
+	float CastDuration = 0.0f;
 };
 
 class UAbilityTask_WaitDelay;
@@ -27,11 +27,15 @@ class VIRA_API UVyraGameplayAbility_WithCastTime : public UVyraGameplayAbility
 	GENERATED_BODY()
 
 protected:
+	UVyraGameplayAbility_WithCastTime();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 	UFUNCTION(BlueprintCallable)
 	void StartCasting();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCastingStarted();
 	
 	UFUNCTION()
 	void OnFinishCasting();
@@ -46,9 +50,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category ="CastTime")
 	UAbilityTask_WaitDelay* WaitDelay;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
+	UPROPERTY(BlueprintReadOnly, Category ="CastTime")
 	float CastTime = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
 	UAnimMontage* MontageToPlay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
+	FName EndCastTimeSectionName = "CastTimeEnd";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="CastTime")
+	FGameplayTag MessageTag;
 };

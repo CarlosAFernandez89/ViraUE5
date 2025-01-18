@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GSCAbilitySystemComponent.h"
+#include "Components/GameplayTagStackComponent.h"
 #include "VyraAbilitySystemComponent.generated.h"
 
 
@@ -27,9 +28,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GiveUniqueAbility(FGameplayAbilitySpecHandle& SpecHandle, TSubclassOf<UGameplayAbility> AbilityClass, int32 Level, int32 InputID);
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UGameplayTagStackComponent* GetGameplayTagStackComponent() { return GameplayTagStack; }
+	
 	template<typename T>
 	TArray<T*> GetAllActiveAbilitiesOfClass_Typed();
 
+	
+	UFUNCTION(BlueprintCallable)
+	void ResetCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag);
+
+	UFUNCTION(BlueprintCallable)
+	void ReduceCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag, const float ReductionAmount = 0.5f);
+	
 	UFUNCTION(BlueprintCallable)
 	void AddGameplayTagStack(const FGameplayTag Tag, const int32 Count);
 	UFUNCTION(BlueprintCallable)

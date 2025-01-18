@@ -15,20 +15,44 @@
 
 #define LOCTEXT_NAMESPACE "GameplayAbility"
 
-UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr), AbilityInfo(),
+UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr),
                                               CommonInputSubsystem(nullptr), PlayerController(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+void UVyraGameplayAbility::OnGameplayTagStackUpdated_Implementation(FGameplayTag UpdatedTag, const int32 NewTagCount)
+{
+	if (UpdatedTag.IsValid() && UpdatedTag == AbilityLevelTag)
+	{
+		UpdateAbilityLevel(NewTagCount);
+		OnAbilityLevelChanged.Broadcast(NewTagCount);
+	}
+}
+
 void UVyraGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
-
-	// We can modify the starting level of the ability be modifying this
-	//FGameplayAbilitySpec NewAbilitySpec(Spec.Ability, Spec.Level);
 	
 	PlayerStateCharacter = Cast<AVyraPlayerStateCharacter>(GetAvatarActorFromActorInfo());
+
+	if (UVyraAbilitySystemComponent* ASC = GetVyraAbilitySystemComponent())
+	{
+		if (AbilityLevelTag.IsValid())
+		{
+			const FGameplayTag Tag = FGameplayTag::RequestGameplayTag(AbilityLevelTag.GetTagName());
+			if (const int32 Level =  ASC->GetGameplayTagStackCount(Tag); Level != -1)
+			{
+				UpdateAbilityLevel(Level);
+			}
+		}
+		else
+		{
+			UpdateAbilityLevel(1);
+		}
+
+		ASC->GetGameplayTagStackComponent()->OnTagStackChanged.AddDynamic(this, &UVyraGameplayAbility::OnGameplayTagStackUpdated);
+	}
 
 	if (APlayerController* PC = UVyraVerbMessageHelpers::GetPlayerControllerFromObject(GetAvatarActorFromActorInfo()))
 	{
@@ -83,7 +107,7 @@ bool UVyraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle H
 					{
 						FText ErrorMessage = FText::Format(
 							LOCTEXT("AbilityOnCooldownKey", "{0} is on cooldown!"), 
-							FText::FromString(AbilityInfo.Name.IsEmpty() ? TEXT("UnnamedAbility") : AbilityInfo.Name)
+							AbilityInfo.Name.IsEmpty() ? FText::FromString("UnnamedAbility") : AbilityInfo.Name
 						);
 
 						FailureMessage.FailureMessage = ErrorMessage;
@@ -93,7 +117,7 @@ bool UVyraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle H
 					{
 						FText ErrorMessage = FText::Format(
 							LOCTEXT("AbilityNotEnoughResourcesKey", "Not enough resources to use {0}!"),
-							FText::FromString(AbilityInfo.Name.IsEmpty() ? TEXT("UnnamedAbility") : AbilityInfo.Name)
+							AbilityInfo.Name.IsEmpty() ? FText::FromString("UnnamedAbility") : AbilityInfo.Name
 						);
 						
 						FailureMessage.FailureMessage = ErrorMessage;
@@ -137,6 +161,14 @@ bool UVyraGameplayAbility::GetMouseLocation(FVector& HitLocation, const float Tr
 		}
 	}
 	return false;
+}
+
+float UVyraGameplayAbility::GetCastSpeed() const
+{
+	bool bFoundAttribute = false;
+	const float CastSpeed = UAbilitySystemBlueprintLibrary::GetFloatAttribute(GetAvatarActorFromActorInfo(), UCombatAttributeSet::GetCastSpeedAttribute(), bFoundAttribute);
+
+	return  bFoundAttribute ? CastSpeed : 1.f;
 }
 
 float UVyraGameplayAbility::GetAttackSpeed() const

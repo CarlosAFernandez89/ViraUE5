@@ -4,19 +4,43 @@
 #include "VyraGameplayAbility_WithCastTime.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+
+UVyraGameplayAbility_WithCastTime::UVyraGameplayAbility_WithCastTime(): WaitDelay(nullptr), MontageToPlay(nullptr)
+{
+	MessageTag = FGameplayTag::RequestGameplayTag("UIMessaging.Ability.Cast");
+}
 
 void UVyraGameplayAbility_WithCastTime::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                         const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	StartCasting();
 }
 
 void UVyraGameplayAbility_WithCastTime::StartCasting()
 {
+	CastTime = GetSectionStartTime(EndCastTimeSectionName, GetCastSpeed());
+
+	if (const UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
+	{
+		if (UGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<UGameplayMessageSubsystem>())
+		{
+			FVyraCastTimeMessage Message;
+			Message.AbilityName = AbilityInfo.Name;
+			Message.CastDuration = CastTime;
+			MessageSubsystem->BroadcastMessage(MessageTag, Message);
+		}
+	}
+	
 	WaitDelay = UAbilityTask_WaitDelay::WaitDelay(this, CastTime);
 	WaitDelay->OnFinish.AddDynamic(this, &UVyraGameplayAbility_WithCastTime::OnFinishCasting);
 	WaitDelay->ReadyForActivation();
+
+	OnCastingStarted();
 }
 
 void UVyraGameplayAbility_WithCastTime::OnFinishCasting()

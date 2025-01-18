@@ -15,8 +15,14 @@ void UVyraGameplayAbility_EnemyDeath::OnGiveAbility(const FGameplayAbilityActorI
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-	GSCCoreComponent = Cast<AVyraNPCCharacterBase>(GetAvatarActorFromActorInfo())->GetGSCCoreComponent();
-	GSCCoreComponent->OnDeath.AddDynamic(this, &UVyraGameplayAbility_EnemyDeath::OnDeathEvent);
+	if (AActor* AvatarActor = GetAvatarActorFromActorInfo())
+	{
+		if (AVyraNPCCharacterBase* OwningActor = Cast<AVyraNPCCharacterBase>(AvatarActor))
+		{
+			GSCCoreComponent = OwningActor->GetGSCCoreComponent();
+			GSCCoreComponent->OnDeath.AddDynamic(this, &UVyraGameplayAbility_EnemyDeath::OnDeathEvent);
+		}
+	}
 }
 
 void UVyraGameplayAbility_EnemyDeath::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

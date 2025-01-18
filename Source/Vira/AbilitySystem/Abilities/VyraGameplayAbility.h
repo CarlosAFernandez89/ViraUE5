@@ -13,14 +13,20 @@ USTRUCT(BlueprintType)
 struct FVyraGameplayAbilityInfo
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name = "None";
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Description = "";
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* Icon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+	FText Name = FText();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+	FText Description = FText();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Base")
+	UTexture2D* Icon = nullptr;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<UGameplayEffect> DamageEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	UCurveTable* DamageCurveTable = nullptr;
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityLevelChanged, int32, NewLevel);
 
 /**
  * 
@@ -47,8 +53,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FVyraGameplayAbilityInfo GetAbilityInfo() const { return AbilityInfo; }
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateAbilityLevel(const int32 NewAbilityLevel) const
+	{
+		GetCurrentAbilitySpec()->Level = NewAbilityLevel;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	FGameplayTag GetAbilityLevelTag() const
+	{
+		return AbilityLevelTag;
+	}
 	
 protected:
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameplayTagStackUpdated(FGameplayTag UpdatedTag, const int32 NewTagCount);
+
 
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
@@ -57,8 +79,17 @@ protected:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
 	UFUNCTION(BlueprintCallable)
+	TSubclassOf<UGameplayEffect> GetDamageGameplayEffectClass() const
+	{
+		return AbilityInfo.DamageEffect;
+	};
+	
+	UFUNCTION(BlueprintCallable)
 	bool GetMouseLocation(FVector& HitLocation, float TraceDistance) const;
 
+	UFUNCTION(BlueprintCallable, Category = "VyraGameplayAbility|Arcade")
+	float GetCastSpeed() const;
+	
 	UFUNCTION(BlueprintCallable, Category = "VyraGameplayAbility|Arcade")
 	float GetAttackSpeed() const;
 protected:
@@ -68,10 +99,19 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
 	FVyraGameplayAbilityInfo AbilityInfo;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
+	FGameplayTag AbilityLevelTag;
 	
 	UPROPERTY()
 	class UCommonInputSubsystem* CommonInputSubsystem;
 	
 	UPROPERTY()
 	class APlayerController* PlayerController;
+
+public:
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAbilityLevelChanged OnAbilityLevelChanged;
+	
 };

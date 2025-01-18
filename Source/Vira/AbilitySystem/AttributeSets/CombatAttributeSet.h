@@ -31,6 +31,10 @@ public:
 	FGameplayAttributeData BaseDamage = 1.f;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, BaseDamage);
 	
+	UPROPERTY(BlueprintReadOnly, Category = "CombatAttributeSet", ReplicatedUsing = OnRep_CastSpeed)
+	FGameplayAttributeData CastSpeed = 1.f;
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, CastSpeed);
+
 	UPROPERTY(BlueprintReadOnly, Category = "CombatAttributeSet", ReplicatedUsing = OnRep_AttackSpeed)
 	FGameplayAttributeData AttackSpeed = 1.f;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, AttackSpeed);
@@ -69,6 +73,8 @@ public:
 protected:
 	UFUNCTION()
 	virtual void OnRep_BaseDamage(const FGameplayAttributeData& OldBaseDamage);
+	UFUNCTION()
+	virtual void OnRep_CastSpeed(const FGameplayAttributeData& OldAttackSpeed);
 	UFUNCTION()
 	virtual void OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed);
 	UFUNCTION()

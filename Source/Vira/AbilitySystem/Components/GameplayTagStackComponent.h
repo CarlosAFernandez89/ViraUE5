@@ -21,7 +21,7 @@ struct FGameplayAbilityTagStackData
 	int32 MaxCount = -1;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTagStackChanged, FGameplayTag, ChangedTag);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagStackChanged, FGameplayTag, ChangedTag, int32, NewValue);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class VIRA_API UGameplayTagStackComponent : public UActorComponent
@@ -72,8 +72,7 @@ private:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FGameplayAbilityTagStackData> GameplayTagStack;
-
-protected:
+	
 	UPROPERTY(BlueprintAssignable, Category="VyraGameplayAbilit|GameplayTagStack")
 	FOnTagStackChanged OnTagStackChanged;
 	

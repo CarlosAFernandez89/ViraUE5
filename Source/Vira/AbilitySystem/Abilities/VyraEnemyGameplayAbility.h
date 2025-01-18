@@ -3,31 +3,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/VyraEnemyGameplayAbility.h"
-#include "VyraGameplayAbility_EnemyDeath.generated.h"
+#include "Abilities/GSCGameplayAbility.h"
+#include "VyraEnemyGameplayAbility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UVyraGameplayAbility_EnemyDeath : public UVyraEnemyGameplayAbility
+class VIRA_API UVyraEnemyGameplayAbility : public UGSCGameplayAbility
 {
 	GENERATED_BODY()
 
 public:
-	UVyraGameplayAbility_EnemyDeath();
-	
+
+	UVyraEnemyGameplayAbility();
+
 protected:
+
+	
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-private:
-	UFUNCTION()
-	void OnDeathEvent();
-	
-private:
-	UPROPERTY()
-	class UGSCCoreComponent* GSCCoreComponent;
-	
 };

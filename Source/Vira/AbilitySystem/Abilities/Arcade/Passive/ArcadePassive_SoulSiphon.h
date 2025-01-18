@@ -12,7 +12,7 @@ struct FSoulSiphonGameplayMessage
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EVyraEnemyType EnemyType;
+	EVyraEnemyType EnemyType = EVyraEnemyType::NORMAL;
 };
 /**
  * 

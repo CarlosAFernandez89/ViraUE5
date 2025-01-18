@@ -62,6 +62,58 @@ bool UVyraAbilitySystemComponent::GiveUniqueAbility(FGameplayAbilitySpecHandle& 
 	return false;
 }
 
+void UVyraAbilitySystemComponent::ResetCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag)
+{
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+	RemoveActiveEffects(Query);
+}
+
+void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGameplayTag CooldownTag,
+	const float ReductionAmount)
+{
+	if (ReductionAmount <= 0.f)
+	{
+		return; // No need to reduce if the amount is zero or negative
+	}
+
+	const FGameplayEffectQuery Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(FGameplayTagContainer(CooldownTag));
+	TArray<FActiveGameplayEffectHandle> MatchingEffects = GetActiveEffects(Query);
+	for (const FActiveGameplayEffectHandle& Handle : MatchingEffects)
+	{
+		if (const FActiveGameplayEffect* ActiveEffect = GetActiveGameplayEffect(Handle))
+		{
+			// Get the remaining duration of the current cooldown effect
+			const float RemainingDuration = ActiveEffect->GetTimeRemaining(GetWorld()->GetTimeSeconds());
+			// Calculate the new duration (ensure it's not negative)
+			const float NewDuration = FMath::Max(RemainingDuration - ReductionAmount, 0.f);
+			
+			if (NewDuration > 0.f)
+			{
+				if (const TSubclassOf<UGameplayEffect> CooldownEffectClass = ActiveEffect->Spec.Def->GetClass())
+				{
+					// Create a new spec for the Gameplay Effect
+					FGameplayEffectSpecHandle NewSpecHandle = MakeOutgoingSpec(CooldownEffectClass, ActiveEffect->Spec.GetLevel(), ActiveEffect->Spec.GetEffectContext());
+					if (NewSpecHandle.IsValid())
+					{
+						NewSpecHandle.Data->SetDuration(NewDuration, true);
+
+						// Remove the current active effect
+						RemoveActiveGameplayEffect(Handle);
+					
+						// Apply the new effect
+						ApplyGameplayEffectSpecToSelf(*NewSpecHandle.Data);
+					}
+				}
+			}
+			else
+			{
+				// Remaining cooldown would be less than 0. No need to re-apply.
+				RemoveActiveGameplayEffect(Handle);
+			}
+		}
+	}
+}
+
 void UVyraAbilitySystemComponent::AddGameplayTagStack(const FGameplayTag Tag, const int32 Count)
 {
 	GameplayTagStack->AddToTagStack(Tag, Count);

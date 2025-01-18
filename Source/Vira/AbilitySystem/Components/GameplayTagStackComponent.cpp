@@ -21,6 +21,8 @@ void UGameplayTagStackComponent::SetTagStack(const FGameplayTag Tag, const int32
 	TagStackContainer.ClearStack(Tag);
 	const int32 ClampedStackCount = ClampToMaxStackCount(Tag, NewStackCount);
 	TagStackContainer.AddStack(Tag, ClampedStackCount);
+
+	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
 void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const int32 CountToAdd)
@@ -34,7 +36,7 @@ void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const int
 	const int32 ClampedCount = ClampToMaxStackCount(Tag, CountToAdd);
 	TagStackContainer.AddStack(Tag, ClampedCount);
 
-	OnTagStackChanged.Broadcast(Tag);
+	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
 void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const int32 CountToRemove)
@@ -48,7 +50,7 @@ void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const in
 	const int32 ClampedCount = ClampToMinStackCount(Tag, CountToRemove);
 	TagStackContainer.RemoveStack(Tag, ClampedCount);
 
-	OnTagStackChanged.Broadcast(Tag);
+	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
 int32 UGameplayTagStackComponent::GetTagStackCount(const FGameplayTag Tag) const

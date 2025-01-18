@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
+#include "Vira/AbilitySystem/Abilities/VyraEnemyGameplayAbility.h"
 #include "VyraGameplayAbility_Enemy_MeleeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UVyraGameplayAbility_Enemy_MeleeBase : public UVyraGameplayAbility
+class VIRA_API UVyraGameplayAbility_Enemy_MeleeBase : public UVyraEnemyGameplayAbility
 {
 	GENERATED_BODY()
 

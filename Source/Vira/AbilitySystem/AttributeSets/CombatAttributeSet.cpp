@@ -22,6 +22,10 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 1.f, 2.f);
 	}
+	else if(Attribute == GetCastSpeedAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.05f, 2.f);
+	}
 	else if(Attribute == GetAttackSpeedAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.05f, 2.f);
@@ -79,6 +83,7 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, BaseDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, CastSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, AttackSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, CriticalStrikeChance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, CriticalStrikeDamageMultiplier, COND_None, REPNOTIFY_Always);
@@ -107,6 +112,10 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	{
 		NewValue = FMath::Clamp(NewValue, 0.05f, 2.f);
 	}
+	else if(Attribute == GetCastSpeedAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.05f, 2.f);
+	}
 	else if(Attribute == GetDamageReductionAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, 0.9f);
@@ -132,6 +141,11 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 void UCombatAttributeSet::OnRep_BaseDamage(const FGameplayAttributeData& OldBaseDamage)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, BaseDamage, OldBaseDamage);
+}
+
+void UCombatAttributeSet::OnRep_CastSpeed(const FGameplayAttributeData& OldCastSpeed)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, CastSpeed, OldCastSpeed);
 }
 
 void UCombatAttributeSet::OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
