@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataAsset_AbilityGameplayTagStack.h"
 #include "Abilities/GSCGameplayAbility.h"
 #include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 #include "VyraGameplayAbility.generated.h"
-
 
 USTRUCT(BlueprintType)
 struct FVyraGameplayAbilityInfo
@@ -40,16 +40,28 @@ public:
 	UVyraGameplayAbility();
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class AVyraPlayerStateCharacter* GetVyraPlayerStateCharacter() const { return PlayerStateCharacter; }
+	FORCEINLINE class AVyraPlayerStateCharacter* GetVyraPlayerStateCharacter() const
+	{
+		return PlayerStateCharacter;
+	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UAnimInstance* GetVyraAnimInstance() const { return PlayerStateCharacter->GetMesh()->GetAnimInstance(); }
+	FORCEINLINE class UAnimInstance* GetVyraAnimInstance() const
+	{
+		return PlayerStateCharacter ? PlayerStateCharacter->GetMesh()->GetAnimInstance() : nullptr;
+	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent() const { return Cast<UVyraAbilitySystemComponent>(PlayerStateCharacter->GetAbilitySystemComponent()); }
+	FORCEINLINE class UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent() const
+	{
+		return PlayerStateCharacter ? Cast<UVyraAbilitySystemComponent>(PlayerStateCharacter->GetAbilitySystemComponent()) : nullptr;
+	}
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UGSCCoreComponent* GetVyraGSCCoreComponent() const { return PlayerStateCharacter->GetGSCCoreComponent(); }
+	FORCEINLINE class UGSCCoreComponent* GetVyraGSCCoreComponent() const
+	{
+		return PlayerStateCharacter ? PlayerStateCharacter->GetGSCCoreComponent() : nullptr;
+	}
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE FVyraGameplayAbilityInfo GetAbilityInfo() const { return AbilityInfo; }
@@ -63,7 +75,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FGameplayTag GetAbilityLevelTag() const
 	{
-		return AbilityLevelTag;
+		return AbilityGameplayTagStack ? AbilityGameplayTagStack->GetAbilityLevelTagStackData().GameplayTag : FGameplayTag();
 	}
 	
 protected:
@@ -71,13 +83,25 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnGameplayTagStackUpdated(FGameplayTag UpdatedTag, const int32 NewTagCount);
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetGameplayTagStackCount(const FGameplayTag GameplayTag) const
+	{
+		return GetVyraAbilitySystemComponent()->GetGameplayTagStackCount(GameplayTag);
+	}
+
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#endif
 
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
+	virtual bool CheckCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+	virtual const FGameplayTagContainer* GetCooldownTags() const override;
+	virtual float GetCooldownTimeRemaining(const FGameplayAbilityActorInfo* ActorInfo) const override;
 	UFUNCTION(BlueprintCallable)
 	TSubclassOf<UGameplayEffect> GetDamageGameplayEffectClass() const
 	{
@@ -99,13 +123,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability")
 	FVyraGameplayAbilityInfo AbilityInfo;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability|GameplayTags")
-	FGameplayTag AbilityLevelTag;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Vyra|Ability|GameplayTags")
-	FGameplayTag AbilityCooldownTag;
-
+	UDataAsset_AbilityGameplayTagStack* AbilityGameplayTagStack;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Vyra|Ability|Default")
 	UAnimMontage* MontageToPlay;
 	

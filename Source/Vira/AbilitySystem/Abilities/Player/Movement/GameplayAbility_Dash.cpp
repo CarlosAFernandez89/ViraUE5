@@ -18,7 +18,10 @@ void UGameplayAbility_Dash::OnGiveAbility(const FGameplayAbilityActorInfo* Actor
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-	CharacterMovementComponent = GetVyraPlayerStateCharacter()->GetCharacterMovement();
+	if (PlayerStateCharacter)
+	{
+		CharacterMovementComponent = PlayerStateCharacter->GetCharacterMovement();
+	}
 }
 
 void UGameplayAbility_Dash::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

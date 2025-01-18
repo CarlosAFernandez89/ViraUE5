@@ -46,7 +46,7 @@ void AVyraProjectileBase::SphereComponentBeginOverlap_Implementation(UPrimitiveC
 	{
 		if (!OtherActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
 		{
-			OnHitWorldObject(SweepResult.ImpactPoint);
+			OnHitWorldObject(SweepResult);
 		}
 		return;
 	}
@@ -56,8 +56,7 @@ void AVyraProjectileBase::SphereComponentBeginOverlap_Implementation(UPrimitiveC
 	if (UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OtherActor, true))
 	{
 		TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffect.Data.Get());
+		OnHitActor(OtherActor, SweepResult);
 	}
-
-	OnHitActor(OtherActor);
 }
 

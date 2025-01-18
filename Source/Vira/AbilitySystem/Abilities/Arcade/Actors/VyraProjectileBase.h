@@ -31,10 +31,10 @@ protected:
 	void SphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnHitWorldObject(const FVector& ImpactPoint);
+	void OnHitWorldObject(const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnHitActor(AActor* HitActor);
+	void OnHitActor(AActor* HitActor, const FHitResult& SweepResult);
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile")

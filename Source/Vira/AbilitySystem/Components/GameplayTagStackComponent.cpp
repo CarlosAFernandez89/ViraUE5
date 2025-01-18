@@ -3,11 +3,33 @@
 
 #include "GameplayTagStackComponent.h"
 
+#include "Fonts/UnicodeBlockRange.h"
+
 
 // Sets default values for this component's properties
 UGameplayTagStackComponent::UGameplayTagStackComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UGameplayTagStackComponent::InitializeNewStackTag(FGameplayTag Tag, const int32 CurrentCount, const int32 MaxCount)
+{
+	if (!Tag.IsValid())
+	{
+		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to UGameplayTagStackComponent::AddNewTagToStack"), ELogVerbosity::Warning);
+		return;
+	}
+
+	if (TagStackContainer.ContainsTag(Tag))
+	{
+		FFrame::KismetExecutionMessage(TEXT("Tag already exists in TagStackContainer in UGameplayTagStackComponent::AddNewTagToStack"), ELogVerbosity::Warning);
+		return;
+	}
+
+	TagStackContainer.AddStackForAbilitySystem(Tag, MaxCount == -1  ? CurrentCount : FMath::Min(CurrentCount, MaxCount));
+
+	
+	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
 void UGameplayTagStackComponent::SetTagStack(const FGameplayTag Tag, const int32 NewStackCount)

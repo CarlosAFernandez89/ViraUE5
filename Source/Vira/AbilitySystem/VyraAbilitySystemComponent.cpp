@@ -3,6 +3,7 @@
 
 #include "VyraAbilitySystemComponent.h"
 
+#include "Abilities/DataAsset_AbilityGameplayTagStack.h"
 #include "Components/GameplayTagStackComponent.h"
 
 void UVyraAbilitySystemComponent::BeginPlay()
@@ -136,8 +137,14 @@ int32 UVyraAbilitySystemComponent::GetGameplayTagStackCount(const FGameplayTag T
 
 void UVyraAbilitySystemComponent::InitializeGameplayTagStack()
 {
-	for (const FGameplayAbilityTagStackData Element : GameplayTagStack->GameplayTagStack)
+	for (const UDataAsset_AbilityGameplayTagStack* DataAsset : GameplayTagStack->RelevantGameplayTagStacks)
 	{
-		AddGameplayTagStack(Element.GameplayTag, Element.CurrentCount);
+		for (const FGameplayAbilityTagStackData GameplayTagStackData : DataAsset->GetAllRelevantGameplayTags())
+		{
+			GameplayTagStack->InitializeNewStackTag(
+				GameplayTagStackData.GameplayTag,
+				GameplayTagStackData.CurrentCount,
+				GameplayTagStackData.MaxCount);
+		}
 	}
 }

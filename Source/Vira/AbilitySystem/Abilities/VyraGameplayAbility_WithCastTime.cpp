@@ -16,8 +16,7 @@ void UVyraGameplayAbility_WithCastTime::ActivateAbility(const FGameplayAbilitySp
                                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                         const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
+	// We call CommitAbility After Casting is Successful so we can apply the cost and cooldown there.
 	StartCasting();
 }
 
@@ -65,9 +64,11 @@ float UVyraGameplayAbility_WithCastTime::GetSectionStartTime(const FName Section
 }
 
 void UVyraGameplayAbility_WithCastTime::OnCastingSucceeded_Implementation()
-{
-	if (GEngine)
+{	
+	if (!CommitAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "CastingSucceeded");
+		// If the ability cannot be committed, end it here
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return;
 	}
 }

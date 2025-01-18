@@ -5,7 +5,10 @@
 
 #include "CommonInputSubsystem.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemGlobals.h"
+#include "DataAsset_AbilityGameplayTagStack.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 #include "Vira/Messages/VyraVerbMessageHelpers.h"
@@ -15,52 +18,68 @@
 
 #define LOCTEXT_NAMESPACE "GameplayAbility"
 
-UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr), MontageToPlay(nullptr),
+UVyraGameplayAbility::UVyraGameplayAbility(): PlayerStateCharacter(nullptr), AbilityGameplayTagStack(nullptr),
+                                              MontageToPlay(nullptr),
                                               CommonInputSubsystem(nullptr), PlayerController(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+#if WITH_EDITOR
+EDataValidationResult UVyraGameplayAbility::IsDataValid(class FDataValidationContext& Context) const
+{
+	if (Super::IsDataValid(Context) == EDataValidationResult::Valid && AbilityGameplayTagStack)
+	{
+		return EDataValidationResult::Valid;
+	}
+	return EDataValidationResult::Invalid;
+}
+#endif
+
 void UVyraGameplayAbility::OnGameplayTagStackUpdated_Implementation(FGameplayTag UpdatedTag, const int32 NewTagCount)
 {
-	if (UpdatedTag.IsValid() && UpdatedTag == AbilityLevelTag)
+	if (UpdatedTag.IsValid() && UpdatedTag == GetAbilityLevelTag())
 	{
 		UpdateAbilityLevel(NewTagCount);
 		OnAbilityLevelChanged.Broadcast(NewTagCount);
 	}
 }
 
+
+
 void UVyraGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
-	
-	PlayerStateCharacter = Cast<AVyraPlayerStateCharacter>(GetAvatarActorFromActorInfo());
 
-	if (UVyraAbilitySystemComponent* ASC = GetVyraAbilitySystemComponent())
+	if (AVyraPlayerStateCharacter* PSC = Cast<AVyraPlayerStateCharacter>(GetAvatarActorFromActorInfo()))
 	{
-		if (AbilityLevelTag.IsValid())
+		PlayerStateCharacter = PSC;
+
+		if (APlayerController* PC = UVyraVerbMessageHelpers::GetPlayerControllerFromObject(PlayerStateCharacter))
 		{
-			const FGameplayTag Tag = FGameplayTag::RequestGameplayTag(AbilityLevelTag.GetTagName());
-			if (const int32 Level =  ASC->GetGameplayTagStackCount(Tag); Level != -1)
+			PlayerController = PC;
+
+			CommonInputSubsystem = PC->GetLocalPlayer()->GetSubsystem<UCommonInputSubsystem>();
+		}
+
+		if (UVyraAbilitySystemComponent* ASC = GetVyraAbilitySystemComponent())
+		{
+			if (GetAbilityLevelTag().IsValid())
 			{
-				UpdateAbilityLevel(Level);
+				const FGameplayTag Tag = FGameplayTag::RequestGameplayTag(GetAbilityLevelTag().GetTagName());
+				if (const int32 Level =  ASC->GetGameplayTagStackCount(Tag); Level != -1)
+				{
+					UpdateAbilityLevel(Level);
+				}
 			}
+			else
+			{
+				UpdateAbilityLevel(1);
+			}
+
+			ASC->GetGameplayTagStackComponent()->OnTagStackChanged.AddDynamic(this, &UVyraGameplayAbility::OnGameplayTagStackUpdated);
 		}
-		else
-		{
-			UpdateAbilityLevel(1);
-		}
-
-		ASC->GetGameplayTagStackComponent()->OnTagStackChanged.AddDynamic(this, &UVyraGameplayAbility::OnGameplayTagStackUpdated);
 	}
-
-	if (APlayerController* PC = UVyraVerbMessageHelpers::GetPlayerControllerFromObject(GetAvatarActorFromActorInfo()))
-	{
-		PlayerController = PC;
-
-		CommonInputSubsystem = PC->GetLocalPlayer()->GetSubsystem<UCommonInputSubsystem>();
-	}
-	
 }
 
 void UVyraGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -137,6 +156,105 @@ bool UVyraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle H
 		}
 	}
 	return bCanActivateAbility;
+}
+
+bool UVyraGameplayAbility::CheckCooldown(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!ensure(ActorInfo))
+	{
+		return true;
+	}
+
+	if (!AbilityGameplayTagStack)
+	{
+		return true;
+	}
+	
+	const FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(AbilityGameplayTagStack->GetCooldownGameplayTag().GetTagName());
+	if (CooldownTag.IsValid())
+	{
+		if (UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())
+		{
+			if (AbilitySystemComponent->HasMatchingGameplayTag(CooldownTag))
+			{
+				if (OptionalRelevantTags)
+				{
+					const FGameplayTag& FailCooldownTag = UAbilitySystemGlobals::Get().ActivateFailCooldownTag;
+					if (FailCooldownTag.IsValid())
+					{
+						OptionalRelevantTags->AddTag(FailCooldownTag);
+					}
+
+					// Let the caller know which tags were blocking
+					FGameplayTagContainer RelevantTags;
+					RelevantTags.AddTag(CooldownTag);
+					OptionalRelevantTags->AppendMatchingTags(AbilitySystemComponent->GetOwnedGameplayTags(), RelevantTags);
+				}
+
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+void UVyraGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle,
+                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (CooldownGameplayEffectClass)
+	{
+		FGameplayEffectSpecHandle CooldownSpecHandle = MakeOutgoingGameplayEffectSpec(CooldownGameplayEffectClass, GetAbilityLevel());
+
+		if (CooldownSpecHandle.IsValid() && AbilityGameplayTagStack)
+		{
+			const FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(AbilityGameplayTagStack->GetCooldownGameplayTag().GetTagName());
+
+			//CooldownSpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
+
+			CooldownSpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
+			const int32 CooldownTime = GetGameplayTagStackCount(CooldownTag);
+			if (CooldownTime > 0.f)
+			{
+				// Use FMath::Max for the possibility of the tag not being set. Negative cooldowns are not supported.
+				UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(CooldownSpecHandle, FGameplayTag::RequestGameplayTag("SetByCaller.Magnitude.Duration"), FMath::Max(CooldownTime, 0.f));
+			
+				// Apply the cooldown effect to the owner
+				ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, CooldownSpecHandle);
+			}
+		}
+	}
+}
+
+const FGameplayTagContainer* UVyraGameplayAbility::GetCooldownTags() const
+{
+	if (AbilityGameplayTagStack)
+	{
+		return new FGameplayTagContainer(AbilityGameplayTagStack->GetCooldownGameplayTag());
+	}
+
+	return Super::GetCooldownTags();
+}
+
+float UVyraGameplayAbility::GetCooldownTimeRemaining(const FGameplayAbilityActorInfo* ActorInfo) const
+{
+	const UAbilitySystemComponent* const ASC = ActorInfo->AbilitySystemComponent.Get();
+	if (ASC)
+	{
+		const FGameplayTagContainer* CooldownTags = GetCooldownTags();
+		if (CooldownTags && CooldownTags->Num() > 0)
+		{
+			FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(*CooldownTags);
+			TArray< float > Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+			if (Durations.Num() > 0)
+			{
+				Durations.Sort();
+				return Durations[Durations.Num() - 1];
+			}
+		}
+	}
+
+	return 0.f;
 }
 
 bool UVyraGameplayAbility::GetMouseLocation(FVector& HitLocation, const float TraceDistance) const

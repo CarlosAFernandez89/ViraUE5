@@ -8,6 +8,8 @@
 #include "Vira/System/GameplayTagStack.h"
 #include "GameplayTagStackComponent.generated.h"
 
+class UDataAsset_AbilityGameplayTagStack;
+
 USTRUCT(BlueprintType)
 struct FGameplayAbilityTagStackData
 {
@@ -34,6 +36,9 @@ public:
 
 public:
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
+	void InitializeNewStackTag(FGameplayTag Tag, const int32 CurrentCount, const int32 MaxCount);
+	
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
 	void SetTagStack(FGameplayTag Tag, const int32 NewStackCount);
 
@@ -71,7 +76,7 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FGameplayAbilityTagStackData> GameplayTagStack;
+	TArray<UDataAsset_AbilityGameplayTagStack*> RelevantGameplayTagStacks;
 	
 	UPROPERTY(BlueprintAssignable, Category="VyraGameplayAbilit|GameplayTagStack")
 	FOnTagStackChanged OnTagStackChanged;
@@ -80,4 +85,7 @@ private:
 
 	UPROPERTY()
 	FGameplayTagStackContainer TagStackContainer;
+
+	UPROPERTY()
+	TArray<FGameplayAbilityTagStackData> GameplayTagStack;
 };

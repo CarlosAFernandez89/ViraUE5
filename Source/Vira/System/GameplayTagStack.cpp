@@ -16,6 +16,19 @@ FString FGameplayTagStack::GetDebugString() const
 //////////////////////////////////////////////////////////////////////
 // FGameplayTagStackContainer
 
+void FGameplayTagStackContainer::AddStackForAbilitySystem(FGameplayTag Tag, int32 StackCount)
+{
+	if (!Tag.IsValid())
+	{
+		FFrame::KismetExecutionMessage(TEXT("An invalid tag was passed to AddStack"), ELogVerbosity::Warning);
+		return;
+	}
+
+	FGameplayTagStack& NewStack = Stacks.Emplace_GetRef(Tag, StackCount);
+	MarkItemDirty(NewStack);
+	TagToCountMap.Add(Tag, StackCount);
+}
+
 void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 {
 	if (!Tag.IsValid())
