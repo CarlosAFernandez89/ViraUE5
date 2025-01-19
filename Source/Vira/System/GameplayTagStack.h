@@ -36,7 +36,7 @@ private:
 	FGameplayTag Tag;
 
 	UPROPERTY()
-	int32 StackCount = 0;
+	float StackCount = 0.f;
 };
 
 /** Container of gameplay tag stacks */
@@ -99,7 +99,7 @@ private:
 	TArray<FGameplayTagStack> Stacks;
 	
 	// Accelerated list of tag stacks for queries
-	TMap<FGameplayTag, int32> TagToCountMap;
+	TMap<FGameplayTag, float> TagToCountMap;
 };
 
 template<>

@@ -10,7 +10,7 @@
 
 FString FGameplayTagStack::GetDebugString() const
 {
-	return FString::Printf(TEXT("%sx%d"), *Tag.ToString(), StackCount);
+	return FString::Printf(TEXT("%sx%f"), *Tag.ToString(), StackCount);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 		{
 			if (Stack.Tag == Tag)
 			{
-				const int32 NewCount = Stack.StackCount + StackCount;
+				const float NewCount = Stack.StackCount + StackCount;
 				Stack.StackCount = NewCount;
 				if(TagToCountMap.Contains(Tag))
 				{
@@ -116,7 +116,7 @@ void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
 				}
 				else
 				{
-					const int32 NewCount = Stack.StackCount - StackCount;
+					const float NewCount = Stack.StackCount - StackCount;
 					Stack.StackCount = NewCount;
 					if(TagToCountMap.Contains(Tag))
 					{

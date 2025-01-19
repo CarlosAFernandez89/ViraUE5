@@ -209,11 +209,11 @@ void UVyraGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle
 		if (CooldownSpecHandle.IsValid() && AbilityGameplayTagStack)
 		{
 			const FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(AbilityGameplayTagStack->GetCooldownGameplayTag().GetTagName());
-
-			//CooldownSpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
-
+			
 			CooldownSpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
-			const int32 CooldownTime = GetGameplayTagStackCount(CooldownTag);
+
+			// Cooldown gets divided by 10 to get a float value from integers.
+			const float CooldownTime = GetGameplayTagStackCount(CooldownTag);
 			if (CooldownTime > 0.f)
 			{
 				// Use FMath::Max for the possibility of the tag not being set. Negative cooldowns are not supported.
@@ -245,7 +245,7 @@ float UVyraGameplayAbility::GetCooldownTimeRemaining(const FGameplayAbilityActor
 		if (CooldownTags && CooldownTags->Num() > 0)
 		{
 			FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(*CooldownTags);
-			TArray< float > Durations = ASC->GetActiveEffectsTimeRemaining(Query);
+			TArray<float> Durations = ASC->GetActiveEffectsTimeRemaining(Query);
 			if (Durations.Num() > 0)
 			{
 				Durations.Sort();

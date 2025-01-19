@@ -42,13 +42,13 @@ public:
 	void ReduceCooldownWithMatchingOwningTag(const FGameplayTagContainer CooldownTagContainer, const float ReductionAmount = 0.5f);
 	
 	UFUNCTION(BlueprintCallable)
-	void AddGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+	void AddGameplayTagStack(const FGameplayTag Tag, const float Count);
 	UFUNCTION(BlueprintCallable)
-	void RemoveGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+	void RemoveGameplayTagStack(const FGameplayTag Tag, const float Count);
 	UFUNCTION(BlueprintCallable)
-	void SetGameplayTagStack(const FGameplayTag Tag, const int32 Count);
+	void SetGameplayTagStack(const FGameplayTag Tag, const float Count);
 	UFUNCTION(BlueprintCallable)
-	int32 GetGameplayTagStackCount(const FGameplayTag Tag) const;
+	float GetGameplayTagStackCount(const FGameplayTag Tag) const;
 private:
 
 	void InitializeGameplayTagStack();

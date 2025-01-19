@@ -115,22 +115,22 @@ void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGam
 	}
 }
 
-void UVyraAbilitySystemComponent::AddGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+void UVyraAbilitySystemComponent::AddGameplayTagStack(const FGameplayTag Tag, const float Count)
 {
 	GameplayTagStack->AddToTagStack(Tag, Count);
 }
 
-void UVyraAbilitySystemComponent::RemoveGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+void UVyraAbilitySystemComponent::RemoveGameplayTagStack(const FGameplayTag Tag, const float Count)
 {
 	GameplayTagStack->RemoveTagStack(Tag, Count);
 }
 
-void UVyraAbilitySystemComponent::SetGameplayTagStack(const FGameplayTag Tag, const int32 Count)
+void UVyraAbilitySystemComponent::SetGameplayTagStack(const FGameplayTag Tag, const float Count)
 {
 	GameplayTagStack->SetTagStack(Tag, Count);
 }
 
-int32 UVyraAbilitySystemComponent::GetGameplayTagStackCount(const FGameplayTag Tag) const
+float UVyraAbilitySystemComponent::GetGameplayTagStackCount(const FGameplayTag Tag) const
 {
 	return GameplayTagStack->GetTagStackCount(Tag);
 }

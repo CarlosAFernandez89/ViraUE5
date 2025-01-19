@@ -18,9 +18,9 @@ struct FGameplayAbilityTagStackData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag GameplayTag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 CurrentCount = 0;
+	float CurrentCount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 MaxCount = -1;
+	float MaxCount = -1;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagStackChanged, FGameplayTag, ChangedTag, int32, NewValue);
@@ -37,16 +37,16 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	void InitializeNewStackTag(FGameplayTag Tag, const int32 CurrentCount, const int32 MaxCount);
+	void InitializeNewStackTag(FGameplayTag Tag, const float CurrentCount, const float MaxCount);
 	
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	void SetTagStack(FGameplayTag Tag, const int32 NewStackCount);
+	void SetTagStack(FGameplayTag Tag, const float NewStackCount);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	void AddToTagStack(FGameplayTag Tag, const int32 CountToAdd);
+	void AddToTagStack(FGameplayTag Tag, const float CountToAdd);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	void RemoveTagStack(FGameplayTag Tag, const int32 CountToRemove);
+	void RemoveTagStack(FGameplayTag Tag, const float CountToRemove);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
 	int32 GetTagStackCount(FGameplayTag Tag) const;
@@ -71,8 +71,8 @@ public:
 
 private:
 	int32 FindGameplayTagStackIndexByGameplayTag(const FGameplayTag& Tag) const;
-	int32 ClampToMaxStackCount(FGameplayTag Tag, const int32 MaxCount) const;
-	int32 ClampToMinStackCount(FGameplayTag Tag, const int32 MinCount) const;
+	float ClampToMaxStackCount(FGameplayTag Tag, const float MaxCount) const;
+	float ClampToMinStackCount(FGameplayTag Tag, const float MinCount) const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

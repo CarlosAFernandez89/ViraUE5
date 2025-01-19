@@ -12,7 +12,7 @@ UGameplayTagStackComponent::UGameplayTagStackComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UGameplayTagStackComponent::InitializeNewStackTag(FGameplayTag Tag, const int32 CurrentCount, const int32 MaxCount)
+void UGameplayTagStackComponent::InitializeNewStackTag(FGameplayTag Tag, const float CurrentCount, const float MaxCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -32,7 +32,7 @@ void UGameplayTagStackComponent::InitializeNewStackTag(FGameplayTag Tag, const i
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
-void UGameplayTagStackComponent::SetTagStack(const FGameplayTag Tag, const int32 NewStackCount)
+void UGameplayTagStackComponent::SetTagStack(const FGameplayTag Tag, const float NewStackCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -41,13 +41,13 @@ void UGameplayTagStackComponent::SetTagStack(const FGameplayTag Tag, const int32
 	}
 
 	TagStackContainer.ClearStack(Tag);
-	const int32 ClampedStackCount = ClampToMaxStackCount(Tag, NewStackCount);
+	const float ClampedStackCount = ClampToMaxStackCount(Tag, NewStackCount);
 	TagStackContainer.AddStack(Tag, ClampedStackCount);
 
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
-void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const int32 CountToAdd)
+void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const float CountToAdd)
 {
 	if (!Tag.IsValid())
 	{
@@ -61,7 +61,7 @@ void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const int
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
-void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const int32 CountToRemove)
+void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const float CountToRemove)
 {
 	if (!Tag.IsValid())
 	{
@@ -69,7 +69,7 @@ void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const in
 		return;
 	}
 
-	const int32 ClampedCount = ClampToMinStackCount(Tag, CountToRemove);
+	const float ClampedCount = ClampToMinStackCount(Tag, CountToRemove);
 	TagStackContainer.RemoveStack(Tag, ClampedCount);
 
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
@@ -117,23 +117,23 @@ int32 UGameplayTagStackComponent::FindGameplayTagStackIndexByGameplayTag(const F
 	});
 }
 
-int32 UGameplayTagStackComponent::ClampToMaxStackCount(FGameplayTag Tag, const int32 MaxCount) const
+float UGameplayTagStackComponent::ClampToMaxStackCount(FGameplayTag Tag, const float MaxCount) const
 {
 	
 	const int32 TagStackIndex = FindGameplayTagStackIndexByGameplayTag(Tag);
 	if (TagStackIndex == INDEX_NONE) return 0;
 	
-	if (GameplayTagStack[TagStackIndex].MaxCount <= -1)
+	if (GameplayTagStack[TagStackIndex].MaxCount <= -1.f)
 	{
 		// No stack limit, just keep adding.
 		return MaxCount;
 	}
 
-	const int32 StackCurrentCount = TagStackContainer.GetStackCount(Tag);
-	const int32 StackMaxCount = GameplayTagStack[TagStackIndex].MaxCount;
+	const float StackCurrentCount = TagStackContainer.GetStackCount(Tag);
+	const float StackMaxCount = GameplayTagStack[TagStackIndex].MaxCount;
 
-	int32 CountToAdd = FMath::Max(0, MaxCount);
-	int32 AvailableCount = StackMaxCount - StackCurrentCount;
+	float CountToAdd = FMath::Max(0, MaxCount);
+	float AvailableCount = StackMaxCount - StackCurrentCount;
 	if (AvailableCount < MaxCount)
 	{
 		CountToAdd = FMath::Max(0, AvailableCount);
@@ -142,7 +142,7 @@ int32 UGameplayTagStackComponent::ClampToMaxStackCount(FGameplayTag Tag, const i
 	return CountToAdd;
 }
 
-int32 UGameplayTagStackComponent::ClampToMinStackCount(FGameplayTag Tag, const int32 MinCount) const
+float UGameplayTagStackComponent::ClampToMinStackCount(FGameplayTag Tag, const float MinCount) const
 {
 	const int32 TagStackIndex = FindGameplayTagStackIndexByGameplayTag(Tag);
 	if (TagStackIndex == INDEX_NONE) return 0;
@@ -152,15 +152,15 @@ int32 UGameplayTagStackComponent::ClampToMinStackCount(FGameplayTag Tag, const i
 		return MinCount;
 	}
 
-	const int32 StackCurrentCount = TagStackContainer.GetStackCount(Tag);
-	const int32 StackMaxCount = GameplayTagStack[TagStackIndex].MaxCount;
-	constexpr int32 StackMinCount = 0;
+	const float StackCurrentCount = TagStackContainer.GetStackCount(Tag);
+	const float StackMaxCount = GameplayTagStack[TagStackIndex].MaxCount;
+	constexpr float StackMinCount = 0;
 
-	int32 NewStackCount = StackCurrentCount - MinCount;
+	float NewStackCount = StackCurrentCount - MinCount;
 
 	NewStackCount = FMath::Clamp(NewStackCount, StackMinCount, StackMaxCount);
 
-	const int32 ActualChange = StackCurrentCount - NewStackCount;
+	const float ActualChange = StackCurrentCount - NewStackCount;
 
 	return ActualChange;
 }
