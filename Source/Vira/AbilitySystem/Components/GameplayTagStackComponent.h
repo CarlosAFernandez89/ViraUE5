@@ -49,10 +49,10 @@ public:
 	void RemoveTagStack(FGameplayTag Tag, const float CountToRemove);
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	int32 GetTagStackCount(FGameplayTag Tag) const;
+	float GetTagStackCount(FGameplayTag Tag) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
-	int32 GetMaxTagStackCount(FGameplayTag Tag) const;
+	float GetMaxTagStackCount(FGameplayTag Tag) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="VyraGameplayAbilit|GameplayTagStack")
 	bool HasTagStack(FGameplayTag Tag) const;

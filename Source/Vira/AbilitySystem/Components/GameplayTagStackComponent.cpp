@@ -75,7 +75,7 @@ void UGameplayTagStackComponent::RemoveTagStack(const FGameplayTag Tag, const fl
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }
 
-int32 UGameplayTagStackComponent::GetTagStackCount(const FGameplayTag Tag) const
+float UGameplayTagStackComponent::GetTagStackCount(const FGameplayTag Tag) const
 {
 	if (!Tag.IsValid())
 	{
@@ -86,7 +86,7 @@ int32 UGameplayTagStackComponent::GetTagStackCount(const FGameplayTag Tag) const
 	return TagStackContainer.GetStackCount(Tag);
 }
 
-int32 UGameplayTagStackComponent::GetMaxTagStackCount(const FGameplayTag Tag) const
+float UGameplayTagStackComponent::GetMaxTagStackCount(const FGameplayTag Tag) const
 {
 	for (auto AbilityData : GameplayTagStack)
 	{

@@ -84,7 +84,7 @@ protected:
 	void OnGameplayTagStackUpdated(FGameplayTag UpdatedTag, const int32 NewTagCount);
 
 	UFUNCTION(BlueprintCallable)
-	int32 GetGameplayTagStackCount(const FGameplayTag GameplayTag) const
+	float GetGameplayTagStackCount(const FGameplayTag GameplayTag) const
 	{
 		return GetVyraAbilitySystemComponent()->GetGameplayTagStackCount(GameplayTag);
 	}
