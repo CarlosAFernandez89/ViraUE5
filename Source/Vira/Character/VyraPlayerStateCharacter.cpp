@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
 #include "Vira/AbilitySystem/AttributeSets/CurrencyAttributeSet.h"
+#include "Vira/Player/Components/FloatingCombatText.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Currency.h"
@@ -47,8 +48,10 @@ AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& O
 	CameraComponent->bUsePawnControlRotation = false;
 	CameraComponent->FieldOfView = 90.0f;
 
+	FloatingCombatTextComponent = CreateDefaultSubobject<UFloatingCombatText>("FloatingCombatTextComponent");
 	GSCCoreComponent = CreateDefaultSubobject<UGSCCoreComponent>("GSCCoreComponent");
 	GSCAbilityInputBindingComponent = CreateDefaultSubobject<UGSCAbilityInputBindingComponent>("GSCAbilityInputBindingComponent");
+	CharmManagerComponent = CreateDefaultSubobject<UCharmManagerComponent>("CharmManagerComponent");
 
 	bUseControllerRotationYaw = false;
 	if(UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement())
@@ -58,9 +61,9 @@ AVyraPlayerStateCharacter::AVyraPlayerStateCharacter(const FObjectInitializer& O
 		CharacterMovementComponent->RotationRate = FRotator(0.0f, -1.f, 0.0f);
 	}
 
-	CharmManagerComponent = CreateDefaultSubobject<UCharmManagerComponent>("CharmManagerComponent");
 
 	AttackTokensCount = MaxAttackTokensCount;
+
 }
 
 // Called when the game starts or when spawned
@@ -104,6 +107,14 @@ void AVyraPlayerStateCharacter::NotifyRestarted()
 		{
 			CharacterMovementComponent->MaxWalkSpeed = ASC->GetNumericAttribute(UCombatAttributeSet::GetMovementSpeedAttribute());
 		}
+	}
+}
+
+void AVyraPlayerStateCharacter::SpawnDamageText(AActor* HitActor, const float InDamage, const bool bInCriticalHit)
+{
+	if (FloatingCombatTextComponent)
+	{
+		FloatingCombatTextComponent->SpawnFloatingDamageText(HitActor, InDamage, bInCriticalHit);
 	}
 }
 

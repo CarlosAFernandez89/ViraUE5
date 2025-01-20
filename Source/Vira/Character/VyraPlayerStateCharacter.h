@@ -35,6 +35,8 @@ class VIRA_API AVyraPlayerStateCharacter : public AGSCModularPlayerStateCharacte
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Charms, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCharmManagerComponent> CharmManagerComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FloatingCombatText, meta = (AllowPrivateAccess = "true"))
+	class UFloatingCombatText* FloatingCombatTextComponent;
 private:
 
 protected:
@@ -69,6 +71,9 @@ public:
 	FORCEINLINE class UCharmManagerComponent* GetCharmManagerComponent() const {return CharmManagerComponent;}
 
 	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class UFloatingCombatText* GetFloatingCombatTextComponent() const {return FloatingCombatTextComponent;}
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UVyraWidget_PlayerHUD_PC* GetPlayerHUD() const {return PlayerHUD;}
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetPlayerHUD(UVyraWidget_PlayerHUD_PC* InPlayerHUD) { PlayerHUD = InPlayerHUD;}
@@ -78,6 +83,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetPlayerHotBar(UVyraWidget_HotbarPanel* InPlayerHotBar) { PlayerHotBar = InPlayerHotBar;}
 
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnDamageText(AActor* HitActor, const float InDamage, const bool bInCriticalHit);
 	UFUNCTION()
 	bool IsDead() const
 	{

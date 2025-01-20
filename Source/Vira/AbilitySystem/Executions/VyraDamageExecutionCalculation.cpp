@@ -6,6 +6,8 @@
 #include "Abilities/Attributes/GSCAttributeSet.h"
 #include "Perception/AISense_Damage.h"
 #include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
+#include "Vira/Character/VyraPlayerStateCharacter.h"
+#include "Vira/Player/Components/FloatingCombatText.h"
 
 struct FDamageStatics
 {
@@ -94,9 +96,11 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 		LocalBaseDamage = 0.f;
 	}
 
+	bool bCriticalHit = false;
 	if(FMath::RandRange(0.f, 1.f) <= LocalCriticalStrikeChance)
 	{
 		LocalBaseDamage *= LocalCriticalStrikeDamageMultiplier;
+		bCriticalHit = true;
 	}
 
 	LocalBaseDamage *= (1.f - LocalDamageReduction);
@@ -108,6 +112,14 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 	LocalBaseDamage,
 	SourceActor->GetActorLocation(),
 	FVector(0, 0, 0));
+
+	if (SourceActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
+	{
+		if (AVyraPlayerStateCharacter* PC = Cast<AVyraPlayerStateCharacter>(SourceActor))
+		{
+			PC->SpawnDamageText(TargetActor, LocalBaseDamage, bCriticalHit);
+		}
+	}
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 }

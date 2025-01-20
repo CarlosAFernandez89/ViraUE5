@@ -7,6 +7,8 @@
 #include "GameSettingsSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowEnemyHealthBarsUpdated, bool, bState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowDamageNumbersUpdated, bool, bState);
+
 /**
  * 
  */
@@ -23,18 +25,24 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="GameSettings")
 	FOnShowEnemyHealthBarsUpdated OnShowHealthBarsUpdated;
-
+	UPROPERTY(BlueprintAssignable, Category="GameSettings")
+	FOnShowDamageNumbersUpdated OnShowDamageNumbersUpdated;
+	
 	// Getter and Setter for Damage Numbers
 	UFUNCTION(BlueprintCallable)
 	bool GetShowDamageNumbers() const { return bShowDamageNumbers; }
 	UFUNCTION(BlueprintCallable)
-	void SetShowDamageNumbers(bool bValue) { bShowDamageNumbers = bValue; }
+	void SetShowDamageNumbers(const bool bValue)
+	{
+		bShowDamageNumbers = bValue;
+		OnShowDamageNumbersUpdated.Broadcast(bShowDamageNumbers);
+	}
 
 	// Getter and Setter for Camera Shake
 	UFUNCTION(BlueprintCallable)
 	bool GetEnableCameraShake() const { return bEnableCameraShake; }
 	UFUNCTION(BlueprintCallable)
-	void SetEnableCameraShake(bool bValue) { bEnableCameraShake = bValue; }
+	void SetEnableCameraShake(const bool bValue) { bEnableCameraShake = bValue; }
 
 	// Getter and Setter for Enemy HealthBars
 	UFUNCTION(BlueprintCallable)
