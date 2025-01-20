@@ -43,6 +43,8 @@ void UArcadeAbility_EmberBurst::SpawnProjectilesInCone(const int32 NumProjectile
 			{
 				Projectile->SetOwner(GetAvatarActorFromActorInfo());
 				Projectile->DamageEffect = SpecHandle;
+				float ProjSpeedMulti = GetGameplayTagStackCount(FGameplayTag::RequestGameplayTag("GameplayTagStack.Arcade.Global.ProjectileSpeedMultiplier"));
+				Projectile->UpdateProjectileSpeed(ProjSpeedMulti);
 
 				UGameplayStatics::FinishSpawningActor(Projectile, FTransform(ProjectileDirection.Rotation(), SpawnLocation));
 			}

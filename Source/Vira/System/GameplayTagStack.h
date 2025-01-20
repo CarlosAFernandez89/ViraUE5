@@ -52,18 +52,18 @@ struct FGameplayTagStackContainer : public FFastArraySerializer
 
 public:
 	
-	void AddStackForAbilitySystem(FGameplayTag Tag, int32 StackCount);
+	void AddStackForAbilitySystem(FGameplayTag Tag, float StackCount);
 	
 	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
-	void AddStack(FGameplayTag Tag, int32 StackCount);
+	void AddStack(FGameplayTag Tag, float StackCount);
 
 	void ClearStack(FGameplayTag Tag);
 
 	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
-	void RemoveStack(FGameplayTag Tag, int32 StackCount);
+	void RemoveStack(FGameplayTag Tag, float StackCount);
 
 	// Returns the stack count of the specified tag (or 0 if the tag is not present)
-	int32 GetStackCount(FGameplayTag Tag) const
+	float GetStackCount(FGameplayTag Tag) const
 	{
 		return TagToCountMap.FindRef(Tag);
 	}

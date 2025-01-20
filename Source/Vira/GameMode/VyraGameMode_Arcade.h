@@ -125,7 +125,7 @@ private:
 	float CurrentWaveSpawnRate = 6.f;
 
 	UPROPERTY()
-	float WaveStartDelay = 5.f;
+	float WaveStartDelay = 2.f;
 
 	UPROPERTY()
 	int32 EnemiesToSpawnThisWave = 4;

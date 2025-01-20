@@ -16,7 +16,7 @@ FString FGameplayTagStack::GetDebugString() const
 //////////////////////////////////////////////////////////////////////
 // FGameplayTagStackContainer
 
-void FGameplayTagStackContainer::AddStackForAbilitySystem(FGameplayTag Tag, int32 StackCount)
+void FGameplayTagStackContainer::AddStackForAbilitySystem(FGameplayTag Tag, float StackCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -29,7 +29,7 @@ void FGameplayTagStackContainer::AddStackForAbilitySystem(FGameplayTag Tag, int3
 	TagToCountMap.Add(Tag, StackCount);
 }
 
-void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
+void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, float StackCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -92,7 +92,7 @@ void FGameplayTagStackContainer::ClearStack(FGameplayTag Tag)
 	
 }
 
-void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
+void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, float StackCount)
 {
 	if (!Tag.IsValid())
 	{

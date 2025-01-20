@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "VyraProjectileBase.generated.h"
 
+class UNiagaraSystem;
+class UVyraAbilitySystemComponent;
 class UGameplayEffect;
 
 UCLASS()
@@ -23,6 +25,9 @@ public:
 	// Sets default values for this actor's properties
 	AVyraProjectileBase();
 
+	void SetProjectileSpeed(float InProjectileSpeed = 850.f) const;
+	void UpdateProjectileSpeed(float InSpeedMultiplier = 1.f) const;
+	void SetupProjectileOwnerValues(ACharacter* InOwningCharacter, UVyraAbilitySystemComponent* InOwningASC, bool InShouldFork = true);
 protected:
 
 	virtual void BeginPlay() override;
@@ -30,11 +35,27 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 	void SphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void OnHitWorldObject(const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void OnHitActor(AActor* HitActor, const FHitResult& SweepResult);
+
+private:
+	UFUNCTION()
+	void SpawnVisuals();
+
+	UFUNCTION()
+	float CalculateLifeSpanLinear() const;
+	
+	UFUNCTION()
+	bool ShouldProjectileFork() const;
+
+	UFUNCTION()
+	void ForkProjectile(AActor* ForkInstigator) const;
+
+	UFUNCTION()
+	bool IsProjectilePhasing() const;
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile")
@@ -46,4 +67,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (ExposeOnSpawn = true))
 	float LifeSpan = 1.5f;
 
+	UPROPERTY()
+	AActor* ProjectileInstigator;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile")
+	FGameplayTag ProjectilePhasingTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile|Visuals")
+	UNiagaraSystem* ProjectileNiagaraSystem;
+	
+private:
+	UPROPERTY()
+	ACharacter* OwningCharacter;
+
+	UPROPERTY()
+	UVyraAbilitySystemComponent* OwnerASC;
+
+	UPROPERTY()
+	bool bAlreadyForked = false;
 };
