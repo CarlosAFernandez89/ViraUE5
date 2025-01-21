@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_WithCastTime.h"
 #include "ArcadeAbility_InfernalDash.generated.h"
 
 
@@ -13,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTeleportEnd, FVector, EndLocation
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_InfernalDash : public UVyraGameplayAbility
+class VIRA_API UArcadeAbility_InfernalDash : public UVyraGameplayAbility_WithCastTime
 {
 	GENERATED_BODY()
 

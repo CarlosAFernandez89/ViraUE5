@@ -18,14 +18,18 @@ UVyraGameplayAbility_Channelling::UVyraGameplayAbility_Channelling(): AbilityTas
 
 void UVyraGameplayAbility_Channelling::OnInputRelease(float TimeHeld)
 {
+	if (InputReleased && InputReleased->IsActive())
+	{
+		InputReleased->EndTask();
+	}
+	
 	if (AbilityTask && AbilityTask->IsActive())
 	{
 		AbilityTask->StopChanneling();
 	}
-
-	if (InputReleased && InputReleased->IsActive())
+	else
 	{
-		InputReleased->EndTask();
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
 }
 
@@ -66,6 +70,11 @@ void UVyraGameplayAbility_Channelling::EndAbility(const FGameplayAbilitySpecHand
 	if (AbilityTask && AbilityTask->IsActive())
 	{
 		AbilityTask->EndTask();
+	}
+
+	if (InputReleased && InputReleased->IsActive())
+	{
+		InputReleased->EndTask();
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
