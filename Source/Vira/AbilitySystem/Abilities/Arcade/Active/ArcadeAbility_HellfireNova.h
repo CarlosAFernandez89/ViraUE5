@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_Channelling.h"
 #include "ArcadeAbility_HellfireNova.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_HellfireNova : public UVyraGameplayAbility
+class VIRA_API UArcadeAbility_HellfireNova : public UVyraGameplayAbility_Channelling
 {
 	GENERATED_BODY()
 };
