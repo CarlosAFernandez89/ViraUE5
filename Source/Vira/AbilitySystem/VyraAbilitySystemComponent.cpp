@@ -96,13 +96,21 @@ void UVyraAbilitySystemComponent::ReduceCooldownWithMatchingOwningTag(const FGam
 					FGameplayEffectSpecHandle NewSpecHandle = MakeOutgoingSpec(CooldownEffectClass, ActiveEffect->Spec.GetLevel(), ActiveEffect->Spec.GetEffectContext());
 					if (NewSpecHandle.IsValid())
 					{
+						//Set duration and GameplayTags from the old spec into the new one
 						NewSpecHandle.Data->SetDuration(NewDuration, true);
-
+						NewSpecHandle.Data->DynamicGrantedTags = ActiveEffect->Spec.DynamicGrantedTags;
+						
 						// Remove the current active effect
 						RemoveActiveGameplayEffect(Handle);
 					
 						// Apply the new effect
 						ApplyGameplayEffectSpecToSelf(*NewSpecHandle.Data);
+
+						if (GEngine)
+						{
+							GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue,
+								FString::Format(TEXT("Reducing cooldown to : {0}"), { FString::SanitizeFloat(NewDuration) }));
+						}
 					}
 				}
 			}
