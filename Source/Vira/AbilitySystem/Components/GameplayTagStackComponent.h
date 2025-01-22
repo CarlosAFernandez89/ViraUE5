@@ -21,6 +21,13 @@ struct FGameplayAbilityTagStackData
 	float CurrentCount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxCount = -1;
+	
+	bool operator==(const FGameplayAbilityTagStackData& Other) const
+	{
+		return GameplayTag == Other.GameplayTag
+			&& FMath::IsNearlyEqual(CurrentCount, Other.CurrentCount)
+			&& FMath::IsNearlyEqual(MaxCount, Other.MaxCount);
+	}
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagStackChanged, FGameplayTag, ChangedTag, int32, NewValue);

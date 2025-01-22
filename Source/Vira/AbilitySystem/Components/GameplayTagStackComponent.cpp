@@ -27,7 +27,7 @@ void UGameplayTagStackComponent::InitializeNewStackTag(FGameplayTag Tag, const f
 	}
 
 	TagStackContainer.AddStackForAbilitySystem(Tag, MaxCount == -1  ? CurrentCount : FMath::Min(CurrentCount, MaxCount));
-
+	GameplayTagStack.AddUnique(FGameplayAbilityTagStackData(Tag, CurrentCount, MaxCount));
 	
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));
 }

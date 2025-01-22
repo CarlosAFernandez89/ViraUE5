@@ -3,33 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_WithCharges.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_WithChargesFromGameplayTagStack.h"
 #include "ArcadeAbility_Item_HealthPotion.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UArcadeAbility_Item_HealthPotion : public UVyraGameplayAbility_WithCharges
+class VIRA_API UArcadeAbility_Item_HealthPotion : public UVyraGameplayAbility_WithChargesFromGameplayTagStack
 {
 	GENERATED_BODY()
 
 	UArcadeAbility_Item_HealthPotion();
 
-	protected:
+protected:
 
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	virtual bool CheckCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+	bool IsActorAtMaxHealth() const;
 	
+	UFUNCTION(BlueprintCallable)
 	void ApplyRecoveryEffect() const;
-
-	//This applies the cooldown in-between charges.
-	void ApplySecondaryCooldown() const;
-	//this checks for the cooldown in-between charges.
-	bool CheckForSecondaryCooldown() const;
-
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Ability|SecondaryCooldown")
-	TSubclassOf<UGameplayEffect> SecondaryCooldownClass;
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category="Ability|SecondaryCooldown")
-	FGameplayTag SecondaryCooldownGameplayTag;
 };

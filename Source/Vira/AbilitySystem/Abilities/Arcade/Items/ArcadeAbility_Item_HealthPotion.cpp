@@ -3,30 +3,38 @@
 
 #include "ArcadeAbility_Item_HealthPotion.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Abilities/Attributes/GSCAttributeSet.h"
+
 UArcadeAbility_Item_HealthPotion::UArcadeAbility_Item_HealthPotion()
 {
-	if (AbilityGameplayTagStack)
+}
+
+bool UArcadeAbility_Item_HealthPotion::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	return !IsActorAtMaxHealth() && Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+}
+
+bool UArcadeAbility_Item_HealthPotion::IsActorAtMaxHealth() const
+{
+	bool bGotHealth = false;
+	const float Health = UAbilitySystemBlueprintLibrary::GetFloatAttribute(GetAvatarActorFromActorInfo(), UGSCAttributeSet::GetHealthAttribute(), bGotHealth);
+	bool bGotMaxHealth = false;
+	const float MaxHealth = UAbilitySystemBlueprintLibrary::GetFloatAttribute(GetAvatarActorFromActorInfo(), UGSCAttributeSet::GetMaxHealthAttribute(), bGotMaxHealth);
+
+	if (bGotHealth && bGotMaxHealth)
 	{
-		MaxCharges = AbilityGameplayTagStack->GetMaxCurrentTagCountByTag(FGameplayTag::RequestGameplayTag("GameplayTagStack.Arcade.Items.HealthPotion.Charges"));
+		if (Health >= MaxHealth)
+		{
+			return true;
+		}
+
+		return false;
 	}
-}
 
-void UArcadeAbility_Item_HealthPotion::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	ApplyRecoveryEffect();
-	ApplySecondaryCooldown();
-
-	EndAbility(Handle, ActorInfo,ActivationInfo,true, false);
-}
-
-bool UArcadeAbility_Item_HealthPotion::CheckCooldown(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	return CheckForSecondaryCooldown() && Super::CheckCooldown(Handle, ActorInfo, OptionalRelevantTags);
+	return true;
 }
 
 void UArcadeAbility_Item_HealthPotion::ApplyRecoveryEffect() const
@@ -40,32 +48,4 @@ void UArcadeAbility_Item_HealthPotion::ApplyRecoveryEffect() const
 			ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, GESH);
 		}
 	}
-}
-
-void UArcadeAbility_Item_HealthPotion::ApplySecondaryCooldown() const
-{
-	if (SecondaryCooldownClass)
-	{
-		float AbilityLevel = GetGameplayTagStackCount(GetAbilityLevelTag());
-		FGameplayEffectSpecHandle GESH = MakeOutgoingGameplayEffectSpec(SecondaryCooldownClass, AbilityLevel);
-		if (GESH.IsValid())
-		{
-			ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, GESH);
-		}
-	}
-}
-
-bool UArcadeAbility_Item_HealthPotion::CheckForSecondaryCooldown() const
-{
-	if (SecondaryCooldownGameplayTag.IsValid())
-	{
-		if (UAbilitySystemComponent* AbilitySystemComponent = CurrentActorInfo->AbilitySystemComponent.Get())
-		{
-			if (AbilitySystemComponent->HasMatchingGameplayTag(SecondaryCooldownGameplayTag))
-			{
-				return false;
-			}
-		}
-	}
-	return true;
 }
