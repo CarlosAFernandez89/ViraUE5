@@ -50,4 +50,17 @@ public:
 	{
 		return AbilityGameplayTagStack.AbilityCooldown.GameplayTag;
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityGameplayTagStack")
+	int32 GetMaxCurrentTagCountByTag(FGameplayTag GameplayTag)
+	{
+		for (FGameplayAbilityTagStackData Mod : AbilityGameplayTagStack.Modifiers)
+		{
+			if (Mod.GameplayTag == GameplayTag)
+			{
+				return Mod.CurrentCount;
+			}
+		}
+		return 0;
+	}
 };
