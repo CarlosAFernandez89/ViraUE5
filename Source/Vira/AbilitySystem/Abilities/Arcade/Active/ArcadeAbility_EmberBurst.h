@@ -23,6 +23,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "EmberBurst")
 	int32 GetProjectileCount() const;
+
+	virtual void OnCastingSucceeded_Implementation() override;
 protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Vyra|Ability|Projectile")

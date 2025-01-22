@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility_WithCharges.h"
 #include "GameplayAbility_Dash.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class VIRA_API UGameplayAbility_Dash : public UVyraGameplayAbility
+class VIRA_API UGameplayAbility_Dash : public UVyraGameplayAbility_WithCharges
 {
 	GENERATED_BODY()
 

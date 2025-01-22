@@ -24,6 +24,7 @@ void UVyraGameplayAbility_WithCastTime::StartCasting()
 {
 	CastTime = GetSectionStartTime(EndCastTimeSectionName, GetCastSpeed());
 
+	// Send message to UI to display cast bar
 	if (const UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
 	{
 		if (UGameplayMessageSubsystem* MessageSubsystem = GameInstance->GetSubsystem<UGameplayMessageSubsystem>())

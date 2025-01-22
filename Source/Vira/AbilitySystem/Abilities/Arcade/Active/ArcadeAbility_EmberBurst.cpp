@@ -4,6 +4,7 @@
 #include "ArcadeAbility_EmberBurst.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Vira/AbilitySystem/Abilities/Arcade/Actors/VyraProjectileBase.h"
 
 void UArcadeAbility_EmberBurst::SpawnProjectilesInCone(const int32 NumProjectiles, const float ConeHalfAngleDegrees)
@@ -58,4 +59,13 @@ int32 UArcadeAbility_EmberBurst::GetProjectileCount() const
 	const int32 GlobalProjectileCount = GetGameplayTagStackCount(FGameplayTag::RequestGameplayTag("GameplayTagStack.Arcade.Global.ProjectileCount"));
 
 	return AbilityProjectiles + GlobalProjectileCount;
+}
+
+void UArcadeAbility_EmberBurst::OnCastingSucceeded_Implementation()
+{
+	Super::OnCastingSucceeded_Implementation();
+
+	const int32 ProjectileCount = GetProjectileCount();
+	const float ConeHalfAngleDegrees = UKismetMathLibrary::MapRangeClamped(ProjectileCount, 1.f,20.f,5.f, 45.f);
+	SpawnProjectilesInCone(ProjectileCount, ConeHalfAngleDegrees);
 }
