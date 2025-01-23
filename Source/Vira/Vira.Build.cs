@@ -45,8 +45,17 @@ public class Vira : ModuleRules
 			"PaperZD",
 			"GameplayMessageRuntime",
 			"Niagara",
-			"NavigationSystem"
+			"NavigationSystem",
+			"GameplayAbilitySkillTreeRuntime",
 		});
+
+		if (Target.bBuildEditor)
+		{
+			PublicDependencyModuleNames.AddRange(new string[]
+			{
+				"GameplayAbilitySkillTree"
+			});
+		}
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
