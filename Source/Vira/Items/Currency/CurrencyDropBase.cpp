@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "Components/SphereComponent.h"
+#include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 
 
@@ -44,7 +45,25 @@ void ACurrencyDropBase::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (AVyraPlayerStateCharacter* Character = Cast<AVyraPlayerStateCharacter>(OtherActor))
+	if (OtherActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
+	{
+		GiveCurrencyToPlayer(OtherActor);
+	}
+
+	if (OtherActor->IsA(AVyraCompanionPawn::StaticClass()))
+	{
+		if (AVyraCompanionPawn* CompanionPawn = Cast<AVyraCompanionPawn>(OtherActor))
+		{
+			GiveCurrencyToPlayer(CompanionPawn->GetCompanionOwner());
+		}
+	}
+
+	
+}
+
+void ACurrencyDropBase::GiveCurrencyToPlayer(AActor* PlayerActor)
+{
+	if (AVyraPlayerStateCharacter* Character = Cast<AVyraPlayerStateCharacter>(PlayerActor))
 	{
 		// Check if the overlapping actor has an ASC
 		TargetASC = Character->GetAbilitySystemComponent();
@@ -81,6 +100,7 @@ void ACurrencyDropBase::NotifyActorBeginOverlap(AActor* OtherActor)
 		}
 	}
 }
+
 
 void ACurrencyDropBase::OnCurrencyAcquired_Implementation()
 {

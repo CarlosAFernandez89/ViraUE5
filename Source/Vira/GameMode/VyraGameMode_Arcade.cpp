@@ -7,9 +7,11 @@
 #include "NavigationSystem.h"
 #include "AI/NavigationSystemBase.h"
 #include "Curves/CurveVector.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Vira/AbilitySystem/Abilities/Enemies/VyraGameplayAbility_EnemyDeath.h"
+#include "Vira/Gameplay/Arcade/ArcadeAltar.h"
 #include "Vira/NPC/Enemy/EnemyDataAsset.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 
@@ -31,12 +33,24 @@ void AVyraGameMode_Arcade::BeginPlay()
 	
 	CurrentWave = StartingWave;
 	
-	StartNextWave();
+	//StartNextWave();
+
+	CurrentWaveExp = 0.0f;
+	OnWaveExperienceUpdated(CurrentWaveExp, WaveExpRequirement);
 }
 
 
 void AVyraGameMode_Arcade::StartNextWave()
 {
+
+	if (AActor* AltarActor = UGameplayStatics::GetActorOfClass(this, AArcadeAltar::StaticClass()))
+	{
+		if (IInteractionInfoAndActions* Interactable = Cast<IInteractionInfoAndActions>(AltarActor))
+		{
+			Interactable->Execute_SetActive_InteractableActor(AltarActor, false); 
+		}
+	}
+	
 	CurrentWave++;
 	
 	WaveExpRequirement = CalculateWaveExpRequirement(CurrentWave);
@@ -58,6 +72,14 @@ void AVyraGameMode_Arcade::EndWave()
 	UKismetSystemLibrary::K2_ClearAndInvalidateTimerHandle(this,WaveTimerHandle);
 	ClearRemainingEnemies();
 	OnWaveEnded();
+
+	if (AActor* AltarActor = UGameplayStatics::GetActorOfClass(this, AArcadeAltar::StaticClass()))
+	{
+		if (IInteractionInfoAndActions* Interactable = Cast<IInteractionInfoAndActions>(AltarActor))
+		{
+			Interactable->Execute_SetActive_InteractableActor(AltarActor, true); 
+		}
+	}
 }
 
 void AVyraGameMode_Arcade::OnEnemyKilled_Implementation(AVyraEnemyCharacter* Enemy)

@@ -46,14 +46,13 @@ public class Vira : ModuleRules
 			"GameplayMessageRuntime",
 			"Niagara",
 			"NavigationSystem",
-			"GameplayAbilitySkillTreeRuntime",
 		});
 
 		if (Target.bBuildEditor)
 		{
 			PublicDependencyModuleNames.AddRange(new string[]
 			{
-				"GameplayAbilitySkillTree"
+				
 			});
 		}
 

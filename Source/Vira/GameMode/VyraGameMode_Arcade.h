@@ -25,6 +25,9 @@ public:
 	virtual void BeginPlay() override;
 	
 protected:
+
+	UFUNCTION(BlueprintCallable, Category = "Waves")
+	int32 GetCurrentWaveNumber() const {return CurrentWave; };
 	
 	UFUNCTION(BlueprintCallable, Category = "Waves")
 	void StartNextWave();

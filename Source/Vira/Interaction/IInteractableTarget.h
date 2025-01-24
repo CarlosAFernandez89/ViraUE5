@@ -77,4 +77,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="InteractionInfoAndActions")
 	void DisableInteractUI();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="InteractionInfoAndActions")
+	void SetActive_InteractableActor(bool bActive = true);
+	
 };

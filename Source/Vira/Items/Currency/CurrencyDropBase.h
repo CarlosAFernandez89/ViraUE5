@@ -64,6 +64,8 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Currency Drop")
 	void OnCurrencyAcquired();
 
+	void GiveCurrencyToPlayer(AActor* PlayerActor);
+
 private:
 	UPROPERTY()
 	class UAbilitySystemComponent* TargetASC;
