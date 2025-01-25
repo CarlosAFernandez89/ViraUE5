@@ -33,11 +33,16 @@ protected:
 		return CompanionPawnReference ? true : false;
 	}
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Ability|Companion")
+	bool bSpawnOnGiveAbility = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Companion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Ability|Companion")
 	TSubclassOf<AVyraCompanionPawn> CompanionPawnClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability|Companion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Ability|Companion")
+	float SpawnRadius = 350.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vyra|Ability|Companion")
 	UBehaviorTree* CompanionPawnBehavior;
 
 

@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "VyraCompanionPawn.generated.h"
 
+
 UCLASS()
-class VIRA_API AVyraCompanionPawn : public APawn
+class VIRA_API AVyraCompanionPawn : public ACharacter
 {
 	GENERATED_BODY()
 

@@ -13,7 +13,14 @@ void UVyraGameplayAbility_Companion::OnGiveAbility(const FGameplayAbilityActorIn
 {
 	Super::OnGiveAbility(ActorInfo, Spec);
 
-	SpawnCompanionPawn();
+	/*
+	 * Only very specific companions should get spawned when ability is given,
+	 * such as passive companions and cosmetic companions.
+	 */
+	if (bSpawnOnGiveAbility)
+	{
+		SpawnCompanionPawn();
+	}
 }
 
 void UVyraGameplayAbility_Companion::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -33,11 +40,7 @@ void UVyraGameplayAbility_Companion::SpawnCompanionPawn()
 
 			FNavLocation Location = FNavLocation();
 
-			if(NavigationSystemV1->GetRandomReachablePointInRadius(GetAvatarActorFromActorInfo()->GetActorLocation(), 800.f, Location))
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Random location found: %s"), *Location.Location.ToString());
-			}
-			else
+			if(!NavigationSystemV1->GetRandomReachablePointInRadius(GetAvatarActorFromActorInfo()->GetActorLocation(), SpawnRadius, Location))
 			{
 				UE_LOG(LogTemp, Error, TEXT("No random reachable location found."));
 				return;
@@ -46,6 +49,7 @@ void UVyraGameplayAbility_Companion::SpawnCompanionPawn()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+			Location.Location += FVector(0.f,0.f, 90.f);
 			if (AVyraCompanionPawn* CompanionPawn = World->SpawnActor<AVyraCompanionPawn>(CompanionPawnClass, Location.Location, FRotator(0, 0, 0), SpawnParams))
 			{
 				CompanionPawnReference = CompanionPawn;
@@ -62,19 +66,7 @@ void UVyraGameplayAbility_Companion::SpawnCompanionPawn()
 					}
 				}
 			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Companion Pawn failed to spawn"));
-			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Navigation System invalid"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("World is invalid"));
 	}
 }
 

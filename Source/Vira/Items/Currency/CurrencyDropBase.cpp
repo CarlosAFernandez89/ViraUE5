@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "Components/SphereComponent.h"
-#include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn.h"
+#include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn_Utility.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
 
 
@@ -50,9 +50,9 @@ void ACurrencyDropBase::NotifyActorBeginOverlap(AActor* OtherActor)
 		GiveCurrencyToPlayer(OtherActor);
 	}
 
-	if (OtherActor->IsA(AVyraCompanionPawn::StaticClass()))
+	if (OtherActor->IsA(AVyraCompanionPawn_Utility::StaticClass()))
 	{
-		if (AVyraCompanionPawn* CompanionPawn = Cast<AVyraCompanionPawn>(OtherActor))
+		if (AVyraCompanionPawn_Utility* CompanionPawn = Cast<AVyraCompanionPawn_Utility>(OtherActor))
 		{
 			GiveCurrencyToPlayer(CompanionPawn->GetCompanionOwner());
 		}

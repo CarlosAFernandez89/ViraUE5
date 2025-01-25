@@ -3,6 +3,10 @@
 
 #include "VyraCompanionPawn.h"
 
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
+
 
 // Sets default values
 AVyraCompanionPawn::AVyraCompanionPawn()
@@ -11,4 +15,6 @@ AVyraCompanionPawn::AVyraCompanionPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 }

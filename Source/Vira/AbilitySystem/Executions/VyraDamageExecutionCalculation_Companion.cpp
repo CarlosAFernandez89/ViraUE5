@@ -1,16 +1,16 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "VyraDamageExecutionCalculation.h"
+#include "VyraDamageExecutionCalculation_Companion.h"
 
 #include "Abilities/Attributes/GSCAttributeSet.h"
 #include "Perception/AISense_Damage.h"
-#include "Vira/AbilitySystem/AttributeSets/CombatAttributeSet.h"
+#include "Vira/AbilitySystem/AttributeSets/Companions/CompanionAttributeSetBase.h"
 #include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn_WithASC.h"
 #include "Vira/Character/VyraPlayerStateCharacter.h"
-#include "Vira/Player/Components/FloatingCombatText.h"
 
-struct FDamageStatics
+
+struct FCompanionDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Health);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageReduction);
@@ -19,24 +19,24 @@ struct FDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalStrikeChance);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalStrikeDamageMultiplier);
 
-	FDamageStatics()
+	FCompanionDamageStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UGSCAttributeSet, Health, Target, false);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCombatAttributeSet, DamageReduction, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCompanionAttributeSetBase, DamageReduction, Target, false);
 
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCombatAttributeSet, BaseDamage, Source, true);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCombatAttributeSet, CriticalStrikeChance, Source, true);
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UCombatAttributeSet, CriticalStrikeDamageMultiplier, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCompanionAttributeSetBase, BaseDamage, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCompanionAttributeSetBase, CriticalStrikeChance, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UCompanionAttributeSetBase, CriticalStrikeDamageMultiplier, Source, true);
 	}
 };
 
-static FDamageStatics DamageStatics()
+static FCompanionDamageStatics DamageStatics()
 {
-	static FDamageStatics statics;
+	static FCompanionDamageStatics statics;
 	return statics;
 }
 
-UVyraDamageExecutionCalculation::UVyraDamageExecutionCalculation()
+UVyraDamageExecutionCalculation_Companion::UVyraDamageExecutionCalculation_Companion()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageReductionDef);
@@ -46,7 +46,7 @@ UVyraDamageExecutionCalculation::UVyraDamageExecutionCalculation()
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalStrikeDamageMultiplierDef);
 }
 
-void UVyraDamageExecutionCalculation::Execute_Implementation(
+void UVyraDamageExecutionCalculation_Companion::Execute_Implementation(
 	const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
@@ -114,14 +114,7 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 	SourceActor->GetActorLocation(),
 	FVector(0, 0, 0));
 
-	if (SourceActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
-	{
-		if (AVyraPlayerStateCharacter* PC = Cast<AVyraPlayerStateCharacter>(SourceActor))
-		{
-			PC->SpawnDamageText(TargetActor, LocalBaseDamage, bCriticalHit);
-		}
-	}
-	else if (SourceActor->IsA(AVyraCompanionPawn_WithASC::StaticClass()))
+	if (SourceActor->IsA(AVyraCompanionPawn_WithASC::StaticClass()))
 	{
 		if (AActor* OwnerPawn = SourceActor->GetOwner())
 		{

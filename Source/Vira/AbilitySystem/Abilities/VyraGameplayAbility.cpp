@@ -171,7 +171,7 @@ bool UVyraGameplayAbility::CheckCooldown(const FGameplayAbilitySpecHandle Handle
 		return true;
 	}
 	
-	const FGameplayTag CooldownTag = FGameplayTag::RequestGameplayTag(AbilityGameplayTagStack->GetCooldownGameplayTag().GetTagName());
+	const FGameplayTag CooldownTag = AbilityGameplayTagStack->GetCooldownGameplayTag();
 	if (CooldownTag.IsValid())
 	{
 		if (UAbilitySystemComponent* AbilitySystemComponent = ActorInfo->AbilitySystemComponent.Get())

@@ -14,6 +14,7 @@
 #include "VyraGhostProjectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
+#include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn.h"
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_PROJECTILES_FORK, "GameplayTagStack.Arcade.Global.ProjectilesFork");
 UE_DEFINE_GAMEPLAY_TAG(TAG_PROJECTILES_FORK_COUNT, "GameplayTagStack.Arcade.Global.ProjectilesFork.Count");
@@ -204,6 +205,8 @@ void AVyraProjectileBase::SphereComponentBeginOverlap_Implementation(UPrimitiveC
 {
 	// Make sure the same actor doesn't proc projectile effects when it spawns projectile effects.
 	if (OtherActor == ProjectileInstigator) return;
+
+	if (OtherActor->IsA(AVyraCompanionPawn::StaticClass())) return;
 	
 	if (!OtherActor->IsA(TargetClass))
 	{
