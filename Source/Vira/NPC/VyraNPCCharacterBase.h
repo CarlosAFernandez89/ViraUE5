@@ -9,42 +9,27 @@
 #include "VyraNPCCharacterBase.generated.h"
 
 UCLASS(Blueprintable)
-class VIRA_API AVyraNPCCharacterBase : public AGSCModularCharacter, public ISpudObject
+class VIRA_API AVyraNPCCharacterBase : public ACharacter, public ISpudObject, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GASCompanion, meta = (AllowPrivateAccess = "true"))
-	class UGSCCoreComponent* GSCCoreComponent;
-
-	// Name of the Sprite component
-	static FName SpriteComponentName;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPaperFlipbookComponent> Sprite;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = PaperZD, meta = (AllowPrivateAccess = "true"))
-	class UPaperZDAnimationComponent* PaperZDAnimationComponent;
 
 public:
 	// Sets default values for this character's properties
 	AVyraNPCCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<class UVyraAbilitySystemComponent> VyraAbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GASCompanion, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UGSCCoreComponent> GSCCoreComponent;
 	
-	/** Returns Sprite subobject **/
-	FORCEINLINE class UPaperFlipbookComponent* GetSprite() const { return Sprite; }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class UPaperZDAnimInstance* GetPaperZDAnimInstance() const {return PaperZDAnimationComponent->GetAnimInstance(); }
-
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UGSCCoreComponent* GetGSCCoreComponent() const {return GSCCoreComponent; }
 
+	//~ Begin IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~ End IAbilitySystemInterface
 	
-	virtual void PostInitializeComponents() override;
-	
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:
 	/// GUID required to identify runtime-created objects
 	/// This will be generated on save if necessary, or you can initialise it yourself

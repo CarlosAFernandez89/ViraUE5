@@ -100,7 +100,7 @@ FVector UFloatingCombatText::CalculateSpawnLocation(AActor* HitActor) const
 	{
 		if (ACharacter* Character = Cast<ACharacter>(HitActor))
 		{
-			return Character->GetActorLocation() +  FVector(0.f,0.f, Character->GetDefaultHalfHeight() * 3.f + FloatingDamageZOffset);
+			return Character->GetActorLocation() +  FVector(0.f,0.f, Character->GetDefaultHalfHeight() * 1.f + FloatingDamageZOffset);
 		}
 	}
 

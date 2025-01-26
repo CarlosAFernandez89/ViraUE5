@@ -30,7 +30,7 @@ struct FCompanionDamageStatics
 	}
 };
 
-static FCompanionDamageStatics DamageStatics()
+static FCompanionDamageStatics CompanionDamageStatics()
 {
 	static FCompanionDamageStatics statics;
 	return statics;
@@ -38,12 +38,12 @@ static FCompanionDamageStatics DamageStatics()
 
 UVyraDamageExecutionCalculation_Companion::UVyraDamageExecutionCalculation_Companion()
 {
-	RelevantAttributesToCapture.Add(DamageStatics().HealthDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageReductionDef);
+	RelevantAttributesToCapture.Add(CompanionDamageStatics().HealthDef);
+	RelevantAttributesToCapture.Add(CompanionDamageStatics().DamageReductionDef);
 
-	RelevantAttributesToCapture.Add(DamageStatics().BaseDamageDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalStrikeChanceDef);
-	RelevantAttributesToCapture.Add(DamageStatics().CriticalStrikeDamageMultiplierDef);
+	RelevantAttributesToCapture.Add(CompanionDamageStatics().BaseDamageDef);
+	RelevantAttributesToCapture.Add(CompanionDamageStatics().CriticalStrikeChanceDef);
+	RelevantAttributesToCapture.Add(CompanionDamageStatics().CriticalStrikeDamageMultiplierDef);
 }
 
 void UVyraDamageExecutionCalculation_Companion::Execute_Implementation(
@@ -65,7 +65,7 @@ void UVyraDamageExecutionCalculation_Companion::Execute_Implementation(
 	EvaluateParams.TargetTags = TargetTags;
 	
 	float LocalBaseDamage = 1.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDamageDef, EvaluateParams, LocalBaseDamage);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CompanionDamageStatics().BaseDamageDef, EvaluateParams, LocalBaseDamage);
 
 	//This is used to get the ScalableFloatMagnitude from the execution
 	//It can use a CurveTable to scale the damage based on the effect level.
@@ -84,13 +84,13 @@ void UVyraDamageExecutionCalculation_Companion::Execute_Implementation(
 	LocalBaseDamage += TotalCalculatedMagnitudes;
 	
 	float LocalCriticalStrikeChance = 0.05f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalStrikeChanceDef, EvaluateParams, LocalCriticalStrikeChance);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CompanionDamageStatics().CriticalStrikeChanceDef, EvaluateParams, LocalCriticalStrikeChance);
 	
 	float LocalCriticalStrikeDamageMultiplier = 0.05f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalStrikeDamageMultiplierDef, EvaluateParams, LocalCriticalStrikeDamageMultiplier);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CompanionDamageStatics().CriticalStrikeDamageMultiplierDef, EvaluateParams, LocalCriticalStrikeDamageMultiplier);
 
 	float LocalDamageReduction = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageReductionDef, EvaluateParams, LocalDamageReduction);
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CompanionDamageStatics().DamageReductionDef, EvaluateParams, LocalDamageReduction);
 
 	if(LocalBaseDamage < 0)
 	{
@@ -125,5 +125,5 @@ void UVyraDamageExecutionCalculation_Companion::Execute_Implementation(
 		}
 	}
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(CompanionDamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 }
