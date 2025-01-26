@@ -42,25 +42,29 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AVyraPlayerStateCharacter* GetVyraPlayerStateCharacter() const
 	{
-		return PlayerStateCharacter;
+		return PlayerStateCharacter ? PlayerStateCharacter : nullptr;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UAnimInstance* GetVyraAnimInstance() const
 	{
-		return PlayerStateCharacter ? PlayerStateCharacter->GetMesh()->GetAnimInstance() : nullptr;
+		ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
+		return Character ? Character->GetMesh()->GetAnimInstance() : nullptr;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UVyraAbilitySystemComponent* GetVyraAbilitySystemComponent() const
 	{
-		return PlayerStateCharacter ? Cast<UVyraAbilitySystemComponent>(PlayerStateCharacter->GetAbilitySystemComponent()) : nullptr;
+		UVyraAbilitySystemComponent* ASC = Cast<UVyraAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
+		
+		return ASC ?  ASC : nullptr;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class UGSCCoreComponent* GetVyraGSCCoreComponent() const
 	{
-		return PlayerStateCharacter ? PlayerStateCharacter->GetGSCCoreComponent() : nullptr;
+		UGSCCoreComponent* GSCCore = GetAvatarActorFromActorInfo()->GetComponentByClass<UGSCCoreComponent>();
+		return GSCCore ? GSCCore : nullptr;
 	}
 
 	UFUNCTION(BlueprintCallable)

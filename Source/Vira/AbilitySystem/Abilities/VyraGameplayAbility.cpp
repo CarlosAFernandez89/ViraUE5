@@ -61,24 +61,24 @@ void UVyraGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorI
 
 			CommonInputSubsystem = PC->GetLocalPlayer()->GetSubsystem<UCommonInputSubsystem>();
 		}
+	}
 
-		if (UVyraAbilitySystemComponent* ASC = GetVyraAbilitySystemComponent())
+	if (UVyraAbilitySystemComponent* ASC = GetVyraAbilitySystemComponent())
+	{
+		if (GetAbilityLevelTag().IsValid())
 		{
-			if (GetAbilityLevelTag().IsValid())
+			const FGameplayTag Tag = FGameplayTag::RequestGameplayTag(GetAbilityLevelTag().GetTagName());
+			if (const int32 Level =  ASC->GetGameplayTagStackCount(Tag); Level != -1)
 			{
-				const FGameplayTag Tag = FGameplayTag::RequestGameplayTag(GetAbilityLevelTag().GetTagName());
-				if (const int32 Level =  ASC->GetGameplayTagStackCount(Tag); Level != -1)
-				{
-					UpdateAbilityLevel(Level);
-				}
+				UpdateAbilityLevel(Level);
 			}
-			else
-			{
-				UpdateAbilityLevel(1);
-			}
-
-			ASC->GetGameplayTagStackComponent()->OnTagStackChanged.AddDynamic(this, &UVyraGameplayAbility::OnGameplayTagStackUpdated);
 		}
+		else
+		{
+			UpdateAbilityLevel(1);
+		}
+
+		ASC->GetGameplayTagStackComponent()->OnTagStackChanged.AddDynamic(this, &UVyraGameplayAbility::OnGameplayTagStackUpdated);
 	}
 }
 
@@ -109,7 +109,7 @@ bool UVyraGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle H
 {
 	const bool bCanActivateAbility = Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
 
-	if (bCanActivateAbility == false)
+	if (bCanActivateAbility == false && ActorInfo->AvatarActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
 	{
 		if (UVyraGameInstance* VyraGameInstance = UVyraBlueprintFunctionLibrary::GetVyraGameInstance(GetAvatarActorFromActorInfo()))
 		{

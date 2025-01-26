@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Vira/AbilitySystem/Components/Companions/VyraCompanionPawn.h"
 
 void UVyraGameplayAbility_Companion::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
@@ -39,18 +40,26 @@ void UVyraGameplayAbility_Companion::SpawnCompanionPawn()
 			UE_LOG(LogTemp, Warning, TEXT("Navigation system valid."));
 
 			FNavLocation Location = FNavLocation();
-
-			if(!NavigationSystemV1->GetRandomReachablePointInRadius(GetAvatarActorFromActorInfo()->GetActorLocation(), SpawnRadius, Location))
+			bool bFoundSpawnLocation = false;
+			for (int i = 0; i < 4; ++i)
 			{
-				UE_LOG(LogTemp, Error, TEXT("No random reachable location found."));
-				return;
+				bFoundSpawnLocation = NavigationSystemV1->GetRandomReachablePointInRadius(GetAvatarActorFromActorInfo()->GetActorLocation(), SpawnRadius, Location);
+				if(bFoundSpawnLocation)
+				{
+					break;
+				}
 			}
+			
+			if(!bFoundSpawnLocation) return;
 
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 			Location.Location += FVector(0.f,0.f, 90.f);
-			if (AVyraCompanionPawn* CompanionPawn = World->SpawnActor<AVyraCompanionPawn>(CompanionPawnClass, Location.Location, FRotator(0, 0, 0), SpawnParams))
+			if (AVyraCompanionPawn* CompanionPawn = World->SpawnActor<AVyraCompanionPawn>(CompanionPawnClass,
+				Location.Location,
+				UKismetMathLibrary::FindLookAtRotation(Location.Location, GetAvatarActorFromActorInfo()->GetActorLocation()),
+				SpawnParams))
 			{
 				CompanionPawnReference = CompanionPawn;
 				CompanionPawnReference->SetOwner(GetAvatarActorFromActorInfo());
