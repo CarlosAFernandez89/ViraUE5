@@ -7,6 +7,7 @@
 #include "Vira/NPC/Enemy/VyraEnemyCharacter.h"
 #include "VyraGameMode_Arcade.generated.h"
 
+class UPowerUpComponent;
 class UNavigationSystemV1;
 class AVyraPlayerStateCharacter;
 class UEnemyDataAsset;
@@ -19,10 +20,16 @@ class VIRA_API AVyraGameMode_Arcade : public AGSCModularGameModeBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY(visibleAnywhere, BlueprintReadWrite,Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPowerUpComponent> PowerUpComponent;
+
 public:
-		AVyraGameMode_Arcade();
+	AVyraGameMode_Arcade();
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UPowerUpComponent* GetPowerUpComponent() const { return PowerUpComponent; }
 	
 protected:
 

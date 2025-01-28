@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "NavigationSystem.h"
 #include "AI/NavigationSystemBase.h"
+#include "Components/PowerUpComponent.h"
 #include "Curves/CurveVector.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -25,6 +26,8 @@ AVyraGameMode_Arcade::AVyraGameMode_Arcade(): WaveExpCurve(nullptr), WaveSpawnRa
                                               VyraPlayerStateCharacter(nullptr),
                                               NavigationSystem(nullptr), MaxEnemiesToSpawnThisWave(0)
 {
+
+	PowerUpComponent = CreateDefaultSubobject<UPowerUpComponent>("PowerUpComponent");
 }
 
 void AVyraGameMode_Arcade::BeginPlay()
