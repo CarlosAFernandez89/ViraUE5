@@ -14,6 +14,7 @@
 #include "Vira/Messages/VyraVerbMessageHelpers.h"
 #include "Vira/System/VyraGameInstance.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
+#include "Vira/UI/Player/HUD/VyraWidget_HotbarPanel.h"
 #include "Vira/UI/Player/HUD/VyraWidget_PlayerHUD_PC.h"
 
 #define LOCTEXT_NAMESPACE "GameplayAbility"
@@ -60,6 +61,22 @@ void UVyraGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorI
 			PlayerController = PC;
 
 			CommonInputSubsystem = PC->GetLocalPlayer()->GetSubsystem<UCommonInputSubsystem>();
+		}
+
+		if (bTryBindingAbilityToSlot)
+		{
+			if (UVyraWidget_HotbarPanel* HotBarPanel = PlayerStateCharacter->GetPlayerHotBar())
+			{
+				TArray<int32> AvailableSlots = HotBarPanel->GetAvailableHotBarSlots();
+				if (AvailableSlots.Num() > 0)
+				{
+					HotBarPanel->BindAbilityToSlot(*AvailableSlots.begin(), Spec.Handle);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Failed to get PlayerHotBar. Probably not initialized yet."));
+			}
 		}
 	}
 

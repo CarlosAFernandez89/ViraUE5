@@ -3,9 +3,12 @@
 
 #include "PowerUpComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Abilities/GameplayAbility.h"
+#include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
+#include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
 
 
 // Sets default values for this component's properties
@@ -35,6 +38,7 @@ TArray<FPowerUpData> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent*
     // 2. Filter and prepare possible powerups
     TArray<FPowerUpData> PossiblePowerUps;
     TMap<FName, EPowerUpQuality> ActivePowerUpMap;
+    
     for (const FPowerUpData& PowerUp : ActivePowerUps)
     {
         ActivePowerUpMap.Add(PowerUp.PowerUpName, PowerUp.Quality.Quality);
@@ -54,6 +58,33 @@ TArray<FPowerUpData> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent*
                 if (*ExistingQuality == EPowerUpQuality::Mythical) continue;
             }
         }
+
+        // Filter out lower or equal quality power-ups (if already have)
+        if (const EPowerUpQuality* ExistingQuality = ActivePowerUpMap.Find(PowerUp.PowerUpName))
+        {
+            if (*ExistingQuality <= PowerUp.Quality.Quality) continue;
+        }
+
+        if (UVyraAbilitySystemComponent* VyraASC = Cast<UVyraAbilitySystemComponent>(AbilitySystemComponent))
+        {
+            // Filter out stacks which already reached max
+            bool bFilterByGameplayTagStack = false;
+            for (FGameplayTagStack TagStack : PowerUp.GameplayTagStacks)
+            {
+                int32 MaxTagCount = VyraASC->GetGameplayTagStackComponent()->GetMaxTagStackCount(TagStack.GetTag());
+
+                if (MaxTagCount <= 0)
+                    continue;
+                
+                int32 CurrentTagCount = VyraASC->GetGameplayTagStackComponent()->GetTagStackCount(TagStack.GetTag());
+
+                if (CurrentTagCount >= MaxTagCount)
+                    bFilterByGameplayTagStack = true;
+            }
+            
+            if (bFilterByGameplayTagStack) continue;
+        }
+
 
         PossiblePowerUps.Add(PowerUp);
     }
@@ -163,17 +194,6 @@ int32 UPowerUpComponent::GetAbilityLevel(const FPowerUpData PowerUpData)
 	return static_cast<int32>(PowerUpData.Quality.Quality) + 1;
 }
 
-void UPowerUpComponent::NormalizeProbabilities(TArray<float>& Probabilities)
-{
-    float Total = 0.0f;
-    for (float Prob : Probabilities) Total += Prob;
-    
-    if (Total > 0.0f)
-    {
-        for (float& Prob : Probabilities) Prob /= Total;
-    }
-}
-
 void UPowerUpComponent::ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySystemComponent,
                                              const FPowerUpData PowerUpData)
 {
@@ -196,6 +216,15 @@ void UPowerUpComponent::ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySys
                 if (ExistingAbilitySpec->Level < AbilityLevel)
                 {
                     ExistingAbilitySpec->Level = AbilityLevel;
+                    
+                    bool bIsInstanced = false;
+                    if (const UGameplayAbility* GameplayAbility = UAbilitySystemBlueprintLibrary::GetGameplayAbilityFromSpecHandle(AbilitySystemComponent, ExistingAbilitySpec->Handle, bIsInstanced))
+                    {
+                        if (const UVyraGameplayAbility* VyraGameplayAbility = Cast<UVyraGameplayAbility>(GameplayAbility))
+                        {
+                            VyraGameplayAbility->OnAbilityLevelChanged.Broadcast(ExistingAbilitySpec->Level);
+                        }
+                    }
                 }
             }
             else
@@ -232,6 +261,30 @@ void UPowerUpComponent::ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySys
             else
             {
                 UE_LOG(LogTemp, Warning, TEXT("Failed to create GameplayEffectSpec for %s"), *GameplayEffect->GetName());
+            }
+        }
+    }
+
+    // Handle GameplayTagStacks
+    if (UVyraAbilitySystemComponent* VyraASC = Cast<UVyraAbilitySystemComponent>(AbilitySystemComponent))
+    {
+        int32 Size = PowerUpData.GameplayTagStacks.Num();
+
+        TArray<FGameplayTag> AppliedTags; 
+        for (int32 i = 0; i < Size; ++i)
+        {
+            const FGameplayTag Tag = PowerUpData.GameplayTagStacks[i].GetTag();
+            if (AppliedTags.Contains(Tag)) break;
+            
+            const float StackCount = PowerUpData.GameplayTagStacks[i].GetStackCount();
+            
+            VyraASC->AddGameplayTagStack(Tag, StackCount);
+            AppliedTags.Add(Tag);
+            // Log a message to the screen
+            if (GEngine)
+            {
+                FString DebugMessage = FString::Printf(TEXT("Added Tag Stack: Tag = %s, Count = %f, ArraySize = %d"), *Tag.ToString(), StackCount, Size);
+                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, DebugMessage);
             }
         }
     }

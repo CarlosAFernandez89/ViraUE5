@@ -133,6 +133,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Vyra|Ability|Default")
 	UAnimMontage* MontageToPlay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Vyra|Ability|Default")
+	bool bTryBindingAbilityToSlot = true;
 	
 	UPROPERTY()
 	class UCommonInputSubsystem* CommonInputSubsystem;

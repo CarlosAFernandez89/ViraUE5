@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
+#include "Vira/System/GameplayTagStack.h"
 #include "PowerUpComponent.generated.h"
 
 
@@ -26,6 +27,7 @@ USTRUCT(BlueprintType)
 struct FPowerUpQuality
 {
 	GENERATED_BODY()
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPowerUpQuality Quality = EPowerUpQuality::Normal;
 	
@@ -35,6 +37,31 @@ struct FPowerUpQuality
 	FPowerUpQuality()
 	{
 		UpdateColor();
+	}
+
+	FLinearColor GetColor() const
+	{
+		FLinearColor WantedColor = FLinearColor::White;
+		switch (Quality)
+		{
+		case EPowerUpQuality::Rare:
+			WantedColor = FLinearColor(0.f,0.f,1.f);
+			break;
+		case EPowerUpQuality::Epic:
+			WantedColor = FLinearColor(0.52f, 0.01f,0.49f);
+			break;
+		case EPowerUpQuality::Legendary:
+			WantedColor = FLinearColor(1.f,1.f,0.f);
+			break;
+		case EPowerUpQuality::Mythical:
+			WantedColor = FLinearColor(1.f,0.1f,0.1f);
+			break;
+		default:
+			WantedColor = FLinearColor(0.75f,0.75f,0.75f);
+			break;
+		}
+
+		return WantedColor;
 	}
 	
 	void UpdateColor()
@@ -58,11 +85,12 @@ struct FPowerUpQuality
 			break;
 		}
 	}
+
 	void UpdateQuality(const EPowerUpQuality NewQuality)
 	{
 		Quality = NewQuality;
+		UpdateColor();
 	}
-
 };
 
 USTRUCT(BlueprintType)
@@ -116,6 +144,9 @@ struct FPowerUpData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PowerUp|GameplayEffects")
 	TArray<TSubclassOf<class UGameplayEffect>> GameplayEffects;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PowerUp|GameplayEffects")
+	TArray<FGameplayTagStack> GameplayTagStacks;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PowerUp")
 	bool bIsConsumableEffect = false;
 	
@@ -136,6 +167,25 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PowerUp")
 	TArray<FPowerUpData> PowerUps;
+
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override
+	{
+		Super::PostEditChangeProperty(PropertyChangedEvent);
+
+		FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+		// Check if the Quality property was changed in any of the PowerUps
+		if (PropertyName == GET_MEMBER_NAME_CHECKED(FPowerUpData, Quality))
+		{
+			for (FPowerUpData& PowerUp : PowerUps)
+			{
+				PowerUp.Quality.UpdateColor();
+			}
+		}
+	}
+#endif
 };
 
 
@@ -163,23 +213,12 @@ protected:
 	virtual void ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySystemComponent,const FPowerUpData PowerUpData);
 
 private:
-	
-	void NormalizeProbabilities(TArray<float>& Probabilities);
+
 	
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PowerUp")
 	UPowerUpDataAsset* PowerUpDataAsset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="PowerUps")
-	TMap<EPowerUpQuality, float> WeightCategoryMap =
-	{
-		{EPowerUpQuality::Normal, 2.0f},
-		{EPowerUpQuality::Rare, 3.0f},
-		{EPowerUpQuality::Epic, 4.0f},
-		{EPowerUpQuality::Legendary, 5.0f},
-		{EPowerUpQuality::Mythical, 6.0f},
-	};
 
 	UPROPERTY()
 	TArray<FPowerUpData> ActivePowerUps;

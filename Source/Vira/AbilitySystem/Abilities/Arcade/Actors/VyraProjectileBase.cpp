@@ -37,6 +37,8 @@ AVyraProjectileBase::AVyraProjectileBase()
 	ProjectileMovementComponent->InitialSpeed = 850.f;
 	ProjectileMovementComponent->MaxSpeed = 850.f;
 	ProjectileMovementComponent->Velocity = FVector(1.f, 0.f, 0.f);
+
+	ProjectilePhasingTag = FGameplayTag::RequestGameplayTag("GameplayTagStack.Arcade.Global.ProjectilePhase");
 }
 
 void AVyraProjectileBase::SetProjectileSpeed(float InProjectileSpeed) const

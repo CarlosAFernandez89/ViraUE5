@@ -29,13 +29,20 @@ struct FGameplayTagStack : public FFastArraySerializerItem
 
 	FString GetDebugString() const;
 
+public:
+
+	FGameplayTag GetTag() const { return Tag; };
+	float GetStackCount() const { return StackCount; };
+
 private:
 	friend FGameplayTagStackContainer;
 
-	UPROPERTY()
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gameplay Tag Stack")
 	FGameplayTag Tag;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gameplay Tag Stack")
+
 	float StackCount = 0.f;
 };
 

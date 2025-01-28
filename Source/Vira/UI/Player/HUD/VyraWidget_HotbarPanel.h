@@ -13,4 +13,12 @@ UCLASS()
 class VIRA_API UVyraWidget_HotbarPanel : public UCommonUserWidget
 {
 	GENERATED_BODY()
+
+	public:
+
+	UFUNCTION(BlueprintNativeEvent, Category="HotbarPanel")
+	TArray<int32> GetAvailableHotBarSlots() const;
+
+	UFUNCTION(BlueprintNativeEvent, Category="HotbarPanel")
+	void BindAbilityToSlot(const int32 SlotIndex, const FGameplayAbilitySpecHandle& AbilitySpecHandle);
 };
