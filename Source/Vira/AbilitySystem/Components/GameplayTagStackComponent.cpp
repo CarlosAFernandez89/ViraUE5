@@ -55,7 +55,7 @@ void UGameplayTagStackComponent::AddToTagStack(const FGameplayTag Tag, const flo
 		return;
 	}
 
-	const int32 ClampedCount = ClampToMaxStackCount(Tag, CountToAdd);
+	const float ClampedCount = ClampToMaxStackCount(Tag, CountToAdd);
 	TagStackContainer.AddStack(Tag, ClampedCount);
 
 	OnTagStackChanged.Broadcast(Tag, GetTagStackCount(Tag));

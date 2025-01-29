@@ -227,9 +227,12 @@ public:
             // Process tag stacks
             for (const FGameplayTagStack& TagStack : Config->TagStacks)
             {
-                Data.TagEffects.Add(FString::Printf(TEXT("%s +%d"),
-                                                    *TagStack.TagUserFacingName.ToString(),
-                                                    FMath::CeilToInt32(TagStack.GetStackCount())));
+                if (!TagStack.TagUserFacingName.IsNone())
+                {
+                    Data.TagEffects.Add(FString::Printf(TEXT("%s %.2f"),
+                                                        *TagStack.TagUserFacingName.ToString(),
+                                                        TagStack.GetStackCount()));
+                }
             }
         }
 

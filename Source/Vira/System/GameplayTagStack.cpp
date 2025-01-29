@@ -108,26 +108,19 @@ void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, float StackCount)
 			FGameplayTagStack& Stack = *It;
 			if (Stack.Tag == Tag)
 			{
-				if (Stack.StackCount <= StackCount)
+				float NewCount = Stack.StackCount - StackCount;
+				NewCount = FMath::Clamp(NewCount, 0.1f, UE_BIG_NUMBER);
+				Stack.StackCount = NewCount;
+				if(TagToCountMap.Contains(Tag))
 				{
-					It.RemoveCurrent();
-					TagToCountMap.Remove(Tag);
-					MarkArrayDirty();
+					TagToCountMap[Tag] = NewCount;
 				}
 				else
 				{
-					const float NewCount = Stack.StackCount - StackCount;
-					Stack.StackCount = NewCount;
-					if(TagToCountMap.Contains(Tag))
-					{
-						TagToCountMap[Tag] = NewCount;
-					}
-					else
-					{
-						TagToCountMap.Add(Tag, NewCount);
-					}
-					MarkItemDirty(Stack);
+					TagToCountMap.Add(Tag, NewCount);
 				}
+				MarkItemDirty(Stack);
+				
 				return;
 			}
 		}

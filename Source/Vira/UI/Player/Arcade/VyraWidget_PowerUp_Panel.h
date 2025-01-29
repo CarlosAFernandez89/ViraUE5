@@ -3,9 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "VyraWidget_PowerUp_Slot.h"
-#include "GameFramework/GameplayMessageTypes2.h"
-#include "Vira/GameMode/Components/PowerUpComponent.h"
 #include "Vira/UI/Foundation/VyraActivatableWidget.h"
 #include "VyraWidget_PowerUp_Panel.generated.h"
 

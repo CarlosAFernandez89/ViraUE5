@@ -320,7 +320,15 @@ void UPowerUpComponent::ApplyQualityEffects(const FPowerUpQualityConfig* Config,
     // Add tag stacks
     for (auto& TagStack : Config->TagStacks)
     {
-        VyraAbilitySystemComponent->AddGameplayTagStack(TagStack.GetTag(), TagStack.GetStackCount());
+        const float StackCount = TagStack.GetStackCount();
+        if (StackCount > 0)
+        {
+            VyraAbilitySystemComponent->RemoveGameplayTagStack(TagStack.GetTag(), StackCount);
+        }
+        else
+        {
+            VyraAbilitySystemComponent->AddGameplayTagStack(TagStack.GetTag(), StackCount);
+        }
     }
 }
 
