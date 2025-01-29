@@ -14,8 +14,7 @@ void UVyraWidget_PowerUp_Slot::Broadcast_OnSelectedMessage(const FGameplayTag Ga
 		if (UGameplayMessageSubsystem* GameplayMessageSubsystem = GameInstance->GetSubsystem<UGameplayMessageSubsystem>())
 		{
 			FPowerUpSlot_Selected PowerUpSlot_Selected;
-			PowerUpSlot_Selected.SlotReference = this;
-			PowerUpSlot_Selected.PowerUpData = PowerUpData;
+			PowerUpSlot_Selected.PowerUpDefinition = SelectedPowerUp;
 			GameplayMessageSubsystem->BroadcastMessage(GameplayMessageChannel,PowerUpSlot_Selected);
 		}
 	}

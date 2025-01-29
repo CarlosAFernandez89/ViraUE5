@@ -5,24 +5,51 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemGlobals.h"
 #include "Abilities/GameplayAbility.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
 #include "Vira/AbilitySystem/Abilities/VyraGameplayAbility.h"
 
 
-// Sets default values for this component's properties
+#if WITH_EDITOR
+void UPowerUpDataAsset::RefreshPowerUpEntries()
+{
+    PowerUpEntries.Empty();
+
+    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+    TArray<FAssetData> AssetData;
+    AssetRegistryModule.Get().ScanPathsSynchronous({ PowerUpDirectory.Path });
+
+    FARFilter Filter;
+    Filter.ClassPaths.Add(UPowerUpDefinition::StaticClass()->GetClassPathName());
+    Filter.bRecursivePaths = true;
+    Filter.PackagePaths.Add(FName(*PowerUpDirectory.Path));
+
+    AssetRegistryModule.Get().GetAssets(Filter, AssetData);
+
+    for (const FAssetData& Data : AssetData)
+    {
+        if (UPowerUpDefinition* Entry = Cast<UPowerUpDefinition>(Data.GetAsset()))
+        {
+            PowerUpEntries.Add(Entry);
+        }
+    }
+
+    MarkPackageDirty();
+}
+#endif
+
 UPowerUpComponent::UPowerUpComponent(): PowerUpDataAsset(nullptr)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 }
 
-TArray<FPowerUpData> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent* AbilitySystemComponent, const int32 Quantity, float QualityIncrease)
+TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent* AbilitySystemComponent, int32 Quantity, float QualityIncrease)
 {
-    TArray<FPowerUpData> RolledPowerUps;
-    if (!PowerUpDataAsset) return RolledPowerUps;
+    TArray<FPowerUpSelection> RolledPowerUps;
+    if (!PowerUpDataAsset || Quantity <= 0) return RolledPowerUps;
 
-    // 1. Get player's active ability tags
+    // Get player's active ability tags
     FGameplayTagContainer ActiveAbilityTags;
     if (AbilitySystemComponent)
     {
@@ -35,117 +62,99 @@ TArray<FPowerUpData> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent*
         }
     }
 
-    // 2. Filter and prepare possible powerups
-    TArray<FPowerUpData> PossiblePowerUps;
-    TMap<FName, EPowerUpQuality> ActivePowerUpMap;
-    
-    for (const FPowerUpData& PowerUp : ActivePowerUps)
-    {
-        ActivePowerUpMap.Add(PowerUp.PowerUpName, PowerUp.Quality.Quality);
-    }
+    TArray<UPowerUpDefinition*> AllPowerUps = PowerUpDataAsset->PowerUpEntries;
+    TArray<UPowerUpDefinition*> SelectedNonConsumables;
 
-    for (const FPowerUpData& PowerUp : PowerUpDataAsset->PowerUps)
-    {
-        // Check required tags
-        if (!PowerUp.RequiredAbilityTags.IsEmpty() && !ActiveAbilityTags.HasAll(PowerUp.RequiredAbilityTags))
-            continue;
-
-        // Filter out maxed non-consumables
-        if (!PowerUp.bIsConsumableEffect)
-        {
-            if (const EPowerUpQuality* ExistingQuality = ActivePowerUpMap.Find(PowerUp.PowerUpName))
-            {
-                if (*ExistingQuality == EPowerUpQuality::Mythical) continue;
-            }
-        }
-
-        // Filter out lower or equal quality power-ups (if already have)
-        if (const EPowerUpQuality* ExistingQuality = ActivePowerUpMap.Find(PowerUp.PowerUpName))
-        {
-            if (*ExistingQuality <= PowerUp.Quality.Quality) continue;
-        }
-
-        if (UVyraAbilitySystemComponent* VyraASC = Cast<UVyraAbilitySystemComponent>(AbilitySystemComponent))
-        {
-            // Filter out stacks which already reached max
-            bool bFilterByGameplayTagStack = false;
-            for (FGameplayTagStack TagStack : PowerUp.GameplayTagStacks)
-            {
-                int32 MaxTagCount = VyraASC->GetGameplayTagStackComponent()->GetMaxTagStackCount(TagStack.GetTag());
-
-                if (MaxTagCount <= 0)
-                    continue;
-                
-                int32 CurrentTagCount = VyraASC->GetGameplayTagStackComponent()->GetTagStackCount(TagStack.GetTag());
-
-                if (CurrentTagCount >= MaxTagCount)
-                    bFilterByGameplayTagStack = true;
-            }
-            
-            if (bFilterByGameplayTagStack) continue;
-        }
-
-
-        PossiblePowerUps.Add(PowerUp);
-    }
-
-    if (PossiblePowerUps.Num() == 0) return RolledPowerUps;
-
-    // 3. Calculate dynamic weights using the Quality Probability Table
-    TArray<float> CumulativeWeights;
-    float TotalWeight = 0.0f;
-
-    for (const FPowerUpData& PowerUp : PossiblePowerUps)
-    {
-        if (const FPowerUpQualityInfo* QualityInfo = PowerUpDataAsset->QualityProbabilityTable.Find(PowerUp.Quality.Quality))
-        {
-            const float CurveValue = QualityInfo->ProbabilityCurve.GetRichCurveConst()->Eval(QualityIncrease);
-            const float FinalWeight = QualityInfo->BaseProbability * CurveValue;
-            TotalWeight += FinalWeight;
-            CumulativeWeights.Add(TotalWeight);
-        }
-        else
-        {
-            CumulativeWeights.Add(TotalWeight); // Default weight if no entry found
-        }
-    }
-
-    // 4. Perform rolls
     for (int32 i = 0; i < Quantity; ++i)
     {
-        if (PossiblePowerUps.Num() == 0) break;
+        // Roll quality first with fallback mechanism
+        EPowerUpQuality CurrentQuality = RollForQuality(QualityIncrease);
+        int32 FallbackAttempts = 4;
+        TArray<UPowerUpDefinition*> EligiblePowerUps;
 
-        const float RolledNum = FMath::FRand() * TotalWeight;
-        const int32 SelectedIndex = Algo::UpperBound(CumulativeWeights, RolledNum);
-
-        if (SelectedIndex >= 0 && SelectedIndex < PossiblePowerUps.Num())
+        while (FallbackAttempts-- > 0)
         {
-            FPowerUpData SelectedPowerUp = PossiblePowerUps[SelectedIndex];
-
-            // Handle upgrades for non-consumables
-            if (!SelectedPowerUp.bIsConsumableEffect)
+            // Filter power-ups for current quality
+            EligiblePowerUps.Empty();
+            for (UPowerUpDefinition* PowerUp : AllPowerUps)
             {
-                if (const EPowerUpQuality* ExistingQuality = ActivePowerUpMap.Find(SelectedPowerUp.PowerUpName))
+                // Check quality availability
+                if (!PowerUp->QualityConfigs.Contains(CurrentQuality))
+                    continue;
+
+                // Check required tags
+                if (!PowerUp->RequiredTags.IsEmpty() && !ActiveAbilityTags.HasAll(PowerUp->RequiredTags))
+                    continue;
+
+                // Check if already selected in this roll (non-consumables only)
+                if (!PowerUp->bIsConsumableEffect && SelectedNonConsumables.Contains(PowerUp))
+                    continue;
+
+                // Check existing instances
+                FActivePowerUpInstance* Existing = ActivePowerUps.FindByPredicate(
+                    [PowerUp](const FActivePowerUpInstance& Inst) {
+                        return Inst.Definition == PowerUp;
+                    });
+
+                if (PowerUp->bIsConsumableEffect)
                 {
-                    const int32 NewQuality = FMath::Min(
-                        static_cast<int32>(*ExistingQuality) + 1,
-                        static_cast<int32>(EPowerUpQuality::Mythical)
-                    );
-                    SelectedPowerUp.Quality.Quality = static_cast<EPowerUpQuality>(NewQuality);
-                    SelectedPowerUp.Quality.UpdateColor();
+                    // Always allow consumables
+                    EligiblePowerUps.Add(PowerUp);
+                }
+                else if (!Existing)
+                {
+                    // Allow new power-ups
+                    EligiblePowerUps.Add(PowerUp);
+                }
+                else if (CurrentQuality > Existing->CurrentQuality)
+                {
+                    // Allow upgrades
+                    EligiblePowerUps.Add(PowerUp);
                 }
             }
 
-            RolledPowerUps.Add(SelectedPowerUp);
+            if (EligiblePowerUps.Num() > 0) break;
+            
+            // Fallback to lower quality
+            CurrentQuality = static_cast<EPowerUpQuality>(static_cast<int32>(CurrentQuality) - 1);
+            if (CurrentQuality < EPowerUpQuality::Common) break;
+        }
 
-            // We only remove non-consumables from the possible power-ups. you can get multiple of same consumable to choose from.
-            if (!SelectedPowerUp.bIsConsumableEffect)
-            {
-                // Remove selected powerup to prevent duplicates in same roll
-                PossiblePowerUps.RemoveAt(SelectedIndex);
-                CumulativeWeights.RemoveAt(SelectedIndex, CumulativeWeights.Num() - SelectedIndex);
-                TotalWeight = CumulativeWeights.Num() > 0 ? CumulativeWeights.Last() : 0.0f;
-            }
+        if (EligiblePowerUps.Num() == 0) continue;
+
+        // Calculate weights for remaining power-ups
+        TArray<float> Weights;
+        float TotalWeight = 0.f;
+        for (UPowerUpDefinition* PowerUp : EligiblePowerUps)
+        {
+            const FPowerUpQualityConfig& Config = PowerUp->QualityConfigs[CurrentQuality];
+            Weights.Add(Config.SelectionWeight);
+            TotalWeight += Config.SelectionWeight;
+        }
+
+        // Select random power-up
+        const float Roll = FMath::FRand() * TotalWeight;
+        float Accumulated = 0.f;
+        int32 SelectedIndex = 0;
+        
+        for (; SelectedIndex < Weights.Num(); SelectedIndex++)
+        {
+            Accumulated += Weights[SelectedIndex];
+            if (Roll <= Accumulated) break;
+        }
+
+        UPowerUpDefinition* SelectedPowerUp = EligiblePowerUps[FMath::Min(SelectedIndex, EligiblePowerUps.Num()-1)];
+
+        // Add to results
+        FPowerUpSelection Selection;
+        Selection.PowerUp = SelectedPowerUp;
+        Selection.Quality = CurrentQuality;
+        RolledPowerUps.Add(Selection);
+
+        // Track non-consumables
+        if (!SelectedPowerUp->bIsConsumableEffect)
+        {
+            SelectedNonConsumables.Add(SelectedPowerUp);
         }
     }
 
@@ -154,71 +163,144 @@ TArray<FPowerUpData> UPowerUpComponent::RollForPowerUps(UAbilitySystemComponent*
 
 EPowerUpQuality UPowerUpComponent::RollForQuality(float QualityIncrease)
 {
+    TArray<TPair<EPowerUpQuality, float>> QualityWeights;
     float TotalWeight = 0.0f;
-    TArray<float> QualityWeights;
-    TArray<EPowerUpQuality> QualityOrder;
 
-    // Calculate dynamic weights
+    // Calculate weights based on progression
     for (const auto& Entry : PowerUpDataAsset->QualityProbabilityTable)
     {
-        const EPowerUpQuality Quality = Entry.Key;
-        const FPowerUpQualityInfo& Info = Entry.Value;
-
-        const float CurveValue = Info.ProbabilityCurve.GetRichCurveConst()->Eval(QualityIncrease);
-        const float FinalWeight = Info.BaseProbability * CurveValue;
-
-        QualityWeights.Add(FinalWeight);
-        QualityOrder.Add(Quality);
-        TotalWeight += FinalWeight;
+        const float CurveValue = Entry.Value.ProbabilityCurve.GetRichCurveConst()->Eval(QualityIncrease);
+        const float Weight = Entry.Value.BaseProbability * CurveValue;
+        QualityWeights.Add(TPair<EPowerUpQuality, float>(Entry.Key, Weight));
+        TotalWeight += Weight;
     }
 
-    // Normalize and roll
+    // Normalized random selection
     const float RandomRoll = FMath::FRand() * TotalWeight;
     float Accumulated = 0.0f;
 
-    for (int32 i = 0; i < QualityWeights.Num(); ++i)
+    for (const auto& Entry : QualityWeights)
     {
-        Accumulated += QualityWeights[i];
+        Accumulated += Entry.Value;
         if (RandomRoll <= Accumulated)
         {
-            return QualityOrder[i];
+            return Entry.Key;
         }
     }
 
-    // Fallback to highest quality
-    return EPowerUpQuality::Mythical;
+    // Fallback to lowest quality
+    return EPowerUpQuality::Common;
 }
 
-int32 UPowerUpComponent::GetAbilityLevel(const FPowerUpData PowerUpData)
+int32 UPowerUpComponent::GetAbilityLevel(const UPowerUpDefinition* PowerUpData)
 {
-	return static_cast<int32>(PowerUpData.Quality.Quality) + 1;
+    return static_cast<int32>(PowerUpData->QualityConfigs.begin()->Key) + 1;
 }
 
-void UPowerUpComponent::ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySystemComponent,
-                                             const FPowerUpData PowerUpData)
+void UPowerUpComponent::ApplyPowerUp(UAbilitySystemComponent* AbilitySystemComponent, UPowerUpDefinition* PowerUpDef, EPowerUpQuality Quality)
 {
-    if (!AbilitySystemComponent)
+    if (!PowerUpDef || !AbilitySystemComponent) return;
+
+    // Find existing instance
+    FActivePowerUpInstance* ExistingInstance = ActivePowerUps.FindByPredicate(
+        [PowerUpDef](const FActivePowerUpInstance& Inst) {
+            return Inst.Definition == PowerUpDef;
+        });
+
+    if (ExistingInstance)
     {
-        UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent is null!"));
-        return;
+        HandleQualityUpgrade(*ExistingInstance, Quality, AbilitySystemComponent);
+    }
+    else
+    {
+        ApplyNewPowerUp(PowerUpDef, Quality, AbilitySystemComponent);
+    }
+}
+
+void UPowerUpComponent::HandleQualityUpgrade(FActivePowerUpInstance& Instance, EPowerUpQuality NewQuality, UAbilitySystemComponent* ASC)
+{
+    if (static_cast<int32>(NewQuality) > static_cast<int32>(Instance.CurrentQuality))
+    {
+        // Remove old effects
+        if (const FPowerUpQualityConfig* OldConfig = Instance.Definition->QualityConfigs.Find(Instance.CurrentQuality))
+        {
+            //RemoveQualityEffects(OldConfig, ASC);
+        }
+
+        // Apply new effects
+        if (const FPowerUpQualityConfig* NewConfig = Instance.Definition->QualityConfigs.Find(NewQuality))
+        {
+            ApplyQualityEffects(NewConfig, ASC, static_cast<int32>(NewQuality) + 1);
+            Instance.CurrentQuality = NewQuality;
+        }
+    }
+    Instance.CurrentStack++;
+}
+
+void UPowerUpComponent::ApplyNewPowerUp(UPowerUpDefinition* PowerUpDef, EPowerUpQuality Quality, UAbilitySystemComponent* ASC)
+{
+    if (const FPowerUpQualityConfig* Config = PowerUpDef->QualityConfigs.Find(Quality))
+    {
+        FActivePowerUpInstance NewInstance;
+        NewInstance.Definition = PowerUpDef;
+        NewInstance.CurrentQuality = Quality;
+        
+        ApplyQualityEffects(Config, ASC, static_cast<int32>(Quality) + 1);
+
+        if (!PowerUpDef->bIsConsumableEffect)
+        {
+            ActivePowerUps.Add(NewInstance);
+        }
+    }
+}
+
+
+void UPowerUpComponent::ApplyQualityEffects(const FPowerUpQualityConfig* Config, UAbilitySystemComponent* AbilitySystemComponent, const int32 Level)
+{
+    if (!Config || !AbilitySystemComponent) return;
+
+    UVyraAbilitySystemComponent* VyraAbilitySystemComponent = Cast<UVyraAbilitySystemComponent>(AbilitySystemComponent);
+    if (!VyraAbilitySystemComponent) return;
+
+    // Apply gameplay effects
+    for (auto EffectClass : Config->GameplayEffects)
+    {
+        if (EffectClass)
+        {
+            // Remove any active gameplay effects of the same class
+            const FActiveGameplayEffectsContainer& ActiveEffects = VyraAbilitySystemComponent->GetActiveGameplayEffects();
+            TArray<FActiveGameplayEffectHandle> ActiveEffectHandles = ActiveEffects.GetAllActiveEffectHandles();
+            for (auto EffectHandle : ActiveEffectHandles)
+            {
+                const FActiveGameplayEffect* ActiveEffect = ActiveEffects.GetActiveGameplayEffect(EffectHandle);
+                if (ActiveEffect && ActiveEffect->Spec.Def->GetClass() == EffectClass)
+                {
+                    VyraAbilitySystemComponent->RemoveActiveGameplayEffect(EffectHandle);
+                }
+            }
+            
+            FGameplayEffectSpecHandle EffectSpecHandle = VyraAbilitySystemComponent->MakeOutgoingSpec(EffectClass, Level, VyraAbilitySystemComponent->MakeEffectContext());
+            if (EffectSpecHandle.Data.IsValid())
+            {
+                VyraAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+            }
+        }
     }
 
-    const int32 AbilityLevel = GetAbilityLevel(PowerUpData);
-
-    // Handle Abilities
-    for (auto Ability : PowerUpData.AbilityClass)
+    // Grant abilities
+    for (auto AbilityClass : Config->Abilities)
     {
-        if (Ability)
+        if (AbilityClass)
         {
             // If we already have the ability, we update its level.
-            if (FGameplayAbilitySpec* ExistingAbilitySpec = AbilitySystemComponent->FindAbilitySpecFromClass(Ability))
+            if (FGameplayAbilitySpec* ExistingAbilitySpec = VyraAbilitySystemComponent->FindAbilitySpecFromClass(AbilityClass))
             {
-                if (ExistingAbilitySpec->Level < AbilityLevel)
+                if (ExistingAbilitySpec->Level < Level)
                 {
-                    ExistingAbilitySpec->Level = AbilityLevel;
+                    ExistingAbilitySpec->Level = Level;
                     
                     bool bIsInstanced = false;
-                    if (const UGameplayAbility* GameplayAbility = UAbilitySystemBlueprintLibrary::GetGameplayAbilityFromSpecHandle(AbilitySystemComponent, ExistingAbilitySpec->Handle, bIsInstanced))
+                    if (const UGameplayAbility* GameplayAbility = UAbilitySystemBlueprintLibrary::GetGameplayAbilityFromSpecHandle(VyraAbilitySystemComponent, ExistingAbilitySpec->Handle, bIsInstanced))
                     {
                         if (const UVyraGameplayAbility* VyraGameplayAbility = Cast<UVyraGameplayAbility>(GameplayAbility))
                         {
@@ -229,76 +311,65 @@ void UPowerUpComponent::ApplyPowerUpToPlayer(UAbilitySystemComponent* AbilitySys
             }
             else
             {
-                FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability, AbilityLevel, 0);
-                AbilitySystemComponent->GiveAbility(AbilitySpec);
+                FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, Level, 0);
+                VyraAbilitySystemComponent->GiveAbility(AbilitySpec);
             }
         }
     }
 
-    // Handle Gameplay Effects
-    for (auto GameplayEffect : PowerUpData.GameplayEffects)
+    // Add tag stacks
+    for (auto& TagStack : Config->TagStacks)
     {
-        if (GameplayEffect)
+        VyraAbilitySystemComponent->AddGameplayTagStack(TagStack.GetTag(), TagStack.GetStackCount());
+    }
+}
+
+void UPowerUpComponent::HandleExistingPowerUp(FActivePowerUpInstance& Instance, EPowerUpQuality NewQuality, UAbilitySystemComponent* AbilitySystemComponent)
+{
+    const EPowerUpQuality CurrentQuality = Instance.CurrentQuality;
+
+    const int32 Level = GetAbilityLevel(Instance.Definition.Get());
+
+    // Only upgrade if new quality is better
+    if (static_cast<int32>(NewQuality) > static_cast<int32>(CurrentQuality))
+    {
+        // Remove old quality effects
+        if (const FPowerUpQualityConfig* OldConfig = Instance.Definition->QualityConfigs.Find(CurrentQuality))
         {
-            // Remove any active gameplay effects of the same class
-            const FActiveGameplayEffectsContainer& ActiveEffects = AbilitySystemComponent->GetActiveGameplayEffects();
-            TArray<FActiveGameplayEffectHandle> ActiveEffectHandles = ActiveEffects.GetAllActiveEffectHandles();
-            for (auto EffectHandle : ActiveEffectHandles)
-            {
-                const FActiveGameplayEffect* ActiveEffect = ActiveEffects.GetActiveGameplayEffect(EffectHandle);
-                if (ActiveEffect && ActiveEffect->Spec.Def->GetClass() == GameplayEffect)
-                {
-                    AbilitySystemComponent->RemoveActiveGameplayEffect(EffectHandle);
-                }
-            }
-
-            // Apply new Gameplay Effect
-            FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, AbilityLevel, AbilitySystemComponent->MakeEffectContext());
-            if (EffectSpecHandle.Data.IsValid())
-            {
-                AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
-            }
-            else
-            {
-                UE_LOG(LogTemp, Warning, TEXT("Failed to create GameplayEffectSpec for %s"), *GameplayEffect->GetName());
-            }
+            // Implement logic to remove old effects if needed
+            // We do it in ApplyQualityEffects already, can decouple it if needed.
         }
-    }
 
-    // Handle GameplayTagStacks
-    if (UVyraAbilitySystemComponent* VyraASC = Cast<UVyraAbilitySystemComponent>(AbilitySystemComponent))
-    {
-        int32 Size = PowerUpData.GameplayTagStacks.Num();
-
-        TArray<FGameplayTag> AppliedTags; 
-        for (int32 i = 0; i < Size; ++i)
+        // Apply new quality effects
+        if (const FPowerUpQualityConfig* NewConfig = Instance.Definition->QualityConfigs.Find(NewQuality))
         {
-            const FGameplayTag Tag = PowerUpData.GameplayTagStacks[i].GetTag();
-            if (AppliedTags.Contains(Tag)) break;
-            
-            const float StackCount = PowerUpData.GameplayTagStacks[i].GetStackCount();
-            
-            VyraASC->AddGameplayTagStack(Tag, StackCount);
-            AppliedTags.Add(Tag);
-            // Log a message to the screen
-            if (GEngine)
-            {
-                FString DebugMessage = FString::Printf(TEXT("Added Tag Stack: Tag = %s, Count = %f, ArraySize = %d"), *Tag.ToString(), StackCount, Size);
-                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, DebugMessage);
-            }
+            ApplyQualityEffects(NewConfig, AbilitySystemComponent, Level);
         }
+
+        Instance.CurrentQuality = NewQuality;
     }
 
-	if (PowerUpData.bIsConsumableEffect) return;
-	
-    // Update or add the power-up to the active list
-    const int32 Index = ActivePowerUps.Find(PowerUpData);
-    if (Index != INDEX_NONE)
+    // Handle stacking logic
+    Instance.CurrentStack++;
+}
+
+void UPowerUpComponent::HandleNewPowerUp(UPowerUpDefinition* PowerUpDef, EPowerUpQuality Quality, UAbilitySystemComponent* AbilitySystemComponent)
+{
+    const FPowerUpQualityConfig* QualityConfig = PowerUpDef->QualityConfigs.Find(Quality);
+    if (!QualityConfig) return;
+
+    // Create new instance
+    FActivePowerUpInstance NewInstance;
+    NewInstance.Definition = PowerUpDef;
+    NewInstance.CurrentQuality = Quality;
+
+    const int32 Level = GetAbilityLevel(PowerUpDef);
+
+    // Apply quality-specific effects
+    ApplyQualityEffects(QualityConfig, AbilitySystemComponent, Level);
+
+    if (!PowerUpDef->bIsConsumableEffect)
     {
-        ActivePowerUps[Index].Quality.UpdateQuality(static_cast<EPowerUpQuality>(AbilityLevel - 1));
-    }
-    else
-    {
-        ActivePowerUps.AddUnique(PowerUpData);
+        ActivePowerUps.Add(NewInstance);
     }
 }

@@ -33,6 +33,9 @@ public:
 
 	FGameplayTag GetTag() const { return Tag; };
 	float GetStackCount() const { return StackCount; };
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gameplay Tag Stack")
+	FName TagUserFacingName = FName();
 
 private:
 	friend FGameplayTagStackContainer;

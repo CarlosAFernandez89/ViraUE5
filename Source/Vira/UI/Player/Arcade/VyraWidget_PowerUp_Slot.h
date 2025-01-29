@@ -7,6 +7,13 @@
 #include "Vira/GameMode/Components/PowerUpComponent.h"
 #include "VyraWidget_PowerUp_Slot.generated.h"
 
+USTRUCT(BlueprintType)
+struct FPowerUpSlot_Selected
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FPowerUpSelection PowerUpDefinition;
+};
 /**
  * 
  */
@@ -22,5 +29,5 @@ class VIRA_API UVyraWidget_PowerUp_Slot : public UCommonUserWidget
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PowerUp, meta = (ExposeOnSpawn = true))
-	FPowerUpData PowerUpData;
+	FPowerUpSelection SelectedPowerUp;
 };
