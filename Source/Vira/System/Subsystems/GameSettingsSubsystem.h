@@ -22,6 +22,7 @@ public:
 	bool bShowDamageNumbers = true;
 	bool bEnableCameraShake = true;
 	bool bShowEnemyHealthBars = true;
+	bool bShowBlood = true;
 
 	UPROPERTY(BlueprintAssignable, Category="GameSettings")
 	FOnShowEnemyHealthBarsUpdated OnShowHealthBarsUpdated;
@@ -49,6 +50,12 @@ public:
 	bool GetShowEnemyHealthBars() const { return bShowEnemyHealthBars; }
 	UFUNCTION(BlueprintCallable)
 	void SetShowEnemyHealthBars(bool bValue);
+
+	// Getter and Setter for Enemy HealthBars
+	UFUNCTION(BlueprintCallable)
+	bool GetShowBlood() const { return bShowBlood; }
+	UFUNCTION(BlueprintCallable)
+	void SetShowBlood(bool bValue);
 
 	// Override Initialize for setup if needed
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

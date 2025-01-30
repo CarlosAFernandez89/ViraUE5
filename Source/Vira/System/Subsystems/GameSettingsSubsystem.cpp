@@ -12,6 +12,11 @@ void UGameSettingsSubsystem::SetShowEnemyHealthBars(bool bValue)
 	OnShowHealthBarsUpdated.Broadcast(bShowEnemyHealthBars);
 }
 
+void UGameSettingsSubsystem::SetShowBlood(bool bValue)
+{
+	bShowBlood = bValue;
+}
+
 void UGameSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
@@ -37,6 +42,7 @@ void UGameSettingsSubsystem::SaveSettings()
 		SaveGameInstance->bShowDamageNumbers = bShowDamageNumbers;
 		SaveGameInstance->bEnableCameraShake = bEnableCameraShake;
 		SaveGameInstance->bShowEnemyHealthBars = bShowEnemyHealthBars;
+		SaveGameInstance->bShowBlood = bShowBlood;
 		
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("GameSettingsSlot"), 0))
 		{
@@ -58,6 +64,7 @@ void UGameSettingsSubsystem::LoadSettings()
 			bShowDamageNumbers = SaveGameInstance->bShowDamageNumbers;
 			bEnableCameraShake = SaveGameInstance->bEnableCameraShake;
 			bShowEnemyHealthBars = SaveGameInstance->bShowEnemyHealthBars;
+			bShowBlood = SaveGameInstance->bShowBlood;
 
 			UE_LOG(LogTemp, Log, TEXT("GameSettings loaded successfully!"));
 		}

@@ -216,7 +216,7 @@ public:
                         if (Modifier.ModifierMagnitude.GetStaticMagnitudeIfPossible(static_cast<int32>(Quality) + 1, Magnitude))
                         {
                             const FString AttrName = Modifier.Attribute.GetName();
-                            Data.NumericEffects.Add(FString::Printf(TEXT("%s: %+.1f"), 
+                            Data.NumericEffects.Add(FString::Printf(TEXT("%s: %+.2f"), 
                                                                     *InsertSpacesBeforeCaps(AttrName), 
                                                                     Magnitude));
                         }

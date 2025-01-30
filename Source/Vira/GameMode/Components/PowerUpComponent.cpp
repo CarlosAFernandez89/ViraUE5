@@ -321,9 +321,9 @@ void UPowerUpComponent::ApplyQualityEffects(const FPowerUpQualityConfig* Config,
     for (auto& TagStack : Config->TagStacks)
     {
         const float StackCount = TagStack.GetStackCount();
-        if (StackCount > 0)
+        if (StackCount < 0)
         {
-            VyraAbilitySystemComponent->RemoveGameplayTagStack(TagStack.GetTag(), StackCount);
+            VyraAbilitySystemComponent->RemoveGameplayTagStack(TagStack.GetTag(), FMath::Abs(StackCount));
         }
         else
         {

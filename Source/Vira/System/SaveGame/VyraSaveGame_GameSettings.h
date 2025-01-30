@@ -24,4 +24,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Settings")
 	bool bShowEnemyHealthBars = true;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Settings")
+	bool bShowBlood = true;
 };
