@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "ISpudObject.h"
-#include "PaperZDAnimationComponent.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
-#include "VyraNPCCharacterBase.generated.h"
+#include "VyraNPCWithASC.generated.h"
 
 UCLASS(Blueprintable)
-class VIRA_API AVyraNPCCharacterBase : public ACharacter, public ISpudObject, public IAbilitySystemInterface
+class VIRA_API AVyraNPCWithASC : public ACharacter, public ISpudObject, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AVyraNPCCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	AVyraNPCWithASC(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<class UVyraAbilitySystemComponent> VyraAbilitySystemComponent;

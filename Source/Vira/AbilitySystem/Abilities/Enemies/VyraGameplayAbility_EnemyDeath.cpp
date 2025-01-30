@@ -4,7 +4,7 @@
 #include "VyraGameplayAbility_EnemyDeath.h"
 
 #include "Components/GSCCoreComponent.h"
-#include "Vira/NPC/VyraNPCCharacterBase.h"
+#include "Vira/NPC/VyraNPCWithASC.h"
 
 UVyraGameplayAbility_EnemyDeath::UVyraGameplayAbility_EnemyDeath(): GSCCoreComponent(nullptr)
 {
@@ -17,7 +17,7 @@ void UVyraGameplayAbility_EnemyDeath::OnGiveAbility(const FGameplayAbilityActorI
 
 	if (AActor* AvatarActor = GetAvatarActorFromActorInfo())
 	{
-		if (AVyraNPCCharacterBase* OwningActor = Cast<AVyraNPCCharacterBase>(AvatarActor))
+		if (AVyraNPCWithASC* OwningActor = Cast<AVyraNPCWithASC>(AvatarActor))
 		{
 			GSCCoreComponent = OwningActor->GetGSCCoreComponent();
 			GSCCoreComponent->OnDeath.AddDynamic(this, &UVyraGameplayAbility_EnemyDeath::OnDeathEvent);

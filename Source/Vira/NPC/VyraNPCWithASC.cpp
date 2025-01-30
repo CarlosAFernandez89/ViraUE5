@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "VyraNPCCharacterBase.h"
+#include "VyraNPCWithASC.h"
 
 #include "Components/GSCCoreComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Vira/AbilitySystem/VyraAbilitySystemComponent.h"
 
 
-AVyraNPCCharacterBase::AVyraNPCCharacterBase(const FObjectInitializer& ObjectInitializer)
+AVyraNPCWithASC::AVyraNPCWithASC(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -27,7 +27,7 @@ AVyraNPCCharacterBase::AVyraNPCCharacterBase(const FObjectInitializer& ObjectIni
 	GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 }
 
-UAbilitySystemComponent* AVyraNPCCharacterBase::GetAbilitySystemComponent() const
+UAbilitySystemComponent* AVyraNPCWithASC::GetAbilitySystemComponent() const
 {
 	return Cast<UAbilitySystemComponent>(VyraAbilitySystemComponent);
 }

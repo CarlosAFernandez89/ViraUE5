@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "IAIHelpers.h"
-#include "Vira/NPC/VyraNPCCharacterBase.h"
+#include "Vira/NPC/VyraNPCWithASC.h"
 #include "VyraEnemyCharacter.generated.h"
 
 struct FCurrencyDropData;
@@ -32,7 +32,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyKilled, AVyraEnemyCharacter*
 
 
 UCLASS()
-class VIRA_API AVyraEnemyCharacter : public AVyraNPCCharacterBase, public IAIHelpers
+class VIRA_API AVyraEnemyCharacter : public AVyraNPCWithASC, public IAIHelpers
 {
 	GENERATED_BODY()
 

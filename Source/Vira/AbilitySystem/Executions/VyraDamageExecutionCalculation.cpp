@@ -106,14 +106,21 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 
 	LocalBaseDamage *= (1.f - LocalDamageReduction);
 
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
+
+	// Report damage to the AI for its sensing logic.
 	UAISense_Damage::ReportDamageEvent(
 	SourceActor,
 	TargetActor,
 	SourceActor,
 	LocalBaseDamage,
 	SourceActor->GetActorLocation(),
-	FVector(0, 0, 0));
+	TargetActor->GetActorLocation());
 
+
+	// Try to spawn the damage numbers
+	// TODO: Sometimes damage shows but the enemy doesn't actually take the damage?
+	// No known reason as to why this happens yet, have to find it.
 	if (SourceActor->IsA(AVyraPlayerStateCharacter::StaticClass()))
 	{
 		if (AVyraPlayerStateCharacter* PC = Cast<AVyraPlayerStateCharacter>(SourceActor))
@@ -132,5 +139,4 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 		}
 	}
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 }

@@ -51,8 +51,12 @@ TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemCompo
 
     // Get player's active ability tags
     FGameplayTagContainer ActiveAbilityTags;
+    FGameplayTagContainer PlayerOwnedTags;
+    
     if (AbilitySystemComponent)
     {
+        AbilitySystemComponent->GetOwnedGameplayTags(PlayerOwnedTags);
+
         for (const FGameplayAbilitySpec& Ability : AbilitySystemComponent->GetActivatableAbilities())
         {
             if (UGameplayAbility* GameplayAbility = Ability.Ability.Get())
@@ -64,6 +68,7 @@ TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemCompo
 
     TArray<UPowerUpDefinition*> AllPowerUps = PowerUpDataAsset->PowerUpEntries;
     TArray<UPowerUpDefinition*> SelectedNonConsumables;
+
 
     for (int32 i = 0; i < Quantity; ++i)
     {
@@ -83,8 +88,13 @@ TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemCompo
                     continue;
 
                 // Check required tags
-                if (!PowerUp->RequiredTags.IsEmpty() && !ActiveAbilityTags.HasAll(PowerUp->RequiredTags))
-                    continue;
+                if (!PowerUp->RequiredTags.IsEmpty())
+                {
+                    const bool bHasActiveTags = ActiveAbilityTags.HasAll(PowerUp->RequiredTags);
+                    const bool bHasPlayerTags = PlayerOwnedTags.HasAll(PowerUp->RequiredTags);
+            
+                    if (!bHasActiveTags && !bHasPlayerTags) continue;
+                }
 
                 // Check if already selected in this roll (non-consumables only)
                 if (!PowerUp->bIsConsumableEffect && SelectedNonConsumables.Contains(PowerUp))

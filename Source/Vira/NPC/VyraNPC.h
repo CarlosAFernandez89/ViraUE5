@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "VyraNPCCharacterBase.h"
+#include "GameFramework/Character.h"
 #include "Vira/Interaction/IInteractableTarget.h"
 #include "VyraNPC.generated.h"
 
 UCLASS()
-class VIRA_API AVyraNPC : public AVyraNPCCharacterBase, public IInteractableTarget, public IInteractionInfoAndActions
+class VIRA_API AVyraNPC : public ACharacter, public IInteractableTarget, public IInteractionInfoAndActions
 {
 	GENERATED_BODY()
 

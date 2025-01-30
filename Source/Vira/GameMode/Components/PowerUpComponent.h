@@ -31,10 +31,10 @@ struct FPowerUpSelection
     GENERATED_BODY()
     
     UPROPERTY(BlueprintReadOnly)
-    UPowerUpDefinition* PowerUp;
+    UPowerUpDefinition* PowerUp = nullptr;
     
     UPROPERTY(BlueprintReadOnly)
-    EPowerUpQuality Quality;
+    EPowerUpQuality Quality = EPowerUpQuality::Common;
 };
 
 USTRUCT(BlueprintType)

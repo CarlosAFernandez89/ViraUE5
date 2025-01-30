@@ -20,7 +20,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	}
 	else if(Attribute == GetCriticalStrikeDamageMultiplierAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 1.f, 2.f);
+		NewValue = FMath::Clamp(NewValue, 1.f, 200.f);
 	}
 	else if(Attribute == GetCastSpeedAttribute())
 	{
@@ -32,7 +32,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	}
 	else if(Attribute == GetDamageReductionAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, 0.9f);
+		NewValue = FMath::Clamp(NewValue, 0.f, 0.75f);
 	}
 	else if(Attribute == GetBaseDamageAttribute())
 	{
@@ -44,7 +44,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	}
 	else if(Attribute == GetMovementSpeedAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, 1500.f);
+		NewValue = FMath::Clamp(NewValue, 0.f, 850.f);
 	}
 	else if(Attribute == GetKnockBackResistanceAttribute())
 	{
@@ -106,7 +106,7 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	}
 	else if(Attribute == GetCriticalStrikeDamageMultiplierAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 1.f, 2.f);
+		NewValue = FMath::Clamp(NewValue, 1.f, 200.f);
 	}
 	else if(Attribute == GetAttackSpeedAttribute())
 	{
