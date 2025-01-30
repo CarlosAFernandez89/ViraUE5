@@ -46,6 +46,7 @@ public class Vira : ModuleRules
 			"GameplayMessageRuntime",
 			"Niagara",
 			"NavigationSystem",
+			"EngineSettings"
 		});
 
 		if (Target.bBuildEditor)
