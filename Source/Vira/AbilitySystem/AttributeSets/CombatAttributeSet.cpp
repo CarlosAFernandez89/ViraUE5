@@ -50,6 +50,10 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, 1.f);
 	}
+	else if(Attribute == GetGlobalCooldownReductionAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.1f, 1.f);
+	}
 }
 
 void UCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
@@ -93,6 +97,8 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MovementSpeed, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, AirJumpCount, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, GlobalCooldownReduction, COND_None, REPNOTIFY_Always);
+
 
 }
 
@@ -135,6 +141,10 @@ void UCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attri
 	else if(Attribute == GetKnockBackResistanceAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, 1.f);
+	}
+	else if(Attribute == GetGlobalCooldownReductionAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.1f, 1.f);
 	}
 }
 
@@ -183,4 +193,9 @@ void UCombatAttributeSet::OnRep_MovementSpeed(const FGameplayAttributeData& OldM
 void UCombatAttributeSet::OnRep_AirJumpCount(const FGameplayAttributeData& OldAirJumpCount)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, AirJumpCount, OldAirJumpCount);
+}
+void UCombatAttributeSet::OnRep_GlobalCooldownReduction(const FGameplayAttributeData& OldGlobalCooldownReduction)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, GlobalCooldownReduction, OldGlobalCooldownReduction);
+
 }

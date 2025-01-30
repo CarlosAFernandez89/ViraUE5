@@ -82,6 +82,13 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 
 	// Add it to the base character damage.
 	LocalBaseDamage += TotalCalculatedMagnitudes;
+
+	// Give a damage range
+	float LowerRange = LocalBaseDamage * 0.9f;
+	LowerRange = FMath::Clamp(LowerRange, 0.f, UE_BIG_NUMBER);
+	float UpperRange = LocalBaseDamage * 1.1f;
+	UpperRange = FMath::Clamp(UpperRange, LowerRange + 0.1f, UE_BIG_NUMBER);
+	LocalBaseDamage = FMath::RandRange(LowerRange, UpperRange);
 	
 	float LocalCriticalStrikeChance = 0.05f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalStrikeChanceDef, EvaluateParams, LocalCriticalStrikeChance);

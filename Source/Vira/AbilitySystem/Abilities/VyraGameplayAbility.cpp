@@ -229,8 +229,10 @@ void UVyraGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle
 			
 			CooldownSpecHandle.Data->DynamicGrantedTags.AddTag(CooldownTag);
 
-			// Cooldown gets divided by 10 to get a float value from integers.
-			const float CooldownTime = GetGameplayTagStackCount(CooldownTag);
+			bool bFoundAttribute = false;
+			const float CooldownReduction = UAbilitySystemBlueprintLibrary::GetFloatAttribute(GetAvatarActorFromActorInfo(), UCombatAttributeSet::GetGlobalCooldownReductionAttribute(), bFoundAttribute);
+			
+			const float CooldownTime = bFoundAttribute ? GetGameplayTagStackCount(CooldownTag) * CooldownReduction : GetGameplayTagStackCount(CooldownTag);
 			if (CooldownTime > 0.f)
 			{
 				// Use FMath::Max for the possibility of the tag not being set. Negative cooldowns are not supported.

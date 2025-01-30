@@ -66,6 +66,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "CombatAttributeSet")
 	FOnCombatSetMovementSpeedChanged OnCombatSetMovementSpeedChanged;
 
+	UPROPERTY(BlueprintReadOnly, Category = "CombatAttributeSet", ReplicatedUsing = OnRep_GlobalCooldownReduction)
+	FGameplayAttributeData GlobalCooldownReduction = 1.f;
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, GlobalCooldownReduction);
+
 	UPROPERTY(BlueprintReadOnly, Category = "CombatAttributeSet", ReplicatedUsing = OnRep_AirJumpCount)
 	FGameplayAttributeData AirJumpCount = 1.f;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, AirJumpCount);
@@ -91,4 +95,6 @@ protected:
 	virtual void OnRep_MovementSpeed(const FGameplayAttributeData& OldMovementSpeed);
 	UFUNCTION()
 	virtual void OnRep_AirJumpCount(const FGameplayAttributeData& OldAirJumpCount);
+	UFUNCTION()
+	virtual void OnRep_GlobalCooldownReduction(const FGameplayAttributeData& OldGlobalCooldownReduction);
 };
