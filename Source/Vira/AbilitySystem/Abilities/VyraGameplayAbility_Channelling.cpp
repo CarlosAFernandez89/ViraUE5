@@ -11,7 +11,7 @@
 
 UVyraGameplayAbility_Channelling::UVyraGameplayAbility_Channelling(): AbilityTask(nullptr), InputReleased(nullptr)
 {
-	MessageTag = FGameplayTag::RequestGameplayTag("UIMessaging.Ability.Channelling");
+	ChannelStartMessageTag = FGameplayTag::RequestGameplayTag("UIMessaging.Ability.Channelling");
 	ChannelStartTimeSectionName = FName("ChannelStartTime");
 	ChannelEndSectionName = FName("LoopEnd");
 }
@@ -106,7 +106,7 @@ void UVyraGameplayAbility_Channelling::StartChannelling_Implementation()
 			Message.AbilityName = AbilityInfo.Name;
 			Message.MaxChannelDuration = MaxChannelDuration;
 			Message.PerfectChannelRange = PerfectChannelRange;
-			MessageSubsystem->BroadcastMessage(MessageTag, Message);
+			MessageSubsystem->BroadcastMessage(ChannelStartMessageTag, Message);
 		}
 	}
 
@@ -125,7 +125,7 @@ void UVyraGameplayAbility_Channelling::OnChannellingComplete_Implementation(floa
 		{
 			FVyraChannelingMessage_Released Message;
 			Message.bWasPerfectChannel = bWasPerfectChannel;
-			MessageSubsystem->BroadcastMessage(MessageTag, Message);
+			MessageSubsystem->BroadcastMessage(ChannelEndMessageTag, Message);
 		}
 	}
 	

@@ -4,6 +4,7 @@
 #include "ArcadeAbility_BloodScythe.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Vira/NPC/Enemy/VyraEnemyCharacter.h"
 
 
 FGameplayAbilityTargetDataHandle UArcadeAbility_BloodScythe::PerformConeTrace(TArray<FHitResult>& OutHits)
@@ -60,6 +61,8 @@ FGameplayAbilityTargetDataHandle UArcadeAbility_BloodScythe::PerformConeTrace(TA
 			{
 				for (auto Hit : Hits)
 				{
+					if (!Hit.GetActor()->IsA(AVyraEnemyCharacter::StaticClass())) continue;
+
 					// Add the hit to the output array
 					OverlappingActors.AddUnique(Hit.GetActor());
 					OutHits.Add(Hit);
@@ -68,12 +71,6 @@ FGameplayAbilityTargetDataHandle UArcadeAbility_BloodScythe::PerformConeTrace(TA
 					{
 						// If we hit something, visualize the hit point
 						DrawDebugPoint(GetWorld(), Hit.Location, 10.0f, FColor::Red, false, 1.0f);
-
-						// Log the name of the actor that was hit (for debugging)
-						if (const AActor* HitActor = Hit.GetActor())
-						{
-							UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-						}
 					}	
 				}
 			}

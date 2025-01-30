@@ -69,7 +69,9 @@ private:
 protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Channell")
-	FGameplayTag MessageTag;
+	FGameplayTag ChannelStartMessageTag;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Channell")
+	FGameplayTag ChannelEndMessageTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.5f, ClampMax = 10.f), Category ="Channell")
 	float MaxChannelDuration = 3.f;

@@ -13,7 +13,7 @@ AVyraGhostProjectile::AVyraGhostProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("ProjectileNiagaraComponent");
-	ProjectileNiagaraComponent->SetupAttachment(RootComponent);
+	RootComponent = ProjectileNiagaraComponent;
 }
 
 void AVyraGhostProjectile::InitializeNiagaraSystem(UNiagaraSystem* NiagaraSystem) const

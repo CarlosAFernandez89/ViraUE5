@@ -81,8 +81,23 @@ TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemCompo
         {
             // Filter power-ups for current quality
             EligiblePowerUps.Empty();
+            
             for (UPowerUpDefinition* PowerUp : AllPowerUps)
             {
+                // Dont allow powerups already in the RolledPowerUps Array.
+                bool bAlreadyRolled = false;
+                for (const FPowerUpSelection Rolled : RolledPowerUps)
+                {
+                    if (Rolled.PowerUp == PowerUp)
+                    {
+                        bAlreadyRolled = true;
+                        break;
+                    }
+                }
+                
+                if (bAlreadyRolled)
+                    continue;
+                
                 // Check quality availability
                 if (!PowerUp->QualityConfigs.Contains(CurrentQuality))
                     continue;
@@ -122,6 +137,8 @@ TArray<FPowerUpSelection> UPowerUpComponent::RollForPowerUps(UAbilitySystemCompo
                     EligiblePowerUps.Add(PowerUp);
                 }
             }
+
+            if (FallbackAttempts-- < 1 && EligiblePowerUps.Num() <= 0) ++FallbackAttempts;
 
             if (EligiblePowerUps.Num() > 0) break;
             
