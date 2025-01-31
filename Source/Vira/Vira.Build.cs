@@ -42,7 +42,6 @@ public class Vira : ModuleRules
 			"GameplayAbilities",
 			"ComboGraph",
 			"QuestFramework",
-			"PaperZD",
 			"GameplayMessageRuntime",
 			"Niagara",
 			"NavigationSystem",

@@ -4,9 +4,6 @@
 #include "VyraPlayerStateCharacter.h"
 
 #include "CharmManagerComponent.h"
-#include "PaperCharacter.h"
-#include "PaperFlipbookComponent.h"
-#include "PaperZDAnimationComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/GSCAbilityInputBindingComponent.h"
@@ -21,6 +18,7 @@
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Charms.h"
 #include "Vira/System/SaveGame/VyraSaveGame_Currency.h"
+#include "Vira/System/Subsystems/DPSMeterSubsystem.h"
 
 
 // Sets default values
@@ -72,6 +70,8 @@ void AVyraPlayerStateCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	LoadSaveFiles();
+
+	RegisterDPSMeterSubsystem();
 }
 
 bool AVyraPlayerStateCharacter::ReserveAttackToken_Implementation(int32 Amount)
@@ -211,6 +211,20 @@ void AVyraPlayerStateCharacter::AsyncLoadComplete_Charms(const FString& SlotName
 						}
 					}
 				}
+			}
+		}
+	}
+}
+
+void AVyraPlayerStateCharacter::RegisterDPSMeterSubsystem() const
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		if (UGameInstance* GameInstance = GetGameInstance())
+		{
+			if (UDPSMeterSubsystem* DPSMeterSubsystem = GameInstance->GetSubsystem<UDPSMeterSubsystem>())
+			{
+				DPSMeterSubsystem->RegisterASC(ASC);
 			}
 		}
 	}

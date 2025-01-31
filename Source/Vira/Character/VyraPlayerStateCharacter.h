@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PaperZDAnimationComponent.h"
 #include "Components/GSCCoreComponent.h"
 #include "ModularGameplayActors/GSCModularPlayerStateCharacter.h"
 #include "Vira/NPC/Enemy/IAIHelpers.h"
@@ -107,6 +106,8 @@ public:
 	UFUNCTION()
 	void AsyncLoadComplete_Charms(const FString& SlotName, int UserIndex, USaveGame* LoadedGameData);
 
+	UFUNCTION()
+	void RegisterDPSMeterSubsystem() const;
 private:
 	UPROPERTY()
 	UVyraSaveGame_Charms* SaveGame_Charms_Instance;
