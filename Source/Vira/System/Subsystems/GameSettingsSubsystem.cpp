@@ -40,6 +40,7 @@ void UGameSettingsSubsystem::SaveSettings()
 	{
 		// Set values from current settings
 		SaveGameInstance->bShowDamageNumbers = bShowDamageNumbers;
+		SaveGameInstance->bUseSmallDamageNumbers = bUseSmallDamageNumbers;
 		SaveGameInstance->bEnableCameraShake = bEnableCameraShake;
 		SaveGameInstance->bShowEnemyHealthBars = bShowEnemyHealthBars;
 		SaveGameInstance->bShowBlood = bShowBlood;
@@ -62,6 +63,7 @@ void UGameSettingsSubsystem::LoadSettings()
 		{
 			// Apply loaded settings
 			bShowDamageNumbers = SaveGameInstance->bShowDamageNumbers;
+			bUseSmallDamageNumbers = SaveGameInstance->bUseSmallDamageNumbers;
 			bEnableCameraShake = SaveGameInstance->bEnableCameraShake;
 			bShowEnemyHealthBars = SaveGameInstance->bShowEnemyHealthBars;
 			bShowBlood = SaveGameInstance->bShowBlood;

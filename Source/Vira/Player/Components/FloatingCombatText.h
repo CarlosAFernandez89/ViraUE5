@@ -52,8 +52,14 @@ private:
 	void OnShowDamageNumbersUpdated(bool InState);
 
 	UFUNCTION()
+	void OnUseSmallDamageNumbersUpdated(bool InState);
+
+	UFUNCTION()
 	FVector CalculateSpawnLocation(AActor* HitActor) const;
 
 	UPROPERTY()
 	bool bComponentActive = true;
+
+	UPROPERTY()
+	bool bUseSmallNumbers = true;
 };

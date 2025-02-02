@@ -20,6 +20,9 @@ public:
 	bool bShowDamageNumbers = true;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Settings")
+	bool bUseSmallDamageNumbers = true;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Settings")
 	bool bEnableCameraShake = true;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Settings")

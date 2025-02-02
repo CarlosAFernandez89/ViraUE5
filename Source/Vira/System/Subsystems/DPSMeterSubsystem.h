@@ -16,19 +16,11 @@ struct FDPSMeterEvent
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	float Timestamp = 0.f;
-
-	UPROPERTY(BlueprintReadOnly)
 	float Amount = 0.f;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSubclassOf<class UGameplayAbility> SourceAbility = nullptr;
 
-	UPROPERTY(BlueprintReadOnly)
-	FGameplayTagContainer EventTags;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsCritical = false;
 };
 
 USTRUCT(BlueprintType)
@@ -52,11 +44,11 @@ struct FDPSMeterCombatSession
 	UPROPERTY(BlueprintReadOnly)
 	float TotalHealingTaken = 0.f;
 	
-	TArray<TPair<float, float>> DamageDoneEvents; // Timestamp, Amount
-	TArray<TPair<float, float>> DamageTakenEvents; // Timestamp, Amount
+	TArray<TPair<float, FDPSMeterEvent>> DamageDoneEvents; // Timestamp, Amount
+	TArray<TPair<float, FDPSMeterEvent>> DamageTakenEvents; // Timestamp, Amount
 
-	TArray<TPair<float, float>> HealingDoneEvents; // Timestamp, Amount
-	TArray<TPair<float, float>> HealingTakenEvents; // Timestamp, Amount
+	TArray<TPair<float, FDPSMeterEvent>> HealingDoneEvents; // Timestamp, Amount
+	TArray<TPair<float, FDPSMeterEvent>> HealingTakenEvents; // Timestamp, Amount
 
 
 	bool IsActive() const { return EndTime == 0.f; }
@@ -76,32 +68,6 @@ FORCEINLINE uint32 GetTypeHash(const FDPSMeterCombatSession& Struct)
 	uint32 Hash = FCrc::MemCrc32(&Struct, sizeof(FDPSMeterCombatSession));
 	return Hash;
 }
-
-// Combat stats now track detailed events and categories
-USTRUCT(BlueprintType)
-struct FDPSMeterCombatStats
-{
-	GENERATED_BODY()
-
-	// Damage
-	UPROPERTY(BlueprintReadOnly)
-	float TotalDamageDone = 0.f;
-	TArray<FDPSMeterEvent> DamageDoneEvents;
-	
-	UPROPERTY(BlueprintReadOnly)
-	float TotalDamageTaken = 0.f;
-	TArray<FDPSMeterEvent> DamageTakenEvents;
-
-	// Healing
-	UPROPERTY(BlueprintReadOnly)
-	float TotalHealingTaken = 0.f;
-	TArray<FDPSMeterEvent> HealingTakenEvents;
-
-	UPROPERTY(BlueprintReadOnly)
-	float TotalHealingDone = 0.f;
-	TArray<FDPSMeterEvent> HealingDoneEvents;
-
-};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMeterUpdated, FDPSMeterCombatSession, CurrentSession);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnNewSessionStarted);

@@ -10,7 +10,7 @@
 #include "Kismet/KismetRenderingLibrary.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 #include "Vira/System/Subsystems/GameSettingsSubsystem.h"
-
+#include "Vira/System/Utils/VyraStringUtils.h"
 
 
 UFloatingCombatText::UFloatingCombatText(const FObjectInitializer& ObjectInitializer)
@@ -35,6 +35,8 @@ void UFloatingCombatText::BeginPlay()
 		{
 			bComponentActive = GSS->GetShowDamageNumbers();
 			GSS->OnShowDamageNumbersUpdated.AddDynamic(this, &UFloatingCombatText::OnShowDamageNumbersUpdated);
+			bUseSmallNumbers = GSS->GetUseSmallDamageNumbers();
+			GSS->OnUseSmallDamageNumbersUpdated.AddDynamic(this, &UFloatingCombatText::OnUseSmallDamageNumbersUpdated);
 		}
 	}
 }
@@ -48,7 +50,9 @@ void UFloatingCombatText::SpawnFloatingDamageText(AActor* HitActor, const float 
 {
 	if (bComponentActive)
 	{
-		const FString FloatingDamageText = FString::FromInt(DamageAmount);
+		const FString FloatingDamageText = bUseSmallNumbers ?
+			UVyraStringUtils::DamageToShortStringFormater(this, FMath::CeilToFloat(DamageAmount), true, 1)
+		  : UVyraStringUtils::DamageToLongStringFormater(this, FMath::CeilToFloat(DamageAmount));
 		const FVector2D FloatingDamageDimensions = FVector2D(FloatingDamageText.Len() * 256.f, 128.f);
 		const FVector2D FloatingDamageOffset = FloatingDamageDimensions / 2.f;
 		const FLinearColor FloatingDamageColor = bCriticalHit ? CriticalDamageColor : DamageColor;
@@ -92,6 +96,10 @@ void UFloatingCombatText::SpawnFloatingDamageText(AActor* HitActor, const float 
 void UFloatingCombatText::OnShowDamageNumbersUpdated(const bool InState)
 {
 	bComponentActive = InState;
+}
+void UFloatingCombatText::OnUseSmallDamageNumbersUpdated(const bool InState)
+{
+	bUseSmallNumbers = InState;
 }
 
 FVector UFloatingCombatText::CalculateSpawnLocation(AActor* HitActor) const

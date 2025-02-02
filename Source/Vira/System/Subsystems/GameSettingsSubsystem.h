@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowEnemyHealthBarsUpdated, bool, bState);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShowDamageNumbersUpdated, bool, bState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUseSmallDamageNumbersUpdated, bool, bState);
 
 /**
  * 
@@ -23,11 +24,14 @@ public:
 	bool bEnableCameraShake = true;
 	bool bShowEnemyHealthBars = true;
 	bool bShowBlood = true;
+	bool bUseSmallDamageNumbers = true;
 
 	UPROPERTY(BlueprintAssignable, Category="GameSettings")
 	FOnShowEnemyHealthBarsUpdated OnShowHealthBarsUpdated;
 	UPROPERTY(BlueprintAssignable, Category="GameSettings")
 	FOnShowDamageNumbersUpdated OnShowDamageNumbersUpdated;
+	UPROPERTY(BlueprintAssignable, Category="GameSettings")
+	FOnUseSmallDamageNumbersUpdated OnUseSmallDamageNumbersUpdated;
 	
 	// Getter and Setter for Damage Numbers
 	UFUNCTION(BlueprintCallable)
@@ -39,6 +43,16 @@ public:
 		OnShowDamageNumbersUpdated.Broadcast(bShowDamageNumbers);
 	}
 
+	// Getter and Setter for Small Damage Numbers
+	UFUNCTION(BlueprintCallable)
+	bool GetUseSmallDamageNumbers() const { return bUseSmallDamageNumbers; }
+	UFUNCTION(BlueprintCallable)
+	void SetUseSmallDamageNumbers(const bool bValue)
+	{
+		bUseSmallDamageNumbers = bValue;
+		OnUseSmallDamageNumbersUpdated.Broadcast(bUseSmallDamageNumbers);
+	}
+	
 	// Getter and Setter for Camera Shake
 	UFUNCTION(BlueprintCallable)
 	bool GetEnableCameraShake() const { return bEnableCameraShake; }

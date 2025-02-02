@@ -237,7 +237,11 @@ void UDPSMeterSubsystem::ProcessDamageDoneEvent(UAbilitySystemComponent* ASC, co
 	// Add to current session
 	FDPSMeterCombatSession& CurrentSession = Sessions.Last();
 	CurrentSession.TotalDamageDone += Magnitude;
-	CurrentSession.DamageDoneEvents.Add(TPair<float, float>(CurrentTime, Magnitude));
+	CurrentSession.DamageDoneEvents.Add(
+		TPair<float, FDPSMeterEvent>(
+			CurrentTime,
+			FDPSMeterEvent(Magnitude,Spec.GetContext().GetAbility()->StaticClass())
+			));
 
 	OnMeterUpdated.Broadcast(CurrentSession);
 }
