@@ -6,18 +6,36 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Attributes/GSCAttributeSet.h"
 
+/**
+ * @brief Initializes the DPS meter subsystem.
+ * 
+ * This function sets up a timer that calls `DPSMeterTick` every 0.1 seconds.
+ * 
+ * @param Collection The subsystem collection.
+ */
 void UDPSMeterSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	GetWorld()->GetTimerManager().SetTimer(TickHandle, this, &UDPSMeterSubsystem::DPSMeterTick, 0.1f, true);
 }
 
+/**
+ * @brief Deinitializes the DPS meter subsystem.
+ * 
+ * This function clears the timer that calls `DPSMeterTick`.
+ */
 void UDPSMeterSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 	GetWorld()->GetTimerManager().ClearTimer(TickHandle);
 }
 
+/**
+ * @brief Called every tick to handle the DPS meter logic.
+ * 
+ * If the session is not manually handled, it checks for session timeouts.
+ * The tick time is managed by "TickHandle" InRate.
+ */
 void UDPSMeterSubsystem::DPSMeterTick()
 {
 	if (!bManuallyHandleSession)
@@ -26,7 +44,14 @@ void UDPSMeterSubsystem::DPSMeterTick()
 	}
 }
 
-void UDPSMeterSubsystem::RegisterASC(class UAbilitySystemComponent* ASC)
+/**
+ * @brief Registers an Ability System Component (ASC) to the DPS meter.
+ * 
+ * This function adds the ASC to the list of registered ASCs, and subscribes to gameplay effect events.
+ * 
+ * @param ASC The Ability System Component to register.
+ */
+void UDPSMeterSubsystem::RegisterASC(UAbilitySystemComponent* ASC)
 {
 	if (!ASC || CombatSessions.Contains(ASC)) return;
 
@@ -37,7 +62,14 @@ void UDPSMeterSubsystem::RegisterASC(class UAbilitySystemComponent* ASC)
 	LastDamageTimeMap.Add(ASC, 0.f);
 }
 
-void UDPSMeterSubsystem::UnregisterASC(class UAbilitySystemComponent* ASC)
+/**
+ * @brief Unregisters an Ability System Component (ASC) from the DPS meter.
+ * 
+ * This function removes the ASC from the list of registered ASCs, and unsubscribes from gameplay effect events.
+ * 
+ * @param ASC The Ability System Component to unregister.
+ */
+void UDPSMeterSubsystem::UnregisterASC(UAbilitySystemComponent* ASC)
 {
 	if (!ASC || !CombatSessions.Contains(ASC)) return;
 
@@ -48,13 +80,24 @@ void UDPSMeterSubsystem::UnregisterASC(class UAbilitySystemComponent* ASC)
 	LastDamageTimeMap.FindAndRemoveChecked(ASC);
 }
 
-
-void UDPSMeterSubsystem::StartNewSession(class UAbilitySystemComponent* ASC)
+/**
+ * @brief Starts a new DPS meter session for the given Ability System Component (ASC).
+ * 
+ * @param ASC The Ability System Component to start a new session for.
+ */
+void UDPSMeterSubsystem::StartNewSession(UAbilitySystemComponent* ASC)
 {
 	TryStartNewSession(ASC);
 }
 
-void UDPSMeterSubsystem::EndCurrentSession(class UAbilitySystemComponent* ASC)
+/**
+ * @brief Ends the current DPS meter session for the given Ability System Component (ASC).
+ *
+ * This function handles "Pruning" old session given the max stored sessions variable.
+ * TODO: Save out the sessions so we don't have to store them in memory.
+ * @param ASC The Ability System Component to end the current session for.
+ */
+void UDPSMeterSubsystem::EndCurrentSession(UAbilitySystemComponent* ASC)
 {
 	for (TTuple<UAbilitySystemComponent*, float>& Elem : LastDamageTimeMap)
 	{
@@ -81,7 +124,16 @@ void UDPSMeterSubsystem::EndCurrentSession(class UAbilitySystemComponent* ASC)
 	}
 }
 
-void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToSelf(class UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec,
+/**
+ * @brief Callback for when a gameplay effect is applied to self.
+ * 
+ * This function checks if the effect is a healing or damage effect, and processes it accordingly.
+ * 
+ * @param ASC The Ability System Component that applied the effect.
+ * @param Spec The gameplay effect spec.
+ * @param Handle The active gameplay effect handle.
+ */
+void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToSelf(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec,
                                                          FActiveGameplayEffectHandle Handle)
 {
 	const FGameplayTagContainer& Tags = Spec.Def->GetAssetTags();
@@ -106,8 +158,16 @@ void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToSelf(class UAbilitySystemCom
 
 }
 
-
-void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToTarget(class UAbilitySystemComponent* ASC,
+/**
+ * @brief Callback for when a gameplay effect is applied to a target.
+ * 
+ * This function checks if the effect is a healing or damage effect, and processes it accordingly.
+ * 
+ * @param ASC The Ability System Component of the target.
+ * @param Spec The gameplay effect spec.
+ * @param Handle The active gameplay effect handle.
+ */
+void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToTarget(UAbilitySystemComponent* ASC,
 	const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle)
 {
 	const FGameplayTagContainer& Tags = Spec.Def->GetAssetTags();
@@ -131,6 +191,13 @@ void UDPSMeterSubsystem::OnGameplayEffectExecuted_ToTarget(class UAbilitySystemC
 	}
 }
 
+/**
+ * @brief Attempts to start a new DPS meter session for the given Ability System Component (ASC).
+ * 
+ * If there is an active session, it is ended first.
+ * 
+ * @param ASC The Ability System Component to start a new session for.
+ */
 void UDPSMeterSubsystem::TryStartNewSession(UAbilitySystemComponent* ASC)
 {
 	if (!CombatSessions.Contains(ASC)) return;
@@ -154,6 +221,13 @@ void UDPSMeterSubsystem::TryStartNewSession(UAbilitySystemComponent* ASC)
 	UE_LOG(LogTemp, Display, TEXT("Started new DPSMeter Session"));
 }
 
+/**
+ * @brief Checks for session timeouts.
+ * 
+ * Iterates through all registered ASCs and ends the current session if a timeout has occurred.
+ * "Prunes" old session if over the MaxStoredSessions limit.
+ * TODO: Save out the session to avoid storing them in memory.
+ */
 void UDPSMeterSubsystem::CheckSessionTimeout()
 {
 	const float CurrentTime = GetWorld()->GetTimeSeconds();
@@ -186,6 +260,12 @@ void UDPSMeterSubsystem::CheckSessionTimeout()
 
 }
 
+/**
+ * @brief Gets the current DPS for the given Ability System Component (ASC).
+ * 
+ * @param ASC The Ability System Component to get the current DPS for.
+ * @return The current DPS, or 0.0 if no session is active or no damage has been dealt.
+ */
 float UDPSMeterSubsystem::GetCurrentCombatDPS(UAbilitySystemComponent* ASC) const
 {
 	if (!CombatSessions.Contains(ASC) || CombatSessions[ASC].IsEmpty())
@@ -199,12 +279,24 @@ float UDPSMeterSubsystem::GetCurrentCombatDPS(UAbilitySystemComponent* ASC) cons
 	return Duration > 0 ? Session.TotalDamageDone / Duration : 0.f;
 }
 
+/**
+ * @brief Gets the list of combat sessions for the given Ability System Component (ASC).
+ * 
+ * @param ASC The Ability System Component to get the combat sessions for.
+ * @return A const reference to the array of combat sessions.
+ */
 const TArray<FDPSMeterCombatSession>& UDPSMeterSubsystem::GetCombatSessions(UAbilitySystemComponent* ASC) const
 {
 	check(CombatSessions.Contains(ASC));
 	return CombatSessions[ASC];
 }
 
+/**
+ * @brief Gets the DPS of a specific combat session.
+ * 
+ * @param Session The combat session to get the DPS for.
+ * @return The DPS of the session.
+ */
 float UDPSMeterSubsystem::GetSessionDPS(const FDPSMeterCombatSession& Session) const
 {
 	//If the session hasn't ended, give the current world time.
@@ -212,6 +304,15 @@ float UDPSMeterSubsystem::GetSessionDPS(const FDPSMeterCombatSession& Session) c
 	return Session.TotalDamageDone / (EndTime - Session.StartTime);
 }
 
+/**
+ * @brief Processes a damage done event.
+ * 
+ * This function updates the last damage time, starts a new session if needed, and adds the damage to the current session.
+ * 
+ * @param ASC The Ability System Component that dealt the damage.
+ * @param Spec The gameplay effect spec.
+ * @param Magnitude The amount of damage dealt.
+ */
 void UDPSMeterSubsystem::ProcessDamageDoneEvent(UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec,
                                                 float Magnitude)
 {

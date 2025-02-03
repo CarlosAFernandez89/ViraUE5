@@ -9,7 +9,7 @@
 #include "DPSMeterSubsystem.generated.h"
 
 
-// New structure for detailed event tracking
+// Detailed event tracking
 USTRUCT(BlueprintType)
 struct FDPSMeterEvent
 {
@@ -23,6 +23,7 @@ struct FDPSMeterEvent
 
 };
 
+// Container for each combat "session"
 USTRUCT(BlueprintType)
 struct FDPSMeterCombatSession
 {
