@@ -80,7 +80,7 @@ void UFloatingCombatText::SpawnFloatingDamageText(AActor* HitActor, const float 
 					if (UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloatingDamageSystem, CalculateSpawnLocation(HitActor)))
 					{
 						NiagaraComponent->SetVariableLinearColor(NiagaraSystemColorName, FloatingDamageColor);
-						NiagaraComponent->SetVariableVec2(NiagaraSystemDimensionName, bCriticalHit ? FloatingDamageDimensions * CriticalDamageSizeMultiplier : FloatingDamageOffset);
+						NiagaraComponent->SetVariableVec2(NiagaraSystemDimensionName, bCriticalHit ? FloatingDamageDimensions * CriticalDamageSizeMultiplier : FloatingDamageDimensions * NormalDamageSizeMultiplier);
 						NiagaraComponent->SetVariableMaterial(NiagaraSystemMaterialName, MID);
 						NiagaraComponent->SetVariableFloat(FName("ParticleLifetime"), bCriticalHit ? 1.25f : 0.75f);
 					}

@@ -34,6 +34,8 @@ public:
 	float CriticalDamageSizeMultiplier = 1.25f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character|FloatingCombatText")
 	FLinearColor DamageColor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character|FloatingCombatText")
+	float NormalDamageSizeMultiplier = 1.1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Character|FloatingCombatText|Niagara")
 	UNiagaraSystem* FloatingDamageSystem;

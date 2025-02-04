@@ -113,7 +113,6 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 
 	LocalBaseDamage *= (1.f - LocalDamageReduction);
 
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 
 	// Report damage to the AI for its sensing logic.
 	UAISense_Damage::ReportDamageEvent(
@@ -145,5 +144,7 @@ void UVyraDamageExecutionCalculation::Execute_Implementation(
 			}
 		}
 	}
+
+	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().HealthProperty, EGameplayModOp::Additive, -LocalBaseDamage));
 
 }
