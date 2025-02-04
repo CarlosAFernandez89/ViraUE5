@@ -7,6 +7,7 @@
 #include "Vira/NPC/Enemy/VyraEnemyCharacter.h"
 #include "VyraWaveManagerComponent.generated.h"
 
+class AEnemySpawnPoint;
 class UEnemyDataAsset;
 class AVyraPlayerStateCharacter;
 class UNavigationSystemV1;
@@ -102,6 +103,12 @@ private:
     float WaveExpRequirement = 0;
     float CurrentWaveExp = 0;
     int32 MaxEnemiesToSpawnThisWave = 0;
+
+    UPROPERTY()
+    TArray<AEnemySpawnPoint*> SpawnPoints;
+
+    void CollectSpawnPoints();
+    bool GetSpawnTransform(FVector& OutLocation, FRotator& OutRotation);
 
     UPROPERTY()
     TArray<AVyraEnemyCharacter*> SpawnedEnemies;

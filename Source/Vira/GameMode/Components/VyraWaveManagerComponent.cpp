@@ -9,11 +9,9 @@
 #include "Curves/CurveVector.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "NavFilters/NavigationQueryFilter.h"
 #include "Vira/AbilitySystem/Abilities/Enemies/VyraGameplayAbility_EnemyDeath.h"
-#include "Vira/Gameplay/Arcade/ArcadeAltar.h"
-#include "Vira/Interaction/IInteractableTarget.h"
 #include "Vira/NPC/Enemy/EnemyDataAsset.h"
+#include "Vira/NPC/Enemy/EnemySpawnPoint.h"
 #include "Vira/System/BlueprintFunctionLibraries/VyraBlueprintFunctionLibrary.h"
 
 
@@ -30,6 +28,8 @@ void UVyraWaveManagerComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    CollectSpawnPoints();
+    
     CurrentWave = StartingWave;
     VyraPlayerCharacter = UVyraBlueprintFunctionLibrary::GetVyraPlayerCharacter(GetWorld());
     NavigationSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
@@ -65,7 +65,8 @@ void UVyraWaveManagerComponent::SpawnEnemiesForWave()
 
 void UVyraWaveManagerComponent::SpawnEnemy()
 {
-     if (!VyraPlayerCharacter || !NavigationSystem) return;
+    if (!VyraPlayerCharacter || !NavigationSystem) return;
+    if (SpawnPoints.Num() == 0) return;
 
     TryClearingNullArrayItems();
 
@@ -77,72 +78,32 @@ void UVyraWaveManagerComponent::SpawnEnemy()
     }
 
     const int32 EnemiesToSpawnNow = FMath::Min(GetEnemiesToSpawn(CurrentWave), RemainingEnemies);
-    const FVector SpawnCenter = VyraPlayerCharacter->GetActorLocation();
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    // Cache navigation query filter
-    ANavigationData* NavData = NavigationSystem->GetDefaultNavDataInstance(FNavigationSystem::DontCreate);
-    const FSharedConstNavQueryFilter NavFilter = UNavigationQueryFilter::GetQueryFilter(*NavData, this, nullptr);
-
     for (int32 i = 0; i < EnemiesToSpawnNow; ++i)
     {
+        FVector SpawnLocation;
+        FRotator SpawnRotation;
+        
+        if (!GetSpawnTransform(SpawnLocation, SpawnRotation)) continue;
+
         const EVyraEnemyType EnemyType = DetermineEnemyTypeToSpawn();
         if (UEnemyDataAsset* EnemyData = SelectEnemyToSpawn(EnemyType))
         {
             TSubclassOf<AVyraEnemyCharacter> EnemyClass = EnemyData->EnemyClass[FMath::RandRange(0, EnemyData->EnemyClass.Num() - 1)];
-            FNavLocation SpawnLocation;
-
-            // Improved navigation query with proper height checks
-            const bool bFoundLocation = NavigationSystem->GetRandomReachablePointInRadius(
-                SpawnCenter,
-                WaveSpawnRadiusMax,
+            
+            if (AVyraEnemyCharacter* Enemy = GetWorld()->SpawnActor<AVyraEnemyCharacter>(
+                EnemyClass,
                 SpawnLocation,
-                NavData,
-                NavFilter
-            );
-
-            if (bFoundLocation)
+                SpawnRotation,
+                SpawnParams))
             {
-                // Ensure minimum spawn distance
-                const float Distance = FVector::Dist2D(SpawnLocation.Location, SpawnCenter);
-                if (Distance < WaveSpawnRadiusMin)
-                {
-                    const FVector Direction = (SpawnLocation.Location - SpawnCenter).GetSafeNormal2D();
-                    SpawnLocation.Location = SpawnCenter + Direction * WaveSpawnRadiusMin;
-                    
-                    // Project to navigation mesh again after adjustment
-                    NavigationSystem->ProjectPointToNavigation(
-                        SpawnLocation.Location,
-                        SpawnLocation,
-                        FVector(500, 500, 500), // Extent
-                        NavData,
-                        NavFilter
-                    );
-                }
-
-                // Find actual ground position
-                FVector GroundLocation;
-                if (FindGroundPosition(SpawnLocation.Location, GroundLocation))
-                {
-                    const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(GroundLocation, SpawnCenter);
-                    
-                    if (AVyraEnemyCharacter* Enemy = GetWorld()->SpawnActor<AVyraEnemyCharacter>(
-                        EnemyClass,
-                        GroundLocation,
-                        SpawnRotation,
-                        SpawnParams))
-                    {
-                        // Force physics update
-                        Enemy->SetActorEnableCollision(true);
-                        Enemy->GetMesh()->SetSimulatePhysics(false);
-                        Enemy->GetMesh()->SetPhysicsLinearVelocity(FVector::ZeroVector);
-                        
-                        Enemy->OnEnemyKilled.AddDynamic(this, &UVyraWaveManagerComponent::OnEnemyKilled);
-                        SpawnedEnemies.Add(Enemy);
-                        ApplyScalingGameplayEffect(Enemy, Enemy->GetEnemyType());
-                    }
-                }
+                Enemy->SetActorEnableCollision(true);
+                Enemy->GetMesh()->SetSimulatePhysics(false);
+                Enemy->OnEnemyKilled.AddDynamic(this, &UVyraWaveManagerComponent::OnEnemyKilled);
+                SpawnedEnemies.Add(Enemy);
+                ApplyScalingGameplayEffect(Enemy, Enemy->GetEnemyType());
             }
         }
     }
@@ -305,6 +266,70 @@ void UVyraWaveManagerComponent::ApplyScalingGameplayEffect(const AVyraEnemyChara
             ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
         }
     }
+}
+
+void UVyraWaveManagerComponent::CollectSpawnPoints()
+{
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    TArray<AActor*> FoundActors;
+    UGameplayStatics::GetAllActorsOfClass(World, AEnemySpawnPoint::StaticClass(), FoundActors);
+
+    SpawnPoints.Empty();
+    for (AActor* Actor : FoundActors)
+    {
+        if (AEnemySpawnPoint* SpawnPoint = Cast<AEnemySpawnPoint>(Actor))
+        {
+            SpawnPoints.Add(SpawnPoint);
+        }
+    }
+}
+
+bool UVyraWaveManagerComponent::GetSpawnTransform(FVector& OutLocation, FRotator& OutRotation)
+{
+    if (SpawnPoints.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No spawn points found!"));
+        return false;
+    }
+
+    // Select random spawn point
+    const int32 PointIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+    const AEnemySpawnPoint* SpawnPoint = SpawnPoints[PointIndex];
+    const FVector SpawnCenter = SpawnPoint->GetActorLocation();
+
+    // Find valid spawn location
+    FNavLocation NavLocation;
+    const bool bFound = NavigationSystem->GetRandomReachablePointInRadius(
+        SpawnCenter,
+        SpawnPoint->SpawnRadiusMax,
+        NavLocation
+    );
+
+    if (!bFound) return false;
+
+    // Validate minimum distance
+    const float Distance = FVector::Dist2D(NavLocation.Location, SpawnCenter);
+    if (Distance < SpawnPoint->SpawnRadiusMin)
+    {
+        const FVector Direction = (NavLocation.Location - SpawnCenter).GetSafeNormal2D();
+        NavLocation.Location = SpawnCenter + Direction * SpawnPoint->SpawnRadiusMin;
+        NavigationSystem->ProjectPointToNavigation(NavLocation.Location, NavLocation);
+    }
+
+    // Ground check
+    FVector GroundLocation;
+    if (!FindGroundPosition(NavLocation.Location, GroundLocation)) return false;
+
+    // Rotation
+    const AActor* PlayerActor = UGameplayStatics::GetActorOfClass(this, AVyraPlayerStateCharacter::StaticClass());
+    OutRotation = SpawnPoint->bRandomizeRotation ? 
+        FRotator(0, FMath::RandRange(0.f, 360.f), 0) : 
+        UKismetMathLibrary::FindLookAtRotation(GroundLocation, PlayerActor->GetActorLocation());
+
+    OutLocation = GroundLocation;
+    return true;
 }
 
 void UVyraWaveManagerComponent::OnEnemyKilled_Implementation(AVyraEnemyCharacter* Enemy)
