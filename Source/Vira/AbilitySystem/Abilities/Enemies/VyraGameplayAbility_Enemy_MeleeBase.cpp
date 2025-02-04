@@ -18,6 +18,13 @@ void UVyraGameplayAbility_Enemy_MeleeBase::ActivateAbility(const FGameplayAbilit
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		// If the ability cannot be committed, end it here
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 }
 
 void UVyraGameplayAbility_Enemy_MeleeBase::EndAbility(const FGameplayAbilitySpecHandle Handle,

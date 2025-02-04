@@ -45,7 +45,7 @@ public class Vira : ModuleRules
 			"GameplayMessageRuntime",
 			"Niagara",
 			"NavigationSystem",
-			"EngineSettings"
+			"EngineSettings",
 		});
 
 		if (Target.bBuildEditor)
@@ -58,7 +58,6 @@ public class Vira : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"Paper2D",
 			"GameplayTasks",
 			"GameplayTags",
 			"AIModule",
@@ -67,6 +66,7 @@ public class Vira : ModuleRules
 			"DeveloperSettings",
 			"ModularGameplay",
 			"NetCore",// For OSx
+			"HTN",
 		});
 		
 		AddSPUD();
