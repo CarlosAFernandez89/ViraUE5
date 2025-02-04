@@ -67,6 +67,7 @@ public class Vira : ModuleRules
 			"ModularGameplay",
 			"NetCore",// For OSx
 			"HTN",
+			"Blutility",
 		});
 		
 		AddSPUD();
