@@ -72,11 +72,11 @@ void AMeshAttackZone::BeginPlay()
 	Super::BeginPlay();
 
 	ProgressIndicator = ProgressZoneMesh->CreateDynamicMaterialInstance(0, ProgressZoneMesh->GetMaterial(0));
-	ProgressIndicator->SetScalarParameterValue(FName("AreaValue"), 0.f);
+	ProgressIndicator->SetScalarParameterValue(FName("Progress"), 0.f);
 	ProgressIndicator->SetVectorParameterValue(FName("Color"), ZoneColor);
 
 	AreaIndicator = AreaZoneMesh->CreateDynamicMaterialInstance(0, AreaZoneMesh->GetMaterial(0));
-	AreaIndicator->SetScalarParameterValue(FName("CircumferenceArea_01"), 1.f);
+	AreaIndicator->SetScalarParameterValue(FName("Border"), 1.f);
 	AreaIndicator->SetVectorParameterValue(FName("Color"), ZoneColor);
 
 }
