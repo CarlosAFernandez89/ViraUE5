@@ -3,15 +3,12 @@
 
 #include "AttackZone.h"
 
-#include "Components/BoxComponent.h"
 #include "Components/GSCCoreComponent.h"
 
 
 // Sets default values
 AAttackZone::AAttackZone()
 {
-	CollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
-	RootComponent = CollisionComponent;
 }
 
 void AAttackZone::BeginPlay()
@@ -34,6 +31,8 @@ void AAttackZone::ActivateZone()
 {
 	//Set timer to call OnWindUpFinished after the WindUpTime.
 	GetWorldTimerManager().SetTimer(ActivateTimerHandle, this, &AAttackZone::OnWindUpFinished, WindUpTime, false);
+	GetWorldTimerManager().SetTimer(UpdateMaterialTimerHandle, this, &AAttackZone::UpdateMaterial, GetWorld()->DeltaTimeSeconds, true);
+
 }
 
 void AAttackZone::DeactivateZone()
@@ -43,34 +42,48 @@ void AAttackZone::DeactivateZone()
 
 void AAttackZone::OnWindUpFinished()
 {
-	if (OverlapActorClass)
-	{
-		TArray<AActor*> OverlappingActors;
-		CollisionComponent->GetOverlappingActors(OverlappingActors, OverlapActorClass);
-
-		// Broadcast the delegate, passing the array of actors
-		ActorsHitByZone(OverlappingActors);
-	}
-	
+	GetWorldTimerManager().ClearTimer(UpdateMaterialTimerHandle);
 	GetWorldTimerManager().SetTimer(DeactivateTimerHandle, this, &AAttackZone::DeactivateZone, ActiveDuration, false);
-
-
 }
 
+void AAttackZone::UpdateMaterial_Implementation()
+{
+	
+}
+
+float AAttackZone::CalculatePlayRate() const
+{
+	return 1.f / WindUpTime;
+}
 
 AMeshAttackZone::AMeshAttackZone()
 {
-	ZoneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ZoneMesh"));
-	ZoneMesh->SetupAttachment(RootComponent);
-	ZoneMesh->SetCollisionProfileName("OverlapAllDynamic");
+	ProgressZoneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProgressZoneMesh"));
+	ProgressZoneMesh->SetupAttachment(RootComponent);
+	ProgressZoneMesh->SetCollisionProfileName("OverlapAllDynamic");
+
+	AreaZoneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AreaZoneMesh"));
+	AreaZoneMesh->SetupAttachment(ProgressZoneMesh);
+	AreaZoneMesh->SetCollisionProfileName("NoCollision");
+}
+
+void AMeshAttackZone::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ProgressIndicator = ProgressZoneMesh->CreateDynamicMaterialInstance(0, ProgressZoneMesh->GetMaterial(0));
+	ProgressIndicator->SetScalarParameterValue(FName("AreaValue"), 0.f);
+	ProgressIndicator->SetVectorParameterValue(FName("Color"), ZoneColor);
+
+	AreaIndicator = AreaZoneMesh->CreateDynamicMaterialInstance(0, AreaZoneMesh->GetMaterial(0));
+	AreaIndicator->SetScalarParameterValue(FName("CircumferenceArea_01"), 1.f);
+	AreaIndicator->SetVectorParameterValue(FName("Color"), ZoneColor);
+
 }
 
 void AMeshAttackZone::ActivateZone()
 {
 	Super::ActivateZone();
-	
-	// Handle mesh scaling/animation
-	MeshMaterial = ZoneMesh->CreateDynamicMaterialInstance(0);
 }
 
 void AMeshAttackZone::OnWindUpFinished()
@@ -78,8 +91,8 @@ void AMeshAttackZone::OnWindUpFinished()
 	if (OverlapActorClass)
 	{
 		TArray<AActor*> Return;
-		ZoneMesh->GetOverlappingActors(Return, OverlapActorClass);
-		ActorsHitByZone(Return);
+		ProgressZoneMesh->GetOverlappingActors(Return, OverlapActorClass);
+		OnAttackTriggered(Return);
 	}
 
 	GetWorldTimerManager().SetTimer(DeactivateTimerHandle, this, &AAttackZone::DeactivateZone, ActiveDuration, false);

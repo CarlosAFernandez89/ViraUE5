@@ -22,17 +22,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone", meta = (ExposeOnSpawn = true))
 	TSubclassOf<AActor> OverlapActorClass;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone", meta = (ExposeOnSpawn = true))
 	float WindUpTime = 2.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone", meta = (ExposeOnSpawn = true))
 	float ActiveDuration = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone", meta = (ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle GameplayEffectSpecHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack Zone", meta = (ExposeOnSpawn = true))
+	FLinearColor ZoneColor = FColor::Red;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UBoxComponent* CollisionComponent;
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void ActivateZone();
@@ -41,15 +42,24 @@ public:
 	virtual void DeactivateZone();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ActorsHitByZone(const TArray<AActor*>& HitActors);
+	void OnAttackTriggered(const TArray<AActor*>& HitActors);
 
 protected:
 
 	UFUNCTION()
 	virtual void OnWindUpFinished();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void UpdateMaterial();
+	
+	UFUNCTION(BlueprintCallable)
+	float CalculatePlayRate() const;
+
+	FTimerHandle UpdateMaterialTimerHandle;
 	FTimerHandle ActivateTimerHandle;
 	FTimerHandle DeactivateTimerHandle;
+
+private:
 };
 
 UCLASS()
@@ -59,12 +69,20 @@ class VIRA_API AMeshAttackZone : public AAttackZone
 
 public:
 	AMeshAttackZone();
-	
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* ZoneMesh;
 
-	UPROPERTY(VisibleAnywhere)
-	UMaterialInstanceDynamic* MeshMaterial;
+	virtual void BeginPlay() override;
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UStaticMeshComponent* ProgressZoneMesh;
+
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere)
+	UMaterialInstanceDynamic* ProgressIndicator;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UStaticMeshComponent* AreaZoneMesh;
+	
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere)
+	UMaterialInstanceDynamic* AreaIndicator;
 
 	virtual void ActivateZone() override;
 
